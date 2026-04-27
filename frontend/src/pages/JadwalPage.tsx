@@ -2,16 +2,16 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
-import FullCalendar from "@fullcalendar/react";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction";
-
 import { useLapanganListQuery } from "@/features/lapangan/queries";
-import { useKalenderEventsQuery } from "@/features/kalender/queries";
+import { useSlotQuery } from "@/features/slot/queries";
 
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+
+function formatRupiah(n: number) {
+  return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(n);
+}
 
 export function JadwalPage() {
   const navigate = useNavigate();
@@ -25,8 +25,10 @@ export function JadwalPage() {
     return null;
   }, [sp]);
 
+  const initialTanggal = useMemo(() => sp.get("tanggal") ?? "", [sp]);
+
   const [lapanganId, setLapanganId] = useState<number | null>(initialLapanganId);
-  const [range, setRange] = useState<{ start: string; end: string } | null>(null);
+  const [tanggal, setTanggal] = useState<string>(initialTanggal);
 
   useEffect(() => {
     if (lapanganId != null) return;
@@ -34,10 +36,26 @@ export function JadwalPage() {
     if (first) setLapanganId(first);
   }, [lapanganId, lapanganQ.data]);
 
-  const eventsQ = useKalenderEventsQuery({
+  useEffect(() => {
+    // default tanggal: hari ini (Asia/Jakarta not needed on client; use local date)
+    if (tanggal) return;
+    const now = new Date();
+    const yyyy = String(now.getFullYear());
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+    setTanggal(`${yyyy}-${mm}-${dd}`);
+  }, [tanggal]);
+
+  useEffect(() => {
+    if (lapanganId) sp.set("lapanganId", String(lapanganId));
+    if (tanggal) sp.set("tanggal", tanggal);
+    setSp(sp, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lapanganId, tanggal]);
+
+  const slotQ = useSlotQuery({
     lapanganId: lapanganId ?? 0,
-    start: range?.start ?? "",
-    end: range?.end ?? "",
+    tanggal,
   });
 
   useEffect(() => {
@@ -45,8 +63,8 @@ export function JadwalPage() {
   }, [lapanganQ.isError, lapanganQ.error]);
 
   useEffect(() => {
-    if (eventsQ.isError) toast.error((eventsQ.error as any)?.message ?? "Gagal memuat kalender");
-  }, [eventsQ.isError, eventsQ.error]);
+    if (slotQ.isError) toast.error((slotQ.error as any)?.message ?? "Gagal memuat slot");
+  }, [slotQ.isError, slotQ.error]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 space-y-6">
@@ -54,23 +72,15 @@ export function JadwalPage() {
         <div>
           <h1 className="font-lexend text-2xl font-semibold">Jadwal</h1>
           <p className="text-sm text-muted-foreground mt-2">
-            Pilih lapangan, lalu klik slot kosong untuk mulai booking (placeholder).
+            Pilih tanggal untuk melihat jam yang tersedia dan yang sudah dibooking.
           </p>
         </div>
 
-        <div className="w-full sm:w-[320px]">
+        <div className="w-full sm:w-[520px] grid grid-cols-1 sm:grid-cols-2 gap-3">
           {lapanganQ.isLoading ? (
             <Skeleton className="h-10 w-full rounded-lg" />
           ) : (
-            <Select
-              value={lapanganId ? String(lapanganId) : undefined}
-              onValueChange={(v) => {
-                const next = Number(v);
-                setLapanganId(next);
-                sp.set("lapanganId", String(next));
-                setSp(sp, { replace: true });
-              }}
-            >
+            <Select value={lapanganId ? String(lapanganId) : undefined} onValueChange={(v) => setLapanganId(Number(v))}>
               <SelectTrigger>
                 <SelectValue placeholder="Pilih lapangan" />
               </SelectTrigger>
@@ -83,57 +93,60 @@ export function JadwalPage() {
               </SelectContent>
             </Select>
           )}
+
+          <Input type="date" value={tanggal} onChange={(e) => setTanggal(e.target.value)} />
         </div>
       </div>
 
-      <div className="rounded-2xl border bg-card p-2 sm:p-4">
-        {eventsQ.isLoading && !eventsQ.data ? (
-          <div className="p-4">
-            <Skeleton className="h-8 w-40" />
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <Skeleton key={i} className="h-10 rounded-xl" />
+      <div className="rounded-2xl border bg-card p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="font-lexend font-semibold">Jam & Ketersediaan</div>
+          <div className="text-xs text-muted-foreground">
+            Klik jam yang <span className="font-semibold">available</span> untuk lanjut booking.
+          </div>
+        </div>
+
+        <div className="mt-4">
+          {slotQ.isLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <Skeleton key={i} className="h-12 rounded-xl" />
               ))}
             </div>
-          </div>
-        ) : (
-          <div className="relative">
-            {(eventsQ.data?.length ?? 0) === 0 && (
-              <div className="mb-3 rounded-xl border bg-muted/20 px-3 py-2 text-sm text-muted-foreground">
-                Belum ada booking di range ini. Klik tanggal/slot kosong untuk mulai booking (placeholder).
-              </div>
-            )}
-            <FullCalendar
-              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-              initialView="dayGridMonth"
-              headerToolbar={{
-                left: "prev,next today",
-                center: "title",
-                right: "dayGridMonth,timeGridWeek",
-              }}
-              height="auto"
-              events={eventsQ.data ?? []}
-              datesSet={(arg) => {
-                const start = arg.startStr.slice(0, 10);
-                const end = arg.endStr.slice(0, 10);
-                setRange({ start, end });
-              }}
-              eventClick={(arg) => {
-                // prevent event click from being treated like empty-slot navigation
-                arg.jsEvent.preventDefault();
-                const ep = (arg.event.extendedProps ?? {}) as any;
-                const status = ep?.status ? String(ep.status) : "BOOKED";
-                toast.message(`Slot sudah dibooking (${status})`);
-              }}
-              dateClick={(arg) => {
-                if (!lapanganId) return;
-                const tanggal = arg.dateStr.slice(0, 10);
-                const jam = arg.dateStr.includes("T") ? arg.dateStr.slice(11, 16) : "07:00";
-                navigate(`/booking/new?lapanganId=${lapanganId}&tanggal=${tanggal}&jam=${jam}`);
-              }}
-            />
-          </div>
-        )}
+          ) : (slotQ.data?.length ?? 0) === 0 ? (
+            <div className="text-sm text-muted-foreground">Tidak ada slot untuk tanggal ini.</div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {(slotQ.data ?? []).map((s) => {
+                const disabled = !s.tersedia || !lapanganId;
+                return (
+                  <button
+                    key={s.jam}
+                    disabled={disabled}
+                    onClick={() => {
+                      if (!lapanganId) return;
+                      if (!s.tersedia) return;
+                      navigate(`/booking/new?lapanganId=${lapanganId}&tanggal=${tanggal}&jam=${s.jam}`);
+                    }}
+                    className={`text-left rounded-xl border p-3 transition-colors ${
+                      s.tersedia
+                        ? "bg-card hover:bg-muted/30"
+                        : "bg-muted/30 text-muted-foreground cursor-not-allowed"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="font-lexend font-semibold">{s.jam}</div>
+                      <div className={`text-xs font-semibold ${s.tersedia ? "text-primary" : ""}`}>
+                        {s.tersedia ? "available" : "booked"}
+                      </div>
+                    </div>
+                    <div className="text-sm mt-1">{formatRupiah(s.harga)}</div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
