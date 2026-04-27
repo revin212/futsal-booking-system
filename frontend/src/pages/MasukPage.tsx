@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { env } from "@/env";
 import { postGoogleAuth } from "@/api/authApi";
@@ -8,6 +9,8 @@ import { setAccessToken, setStoredUser } from "@/api/authStorage";
 import { Button } from "@/components/ui/button";
 
 export function MasukPage() {
+  const navigate = useNavigate();
+  const [sp] = useSearchParams();
   const clientId = env.googleClientId;
   const clientIdReady = Boolean(clientId && !clientId.includes("CHANGE_ME"));
 
@@ -25,6 +28,12 @@ export function MasukPage() {
         role: res.user.role,
       });
       toast.success(`Selamat datang, ${res.user.namaLengkap}`);
+      const returnTo = sp.get("returnTo");
+      if (returnTo) {
+        navigate(returnTo, { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
     },
     onError: (err: any) => {
       toast.error(err?.message ?? "Login gagal");

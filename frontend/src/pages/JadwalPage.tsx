@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getStoredUser } from "@/api/authStorage";
 
 function formatRupiah(n: number) {
   return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(n);
@@ -18,6 +19,7 @@ function formatRupiah(n: number) {
 export function JadwalPage() {
   const navigate = useNavigate();
   const [sp, setSp] = useSearchParams();
+  const user = getStoredUser();
 
   const lapanganQ = useLapanganListQuery();
 
@@ -167,7 +169,12 @@ export function JadwalPage() {
                     onClick={() => {
                       if (!lapanganId) return;
                       if (!s.tersedia) return;
-                      navigate(`/booking/new?lapanganId=${lapanganId}&tanggal=${tanggal}&jam=${s.jam}`);
+                      const returnTo = `/booking/new?lapanganId=${lapanganId}&tanggal=${tanggal}&jam=${s.jam}`;
+                      if (!user) {
+                        navigate(`/masuk?returnTo=${encodeURIComponent(returnTo)}`);
+                        return;
+                      }
+                      navigate(returnTo);
                     }}
                     className={`text-left rounded-xl border p-3 transition-colors ${
                       s.tersedia

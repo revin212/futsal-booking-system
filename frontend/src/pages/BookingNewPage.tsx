@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
+import { getStoredUser } from "@/api/authStorage";
 import { useLapanganListQuery } from "@/features/lapangan/queries";
 import { useSlotQuery } from "@/features/slot/queries";
 import { useCreateBookingMutation } from "@/features/booking/mutations";
@@ -18,6 +19,7 @@ function formatRupiah(n: number) {
 export function BookingNewPage() {
   const navigate = useNavigate();
   const [sp, setSp] = useSearchParams();
+  const user = getStoredUser();
 
   const lapanganQ = useLapanganListQuery();
 
@@ -38,6 +40,13 @@ export function BookingNewPage() {
   const [durasiJam, setDurasiJam] = useState<number>(1);
 
   useEffect(() => {
+    if (user) return;
+    const returnTo = `/booking/new?${sp.toString()}`;
+    navigate(`/masuk?returnTo=${encodeURIComponent(returnTo)}`, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  useEffect(() => {
     if (lapanganId != null) return;
     const first = lapanganQ.data?.[0]?.id;
     if (first) setLapanganId(first);
@@ -56,7 +65,15 @@ export function BookingNewPage() {
     tanggal,
   });
 
-  const availableSlots = useMemo(() => (slotQ.data ?? []).filter((s) => s.tersedia), [slotQ.data]);
+  const allSlots = useMemo(() => slotQ.data ?? [], [slotQ.data]);
+  const availableSlots = useMemo(() => allSlots.filter((s) => s.tersedia), [allSlots]);
+
+  useEffect(() => {
+    if (!jamMulai) return;
+    const current = allSlots.find((s) => s.jam === jamMulai);
+    if (current && !current.tersedia) setJamMulai("");
+  }, [allSlots, jamMulai]);
+
   const contiguousDurations = useMemo(() => {
     if (!jamMulai) return [1];
     const idx = availableSlots.findIndex((s) => s.jam === jamMulai);
@@ -143,9 +160,9 @@ export function BookingNewPage() {
                   <SelectValue placeholder={tanggal ? "Pilih jam mulai" : "Pilih tanggal dulu"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableSlots.map((s) => (
-                    <SelectItem key={s.jam} value={s.jam}>
-                      {s.jam} • {formatRupiah(s.harga)}
+                  {allSlots.map((s) => (
+                    <SelectItem key={s.jam} value={s.jam} disabled={!s.tersedia}>
+                      {s.jam} • {formatRupiah(s.harga)} {!s.tersedia ? "• booked" : ""}
                     </SelectItem>
                   ))}
                 </SelectContent>
