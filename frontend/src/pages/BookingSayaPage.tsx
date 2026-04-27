@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -7,6 +7,16 @@ import { useBookingSayaQuery } from "@/features/booking/queries";
 import { useBatalkanBookingMutation } from "@/features/booking/mutations";
 
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -28,6 +38,7 @@ export function BookingSayaPage() {
   const user = getStoredUser();
   const q = useBookingSayaQuery();
   const batalMutation = useBatalkanBookingMutation();
+  const [confirmId, setConfirmId] = useState<number | null>(null);
 
   useEffect(() => {
     if (!user) toast.error("Silakan login dulu");
@@ -38,6 +49,7 @@ export function BookingSayaPage() {
   }, [q.isError, q.error]);
 
   const items = useMemo(() => q.data ?? [], [q.data]);
+  const confirmBooking = useMemo(() => items.find((x) => x.id === confirmId) ?? null, [confirmId, items]);
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10 space-y-6">
@@ -122,6 +134,9 @@ export function BookingSayaPage() {
                   <span className="text-muted-foreground">Total</span>
                   <span className="font-lexend font-semibold">{formatRupiah(b.totalHarga)}</span>
                 </div>
+                <div className="mt-2 text-xs text-muted-foreground">
+                  Pembatalan mengikuti aturan sistem (MinJamBatalkan). Jika sudah terlalu dekat dengan jam main, pembatalan ditolak.
+                </div>
               </CardContent>
               <CardFooter className="gap-2">
                 <Button asChild variant="outline" className="rounded-lg" size="sm">
@@ -132,7 +147,7 @@ export function BookingSayaPage() {
                   size="sm"
                   variant="destructive"
                   disabled={b.status === "DIBATALKAN" || batalMutation.isPending}
-                  onClick={() => batalMutation.mutate(b.id)}
+                  onClick={() => setConfirmId(b.id)}
                 >
                   {b.status === "DIBATALKAN" ? "Dibatalkan" : "Batalkan"}
                 </Button>
@@ -141,6 +156,40 @@ export function BookingSayaPage() {
           ))}
         </div>
       )}
+
+      <AlertDialog open={confirmId != null} onOpenChange={(open) => (!open ? setConfirmId(null) : null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Batalkan booking?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmBooking ? (
+                <>
+                  Booking #{confirmBooking.id} pada {formatTanggal(confirmBooking.tanggalMain)}{" "}
+                  {hhmm(confirmBooking.jamMulai)}-{hhmm(confirmBooking.jamSelesai)} akan dibatalkan.
+                </>
+              ) : (
+                "Booking akan dibatalkan."
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-lg" disabled={batalMutation.isPending}>
+              Kembali
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="rounded-lg"
+              disabled={batalMutation.isPending || confirmId == null}
+              onClick={() => {
+                if (confirmId == null) return;
+                batalMutation.mutate(confirmId);
+                setConfirmId(null);
+              }}
+            >
+              {batalMutation.isPending ? "Memproses..." : "Ya, batalkan"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
