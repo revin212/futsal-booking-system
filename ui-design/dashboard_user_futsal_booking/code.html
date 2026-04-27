@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>User Dashboard - FutsalKita</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Lexend:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-dim": "#d2d9f4",
+                      "on-tertiary-fixed": "#3f0016",
+                      "primary-container": "#00873a",
+                      "on-error-container": "#93000a",
+                      "primary-fixed-dim": "#62df7d",
+                      "on-primary-fixed": "#002109",
+                      "surface-container": "#eaedff",
+                      "on-tertiary-container": "#fffbff",
+                      "inverse-on-surface": "#eef0ff",
+                      "surface-container-high": "#e2e7ff",
+                      "tertiary-container": "#c74668",
+                      "on-primary-fixed-variant": "#005320",
+                      "on-primary-container": "#f7fff2",
+                      "on-secondary-container": "#fffbff",
+                      "tertiary": "#a72d51",
+                      "secondary-fixed-dim": "#b7c4ff",
+                      "error": "#ba1a1a",
+                      "background": "#faf8ff",
+                      "on-secondary-fixed": "#001551",
+                      "surface-variant": "#dae2fd",
+                      "surface-tint": "#006e2d",
+                      "on-background": "#131b2e",
+                      "primary-fixed": "#7ffc97",
+                      "outline": "#6e7b6c",
+                      "on-surface": "#131b2e",
+                      "surface-container-low": "#f2f3ff",
+                      "secondary": "#1d4ed8",
+                      "surface-container-highest": "#dae2fd",
+                      "error-container": "#ffdad6",
+                      "inverse-surface": "#283044",
+                      "tertiary-fixed-dim": "#ffb2bf",
+                      "secondary-fixed": "#dce1ff",
+                      "on-error": "#ffffff",
+                      "on-surface-variant": "#3e4a3d",
+                      "tertiary-fixed": "#ffd9de",
+                      "surface-bright": "#faf8ff",
+                      "on-secondary-fixed-variant": "#0039b5",
+                      "inverse-primary": "#62df7d",
+                      "on-primary": "#ffffff",
+                      "primary": "#006b2c",
+                      "surface-container-lowest": "#ffffff",
+                      "outline-variant": "#bdcaba",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary-fixed-variant": "#8a143c",
+                      "secondary-container": "#4069f2",
+                      "surface": "#faf8ff",
+                      "on-tertiary": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "card-gap": "1rem",
+                      "stack-sm": "0.5rem",
+                      "stack-lg": "1.5rem",
+                      "section-gap": "2rem",
+                      "container-padding": "1rem",
+                      "stack-md": "1rem"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "price-tag": [
+                              "Lexend"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "h2": [
+                              "Lexend"
+                      ],
+                      "h3": [
+                              "Lexend"
+                      ],
+                      "h1": [
+                              "Lexend"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "price-tag": [
+                              "20px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "h2": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "h3": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "h1": [
+                              "30px",
+                              {
+                                      "lineHeight": "38px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md docked full-width top-0 sticky z-50 border-b border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+<div class="flex items-center gap-8">
+<a class="text-xl font-bold text-green-600 dark:text-green-500 font-lexend" href="#">FutsalKita</a>
+<div class="hidden md:flex gap-6">
+<a class="text-slate-600 dark:text-slate-400 font-lexend hover:text-green-600 dark:hover:text-green-400 transition-colors active:scale-95 duration-200" href="#">Beranda</a>
+<a class="text-slate-600 dark:text-slate-400 font-lexend hover:text-green-600 dark:hover:text-green-400 transition-colors active:scale-95 duration-200" href="#">Katalog</a>
+<a class="text-slate-600 dark:text-slate-400 font-lexend hover:text-green-600 dark:hover:text-green-400 transition-colors active:scale-95 duration-200" href="#">Jadwal</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-slate-600 hover:text-green-600 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-surface-variant overflow-hidden">
+<img alt="Foto Profil Pengguna" class="w-full h-full object-cover" data-alt="Portrait of a smiling user with short hair against a light background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkfXFQ2dumlA0Tyoxq-4Q99CrazjM6Rdlt4OpcdZ-ES_QjlttYHhA6GKAeEz1lN8nTBu8ohunOOpJbPIs6-7XJgmkjsJVaTRyF4o7a-yWS-VX5DNy5VGvJPFUT9b7JzaVvFuDUUL_kR_jwOMIXvVsQ6CUaHKP3lfvZTtq5kCantyVaKnuqdcx2VR9WVgZ2DeojfetqO7AuJtv7ZB-LcLqYs842K4u2qJwhupGlEStUDuPLxJJVy_EuIH1536JeWLEhX4uC60cBz7jl"/>
+</div>
+</div>
+</div>
+</nav>
+<div class="flex flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-section-gap gap-section-gap">
+<!-- Sidebar Navigation (Desktop) -->
+<aside class="hidden md:flex flex-col w-64 shrink-0 gap-stack-sm">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary-container text-on-primary-container font-label-md text-label-md transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-variant transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">confirmation_number</span>
+                Booking Saya
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-variant transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">person</span>
+                Profil
+            </a>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col gap-section-gap pb-20 md:pb-0">
+<header>
+<h1 class="font-h1 text-h1 text-on-background mb-2">Selamat datang, Budi!</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Berikut adalah ringkasan aktivitas booking lapangan Anda.</p>
+</header>
+<!-- Summary Cards (Bento Grid) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-card-gap">
+<div class="bg-surface p-container-padding rounded-xl shadow-sm border border-outline-variant flex flex-col gap-stack-sm">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md text-on-surface-variant">Booking Aktif</span>
+<div class="bg-primary/10 text-primary p-1.5 rounded-lg">
+<span class="material-symbols-outlined">play_circle</span>
+</div>
+</div>
+<span class="font-h2 text-h2 text-on-surface">1</span>
+<span class="font-body-sm text-body-sm text-primary">Sedang berlangsung</span>
+</div>
+<div class="bg-surface p-container-padding rounded-xl shadow-sm border border-outline-variant flex flex-col gap-stack-sm">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md text-on-surface-variant">Mendatang</span>
+<div class="bg-secondary/10 text-secondary p-1.5 rounded-lg">
+<span class="material-symbols-outlined">event</span>
+</div>
+</div>
+<span class="font-h2 text-h2 text-on-surface">2</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Dalam 7 hari ke depan</span>
+</div>
+<div class="bg-surface p-container-padding rounded-xl shadow-sm border border-outline-variant flex flex-col gap-stack-sm">
+<div class="flex justify-between items-start">
+<span class="font-label-md text-label-md text-on-surface-variant">Total Booking</span>
+<div class="bg-surface-variant text-on-surface-variant p-1.5 rounded-lg">
+<span class="material-symbols-outlined">history</span>
+</div>
+</div>
+<span class="font-h2 text-h2 text-on-surface">14</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Bulan ini</span>
+</div>
+</div>
+<!-- Booking Mendatang & Notifikasi -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-section-gap">
+<!-- Booking Mendatang -->
+<div class="lg:col-span-2 flex flex-col gap-stack-md">
+<div class="flex justify-between items-center">
+<h2 class="font-h3 text-h3 text-on-background">Booking Mendatang</h2>
+<a class="font-label-md text-label-md text-primary hover:underline" href="#">Lihat Semua</a>
+</div>
+<div class="flex flex-col gap-card-gap">
+<!-- Card 1 -->
+<div class="bg-surface p-container-padding rounded-xl shadow-sm border border-outline-variant flex flex-col sm:flex-row gap-stack-md items-start sm:items-center">
+<div class="w-full sm:w-32 h-24 rounded-lg overflow-hidden shrink-0">
+<img alt="Lapangan Futsal" class="w-full h-full object-cover" data-alt="Indoor futsal court with green artificial grass and bright overhead lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfuWCwg7xhw4QaSk_XKmAEord81OFwcJW8ZIIKMn_Puc3ScLjxiNbljx0Q07qhD-T-TAzNSEwaJ2RCpNfXdecDHJj1xjx1qJBuUoPQBx1vtVk_BgZg9CqgIGmUuucxvUvhiF9s_2yLczK7nM1kHqt84BL71bNi0logWcWZy9aaZ_DKMpnqz3HG-FO7hhW6mOjESyn3yxj0IlcYqNwUtRmBAk7Rq592FLubx_7syhDvw7UP_ytVVvU-mUHb69HlD5bwRut2v8zVAJHy"/>
+</div>
+<div class="flex-1 flex flex-col gap-1">
+<div class="flex justify-between items-start">
+<h3 class="font-h3 text-h3 text-on-surface">Lapangan A - Futsal Station</h3>
+<span class="px-2 py-1 bg-secondary-container/20 text-secondary-container rounded-full font-body-sm text-body-sm">Dikonfirmasi</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span> 15 Okt 2023, 19:00 - 21:00
+                                </p>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">location_on</span> Jl. Sudirman No. 123, Jakarta
+                                </p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface p-container-padding rounded-xl shadow-sm border border-outline-variant flex flex-col sm:flex-row gap-stack-md items-start sm:items-center">
+<div class="w-full sm:w-32 h-24 rounded-lg overflow-hidden shrink-0">
+<img alt="Lapangan Futsal" class="w-full h-full object-cover" data-alt="Outdoor futsal court with blue surface and white lines under clear sky" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWZ_fT8HkokCJvPMk9nhY2hGvjNgKBP7-WCP8qe-X_hA25QAE33mhXxHfoOrLzTHw5hKRYG1GoTyBCRm30yEkI7t7gvkSXwps7KjkHlt1WywzKmJPB47doh9IyoyUbOCPCtKb3FItJg4iVugyWDhibSv0rgm-ikgYxg32wW5PhxhbzJK3dDYOkG-h4QFO7iXvGD6dPk-0-w2Q1YoWRUnE01rSSduLBgqvDMuDW_b_jWiuz7RMh8TUFlHS3vqKjZBHYFwu-OLtEqz0l"/>
+</div>
+<div class="flex-1 flex flex-col gap-1">
+<div class="flex justify-between items-start">
+<h3 class="font-h3 text-h3 text-on-surface">Lapangan B - Champion Arena</h3>
+<span class="px-2 py-1 bg-surface-variant text-on-surface-variant rounded-full font-body-sm text-body-sm">Menunggu</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span> 18 Okt 2023, 20:00 - 22:00
+                                </p>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">location_on</span> Jl. Gatot Subroto No. 45, Bandung
+                                </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Notifikasi Terbaru -->
+<div class="flex flex-col gap-stack-md">
+<h2 class="font-h3 text-h3 text-on-background">Notifikasi Terbaru</h2>
+<div class="bg-surface rounded-xl shadow-sm border border-outline-variant flex flex-col divide-y divide-outline-variant">
+<div class="p-container-padding flex gap-3 items-start">
+<div class="bg-primary/10 text-primary p-2 rounded-full shrink-0">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+</div>
+<div class="flex flex-col gap-1">
+<p class="font-body-md text-body-md text-on-surface">Booking berhasil dikonfirmasi untuk Lapangan A - Futsal Station.</p>
+<span class="font-body-sm text-body-sm text-on-surface-variant">2 jam yang lalu</span>
+</div>
+</div>
+<div class="p-container-padding flex gap-3 items-start">
+<div class="bg-surface-variant text-on-surface-variant p-2 rounded-full shrink-0">
+<span class="material-symbols-outlined text-[20px]">local_offer</span>
+</div>
+<div class="flex flex-col gap-1">
+<p class="font-body-md text-body-md text-on-surface">Promo Akhir Pekan! Diskon 20% untuk booking di atas jam 20:00.</p>
+<span class="font-body-sm text-body-sm text-on-surface-variant">1 hari yang lalu</span>
+</div>
+</div>
+<div class="p-container-padding flex gap-3 items-start">
+<div class="bg-error-container text-on-error-container p-2 rounded-full shrink-0">
+<span class="material-symbols-outlined text-[20px]">warning</span>
+</div>
+<div class="flex flex-col gap-1">
+<p class="font-body-md text-body-md text-on-surface">Pengingat: Pembayaran untuk Lapangan B jatuh tempo dalam 2 jam.</p>
+<span class="font-body-sm text-body-sm text-on-surface-variant">2 hari yang lalu</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- BottomNavBar (Mobile) -->
+<nav class="bg-white dark:bg-slate-900 font-lexend text-[10px] font-medium docked full-width bottom-0 rounded-t-2xl border-t border-slate-200 dark:border-slate-800 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-safe h-16 md:hidden">
+<a class="flex flex-col items-center justify-center text-green-600 dark:text-green-500 bg-green-50 dark:bg-green-900/30 rounded-xl px-4 py-1 hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">home</span>
+            Home
+        </a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">search</span>
+            Cari
+        </a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">confirmation_number</span>
+            Pesanan
+        </a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">person</span>
+            Profil
+        </a>
+</nav>
+<!-- Footer -->
+<footer class="bg-slate-50 dark:bg-slate-950 font-lexend text-sm full-width border-t border-slate-200 dark:border-slate-800 mt-auto">
+<div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="flex flex-col gap-4">
+<span class="text-lg font-bold text-slate-900 dark:text-white">FutsalKita</span>
+<p class="text-slate-500 dark:text-slate-400">© 2024 FutsalKita. Booking Lapangan Jadi Mudah.</p>
+</div>
+<div class="flex flex-wrap gap-6 md:justify-end">
+<a class="text-slate-500 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 underline transition-all" href="#">Tentang Kami</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 underline transition-all" href="#">Syarat &amp; Ketentuan</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 underline transition-all" href="#">Bantuan</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 underline transition-all" href="#">Kebijakan Privasi</a>
+</div>
+</div>
+</footer>
+</body></html>

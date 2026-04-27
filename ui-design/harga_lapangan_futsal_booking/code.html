@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Harga Lapangan - FutsalKita</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Lexend:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#d2d9f4",
+                        "on-tertiary-fixed": "#3f0016",
+                        "primary-container": "#00873a",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#62df7d",
+                        "on-primary-fixed": "#002109",
+                        "surface-container": "#eaedff",
+                        "on-tertiary-container": "#fffbff",
+                        "inverse-on-surface": "#eef0ff",
+                        "surface-container-high": "#e2e7ff",
+                        "tertiary-container": "#c74668",
+                        "on-primary-fixed-variant": "#005320",
+                        "on-primary-container": "#f7fff2",
+                        "on-secondary-container": "#fffbff",
+                        "tertiary": "#a72d51",
+                        "secondary-fixed-dim": "#b7c4ff",
+                        "error": "#ba1a1a",
+                        "background": "#faf8ff",
+                        "on-secondary-fixed": "#001551",
+                        "surface-variant": "#dae2fd",
+                        "surface-tint": "#006e2d",
+                        "on-background": "#131b2e",
+                        "primary-fixed": "#7ffc97",
+                        "outline": "#6e7b6c",
+                        "on-surface": "#131b2e",
+                        "surface-container-low": "#f2f3ff",
+                        "secondary": "#1d4ed8",
+                        "surface-container-highest": "#dae2fd",
+                        "error-container": "#ffdad6",
+                        "inverse-surface": "#283044",
+                        "tertiary-fixed-dim": "#ffb2bf",
+                        "secondary-fixed": "#dce1ff",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#3e4a3d",
+                        "tertiary-fixed": "#ffd9de",
+                        "surface-bright": "#faf8ff",
+                        "on-secondary-fixed-variant": "#0039b5",
+                        "inverse-primary": "#62df7d",
+                        "on-primary": "#ffffff",
+                        "primary": "#006b2c",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#bdcaba",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#8a143c",
+                        "secondary-container": "#4069f2",
+                        "surface": "#faf8ff",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "card-gap": "1rem",
+                        "stack-sm": "0.5rem",
+                        "stack-lg": "1.5rem",
+                        "section-gap": "2rem",
+                        "container-padding": "1rem",
+                        "stack-md": "1rem"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "price-tag": ["Lexend"],
+                        "body-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "h2": ["Lexend"],
+                        "h3": ["Lexend"],
+                        "h1": ["Lexend"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "price-tag": ["20px", {"lineHeight": "24px", "fontWeight": "700"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+                        "h2": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "h3": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "h1": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background min-h-screen flex flex-col font-body-md text-body-md text-on-background selection:bg-primary selection:text-on-primary">
+<!-- TopNavBar (Web) -->
+<nav class="hidden md:block bg-white/80 dark:bg-slate-900/80 backdrop-blur-md font-lexend docked full-width top-0 sticky z-50 border-b border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+<div class="text-xl font-bold text-green-600 dark:text-green-500">
+                FutsalKita
+            </div>
+<div class="flex space-x-8">
+<a class="text-slate-600 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 transition-colors active:scale-95 duration-200 py-5" href="#">Beranda</a>
+<a class="text-green-600 dark:text-green-500 font-bold border-b-2 border-green-600 dark:border-green-500 pb-1 hover:text-green-600 dark:hover:text-green-400 transition-colors active:scale-95 duration-200 py-5" href="#">Katalog</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 transition-colors active:scale-95 duration-200 py-5" href="#">Jadwal</a>
+</div>
+<div class="flex items-center space-x-4">
+<button class="text-slate-600 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-weight="fill" style="font-variation-settings: 'FILL' 1;">notifications</span>
+</button>
+<button class="text-green-600 dark:text-green-500 font-medium hover:text-green-600 dark:hover:text-green-400 transition-colors active:scale-95 duration-200">
+                    Masuk
+                </button>
+<img alt="Foto Profil Pengguna" class="w-8 h-8 rounded-full border border-slate-200" data-alt="close-up portrait of a smiling young man wearing a grey t-shirt outdoors with a blurred background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-O8i87kckFAZnSGuCp14AAP5RZWsIQJLEyF7GlNzzVyA6M-vpYkN8qkUnchLvxKVO9BjifSRE0yOdV8cc0tinprEWFvac--tCnLnviM6h0aw42htnveyqYPoBM8HZIZrIl1ukAV1eaN--OR00QQyfE4kH9lnmQqGZ6pCxoQ3lLODSAWJhuMb7snPFWjGTt-JIC2UkjYVTMNE9BHGmZpqUJ7fEK3PRb3yi45t0OeMORKOSCTRslTr2tsB7OiqIhzHN5-5jMLdv-YUi"/>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-section-gap pb-32 md:pb-section-gap">
+<!-- Header Section -->
+<div class="mb-section-gap text-center md:text-left">
+<h1 class="font-h1 text-h1 text-on-background mb-stack-sm">Daftar Harga Lapangan</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Pilih lapangan yang sesuai dengan kebutuhan tim Anda. Harga kompetitif untuk fasilitas terbaik di kelasnya.</p>
+</div>
+<!-- Pricing Comparison Grids -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-card-gap mb-section-gap">
+<!-- Card 1: Vinyl -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm flex flex-col transition-transform hover:-translate-y-1 duration-300">
+<div class="h-48 w-full bg-surface-variant relative">
+<img alt="Lapangan Vinyl" class="w-full h-full object-cover" data-alt="indoor futsal court with bright blue vinyl flooring, white boundary lines, and bright overhead sports lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2c6MpE8ows46nm1uvBBD-ehwnskaVmmjyv5HM3j2AEKaxDh5hTJf8b7zvKKPA_jEUEc06X3gN0cwfSOyHp9DVSkGwdAGBjL9JdQDudcQ5NGXcYAWI_x5z4YGAWRk4SW0SMmuMu2qyfYm5FglD4pxATTNVO3rZF_SAaPnBzSYnlsSUDMYZM0hYLErKLW55ewrcJzN5dhWkkNlRXnxkwpQaXs8vBGbfvgRY2o2sA6QVUURTXktRj64Qd5-b_mxeO3yLVdMZwSkeiH5H"/>
+<div class="absolute top-4 right-4 bg-surface/90 backdrop-blur text-on-surface px-3 py-1 rounded-full font-label-md text-label-md shadow-sm">
+                        Favorit
+                    </div>
+</div>
+<div class="p-container-padding flex-grow flex flex-col">
+<h2 class="font-h2 text-h2 text-on-background mb-stack-sm">Lapangan Vinyl</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-lg">Permukaan standar turnamen internasional, cocok untuk permainan cepat dan meminimalisir cedera.</p>
+<div class="space-y-4 mt-auto">
+<div class="flex justify-between items-center border-b border-surface-variant pb-2">
+<div>
+<div class="font-label-md text-label-md text-on-surface">Weekday</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">06:00 - 16:00</div>
+</div>
+<div class="font-price-tag text-price-tag text-primary">Rp 120.000<span class="font-body-sm text-body-sm text-on-surface-variant font-normal">/jam</span></div>
+</div>
+<div class="flex justify-between items-center border-b border-surface-variant pb-2">
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md text-on-surface">Weekday Malam</span>
+<span class="bg-tertiary-container text-on-tertiary-container text-[10px] uppercase font-bold px-2 py-0.5 rounded-full tracking-wider">Peak Hour</span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">16:00 - 24:00</div>
+</div>
+<div class="font-price-tag text-price-tag text-primary">Rp 150.000<span class="font-body-sm text-body-sm text-on-surface-variant font-normal">/jam</span></div>
+</div>
+<div class="flex justify-between items-center pt-1">
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md text-on-surface">Weekend / Libur</span>
+<span class="bg-secondary-container text-on-secondary-container text-[10px] uppercase font-bold px-2 py-0.5 rounded-full tracking-wider">All Day</span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">06:00 - 24:00</div>
+</div>
+<div class="font-price-tag text-price-tag text-primary">Rp 160.000<span class="font-body-sm text-body-sm text-on-surface-variant font-normal">/jam</span></div>
+</div>
+</div>
+</div>
+<div class="p-container-padding pt-0">
+<button class="w-full bg-primary hover:bg-primary/90 text-on-primary font-label-md text-label-md py-3 rounded-lg transition-colors">
+                        Cek Jadwal
+                    </button>
+</div>
+</div>
+<!-- Card 2: Sintetis -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm flex flex-col transition-transform hover:-translate-y-1 duration-300">
+<div class="h-48 w-full bg-surface-variant relative">
+<img alt="Lapangan Sintetis" class="w-full h-full object-cover" data-alt="outdoor soccer field with artificial green turf, white lines, under a clear blue sky on a sunny day" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA52Y1b0I_C4gv2yN-EU4ie9VttS2gxD1Sth4idp6ZxJZeLhP-OD6WKFuXpxLNc1WqQrTUKLN6yWmI1csnB95Om-_-axESmnbSiTqjES2Rz-9xe7jwSTyjascYNEIUwgw4EWTQwBy9ooZTY89bdinAA9raSds7HjXGV4MaPJl6Ta2FBSpvI_ZFO90kRudv2fEl-afAzh0W1-VxSCKJL4ZtfD2bS3XrPWZ-eJwdVhwgdtM1XRfVkfQE6jTly9tF0htXKBmIj050mnrXs"/>
+</div>
+<div class="p-container-padding flex-grow flex flex-col">
+<h2 class="font-h2 text-h2 text-on-background mb-stack-sm">Rumput Sintetis</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-lg">Sensasi bermain seperti di lapangan rumput asli. Dilengkapi dengan jaring pengaman penuh.</p>
+<div class="space-y-4 mt-auto">
+<div class="flex justify-between items-center border-b border-surface-variant pb-2">
+<div>
+<div class="font-label-md text-label-md text-on-surface">Weekday</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">06:00 - 16:00</div>
+</div>
+<div class="font-price-tag text-price-tag text-primary">Rp 100.000<span class="font-body-sm text-body-sm text-on-surface-variant font-normal">/jam</span></div>
+</div>
+<div class="flex justify-between items-center border-b border-surface-variant pb-2">
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md text-on-surface">Weekday Malam</span>
+<span class="bg-tertiary-container text-on-tertiary-container text-[10px] uppercase font-bold px-2 py-0.5 rounded-full tracking-wider">Peak Hour</span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">16:00 - 24:00</div>
+</div>
+<div class="font-price-tag text-price-tag text-primary">Rp 130.000<span class="font-body-sm text-body-sm text-on-surface-variant font-normal">/jam</span></div>
+</div>
+<div class="flex justify-between items-center pt-1">
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md text-on-surface">Weekend / Libur</span>
+<span class="bg-secondary-container text-on-secondary-container text-[10px] uppercase font-bold px-2 py-0.5 rounded-full tracking-wider">All Day</span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">06:00 - 24:00</div>
+</div>
+<div class="font-price-tag text-price-tag text-primary">Rp 140.000<span class="font-body-sm text-body-sm text-on-surface-variant font-normal">/jam</span></div>
+</div>
+</div>
+</div>
+<div class="p-container-padding pt-0">
+<button class="w-full bg-primary hover:bg-primary/90 text-on-primary font-label-md text-label-md py-3 rounded-lg transition-colors">
+                        Cek Jadwal
+                    </button>
+</div>
+</div>
+<!-- Card 3: Interlock -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm flex flex-col transition-transform hover:-translate-y-1 duration-300 md:col-span-2 lg:col-span-1">
+<div class="h-48 w-full bg-surface-variant relative">
+<img alt="Lapangan Interlock" class="w-full h-full object-cover grayscale-[20%]" data-alt="indoor basketball or futsal court featuring interlocking plastic floor tiles in contrasting colors, well-lit" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1UX6iKYCOh1o4L5SPAtBEjSjVr0CFPgXe61AssEetPBMfH_3BVZSZVYT6x4OOUzH8nkA4Gxq3oMz1zkjjdVFokKqpvPE9679giXG9jA0LP1IOTcrXqGmp-5FyDIT1nskqIjr7gzlonTnsuCI-NWe8swOhSEU3vOBFuHx9PiOJjCKHCXcLdeBtlSudAdEVBREyi2I8gSsc7sT0lvWqm9UPCUP7lsOPaKKESqf2djBjeR-Q16-10Wnb3aL8R5yxv3LE0mMA7cRdqDg8"/>
+</div>
+<div class="p-container-padding flex-grow flex flex-col">
+<h2 class="font-h2 text-h2 text-on-background mb-stack-sm">Lantai Interlock</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-lg">Pilihan ekonomis dengan pantulan bola yang stabil. Cocok untuk latihan santai bersama teman.</p>
+<div class="space-y-4 mt-auto">
+<div class="flex justify-between items-center border-b border-surface-variant pb-2">
+<div>
+<div class="font-label-md text-label-md text-on-surface">Weekday</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">06:00 - 16:00</div>
+</div>
+<div class="font-price-tag text-price-tag text-primary">Rp  80.000<span class="font-body-sm text-body-sm text-on-surface-variant font-normal">/jam</span></div>
+</div>
+<div class="flex justify-between items-center border-b border-surface-variant pb-2">
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md text-on-surface">Weekday Malam</span>
+<span class="bg-tertiary-container text-on-tertiary-container text-[10px] uppercase font-bold px-2 py-0.5 rounded-full tracking-wider">Peak Hour</span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">16:00 - 24:00</div>
+</div>
+<div class="font-price-tag text-price-tag text-primary">Rp 100.000<span class="font-body-sm text-body-sm text-on-surface-variant font-normal">/jam</span></div>
+</div>
+<div class="flex justify-between items-center pt-1">
+<div>
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md text-on-surface">Weekend / Libur</span>
+<span class="bg-secondary-container text-on-secondary-container text-[10px] uppercase font-bold px-2 py-0.5 rounded-full tracking-wider">All Day</span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">06:00 - 24:00</div>
+</div>
+<div class="font-price-tag text-price-tag text-primary">Rp 120.000<span class="font-body-sm text-body-sm text-on-surface-variant font-normal">/jam</span></div>
+</div>
+</div>
+</div>
+<div class="p-container-padding pt-0">
+<button class="w-full bg-primary hover:bg-primary/90 text-on-primary font-label-md text-label-md py-3 rounded-lg transition-colors">
+                        Cek Jadwal
+                    </button>
+</div>
+</div>
+</div>
+<!-- Cancellation Policy Banner -->
+<div class="bg-surface-container-high rounded-xl p-container-padding flex flex-col sm:flex-row gap-stack-md items-start sm:items-center border border-outline-variant shadow-[0_2px_10px_-3px_rgba(0,0,0,0.05)]">
+<div class="bg-surface rounded-full p-2 text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-3xl">info</span>
+</div>
+<div>
+<h3 class="font-h3 text-h3 text-on-background mb-1">Kebijakan Pembatalan &amp; Reschedule</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                    Pembatalan maksimal H-1 sebelum jadwal bermain untuk pengembalian dana 100% (berupa saldo wallet). Reschedule dapat dilakukan maksimal 6 jam sebelum waktu kick-off. Jika melewati batas waktu, pembayaran hangus.
+                </p>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-slate-50 dark:bg-slate-950 full-width border-t border-slate-200 dark:border-slate-800 flat mt-auto hidden md:block">
+<div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+<div>
+<div class="text-lg font-bold text-slate-900 dark:text-white mb-4">FutsalKita</div>
+<p class="font-lexend text-sm text-slate-500 dark:text-slate-400">© 2024 FutsalKita. Booking Lapangan Jadi Mudah.</p>
+</div>
+<div class="flex flex-wrap gap-4 md:justify-end">
+<a class="font-lexend text-sm text-slate-500 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 underline transition-all" href="#">Tentang Kami</a>
+<a class="font-lexend text-sm text-slate-500 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 underline transition-all" href="#">Syarat &amp; Ketentuan</a>
+<a class="font-lexend text-sm text-slate-500 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 underline transition-all" href="#">Bantuan</a>
+<a class="font-lexend text-sm text-slate-500 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 underline transition-all" href="#">Kebijakan Privasi</a>
+</div>
+</div>
+</footer>
+<!-- BottomNavBar (Mobile) -->
+<nav class="bg-white dark:bg-slate-900 docked full-width bottom-0 rounded-t-2xl border-t border-slate-200 dark:border-slate-800 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-safe h-16 md:hidden">
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-90 transition-transform font-lexend text-[10px] font-medium w-full h-full rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+            Home
+        </a>
+<!-- Active Tab -->
+<a class="flex flex-col items-center justify-center text-green-600 dark:text-green-500 bg-green-50 dark:bg-green-900/30 rounded-xl px-4 py-1 hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-90 transition-transform font-lexend text-[10px] font-medium h-12 my-auto" href="#">
+<span class="material-symbols-outlined mb-1">search</span>
+            Cari
+        </a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-90 transition-transform font-lexend text-[10px] font-medium w-full h-full rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1">confirmation_number</span>
+            Pesanan
+        </a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-90 transition-transform font-lexend text-[10px] font-medium w-full h-full rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+            Profil
+        </a>
+</nav>
+</body></html>

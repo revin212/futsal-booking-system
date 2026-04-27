@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Upload Bukti Pembayaran - FutsalKita</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Lexend:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-dim": "#d2d9f4",
+                      "on-tertiary-fixed": "#3f0016",
+                      "primary-container": "#00873a",
+                      "on-error-container": "#93000a",
+                      "primary-fixed-dim": "#62df7d",
+                      "on-primary-fixed": "#002109",
+                      "surface-container": "#eaedff",
+                      "on-tertiary-container": "#fffbff",
+                      "inverse-on-surface": "#eef0ff",
+                      "surface-container-high": "#e2e7ff",
+                      "tertiary-container": "#c74668",
+                      "on-primary-fixed-variant": "#005320",
+                      "on-primary-container": "#f7fff2",
+                      "on-secondary-container": "#fffbff",
+                      "tertiary": "#a72d51",
+                      "secondary-fixed-dim": "#b7c4ff",
+                      "error": "#ba1a1a",
+                      "background": "#faf8ff",
+                      "on-secondary-fixed": "#001551",
+                      "surface-variant": "#dae2fd",
+                      "surface-tint": "#006e2d",
+                      "on-background": "#131b2e",
+                      "primary-fixed": "#7ffc97",
+                      "outline": "#6e7b6c",
+                      "on-surface": "#131b2e",
+                      "surface-container-low": "#f2f3ff",
+                      "secondary": "#1d4ed8",
+                      "surface-container-highest": "#dae2fd",
+                      "error-container": "#ffdad6",
+                      "inverse-surface": "#283044",
+                      "tertiary-fixed-dim": "#ffb2bf",
+                      "secondary-fixed": "#dce1ff",
+                      "on-error": "#ffffff",
+                      "on-surface-variant": "#3e4a3d",
+                      "tertiary-fixed": "#ffd9de",
+                      "surface-bright": "#faf8ff",
+                      "on-secondary-fixed-variant": "#0039b5",
+                      "inverse-primary": "#62df7d",
+                      "on-primary": "#ffffff",
+                      "primary": "#006b2c",
+                      "surface-container-lowest": "#ffffff",
+                      "outline-variant": "#bdcaba",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary-fixed-variant": "#8a143c",
+                      "secondary-container": "#4069f2",
+                      "surface": "#faf8ff",
+                      "on-tertiary": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "card-gap": "1rem",
+                      "stack-sm": "0.5rem",
+                      "stack-lg": "1.5rem",
+                      "section-gap": "2rem",
+                      "container-padding": "1rem",
+                      "stack-md": "1rem"
+              },
+              "fontFamily": {
+                      "body-lg": ["Inter"],
+                      "price-tag": ["Lexend"],
+                      "body-sm": ["Inter"],
+                      "label-md": ["Inter"],
+                      "h2": ["Lexend"],
+                      "h3": ["Lexend"],
+                      "h1": ["Lexend"],
+                      "body-md": ["Inter"]
+              },
+              "fontSize": {
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "price-tag": ["20px", {"lineHeight": "24px", "fontWeight": "700"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+                      "h2": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "h3": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "h1": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen antialiased flex flex-col">
+<!-- Minimal Header for Transactional Flow -->
+<header class="bg-surface-container-lowest border-b border-surface-container sticky top-0 z-50">
+<div class="max-w-3xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-4">
+<button aria-label="Kembali" class="p-2 -ml-2 rounded-full hover:bg-surface-container-highest transition-colors text-on-surface">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-h3 text-h3 text-on-surface">Pembayaran</h1>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-3xl mx-auto px-4 sm:px-6 py-section-gap flex flex-col gap-section-gap">
+<!-- Status & Intro -->
+<section class="flex flex-col gap-stack-sm text-center items-center">
+<div class="inline-flex items-center gap-2 bg-surface-variant text-on-surface-variant px-4 py-2 rounded-full mb-2">
+<span class="material-symbols-outlined text-[18px]">pending_actions</span>
+<span class="font-label-md text-label-md">Menunggu Verifikasi</span>
+</div>
+<h2 class="font-h2 text-h2 text-on-background">Upload Bukti Transfer</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-md">
+                Selesaikan pembayaran Anda dan unggah bukti transfer di bawah ini untuk mengamankan jadwal lapangan.
+            </p>
+</section>
+<!-- Booking Info Card -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+<div class="p-5 border-b border-surface-container bg-surface flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined icon-fill">sports_soccer</span>
+</div>
+<div>
+<h3 class="font-label-md text-label-md text-on-surface">Lapangan Futsal Sintetis A</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">FutsalKita Arena, Jakarta Selatan</p>
+</div>
+</div>
+<div class="p-5 flex flex-col gap-stack-md">
+<div class="flex justify-between items-center py-2 border-b border-surface-container border-dashed">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">calendar_month</span>
+<span class="font-body-sm text-body-sm">Jadwal Main</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface text-right">Sab, 24 Nov 2023<br/>19:00 - 21:00 WIB</span>
+</div>
+<div class="flex justify-between items-center py-2 border-b border-surface-container border-dashed">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span>
+<span class="font-body-sm text-body-sm">Nomor Pesanan</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">#FK-20231124-001</span>
+</div>
+<div class="flex justify-between items-center pt-2">
+<span class="font-body-md text-body-md text-on-surface-variant">Total Bayar</span>
+<span class="font-price-tag text-price-tag text-primary">Rp 250.000</span>
+</div>
+</div>
+</section>
+<!-- Upload Area -->
+<section class="flex flex-col gap-stack-sm">
+<h3 class="font-h3 text-h3 text-on-surface">File Bukti Pembayaran</h3>
+<!-- Drag & Drop Zone -->
+<div class="relative group cursor-pointer border-2 border-dashed border-outline hover:border-primary transition-colors rounded-xl bg-surface-container-lowest p-8 flex flex-col items-center justify-center text-center min-h-[200px]">
+<div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant group-hover:bg-primary-container group-hover:text-on-primary-container transition-colors mb-4">
+<span class="material-symbols-outlined text-3xl">cloud_upload</span>
+</div>
+<p class="font-label-md text-label-md text-on-surface mb-1">Klik atau drag file ke sini</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">(JPG, PNG, atau PDF. Maksimal 5MB)</p>
+<!-- Hidden File Input for semantic HTML -->
+<input accept=".jpg,.jpeg,.png,.pdf" aria-label="Upload file bukti pembayaran" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" type="file"/>
+</div>
+<!-- Preview Placeholder (Simulating an uploaded state to show the UI requirement) -->
+<div class="mt-4 bg-surface-container-lowest border border-outline-variant rounded-lg p-3 flex items-center justify-between shadow-sm hidden">
+<!-- Change 'hidden' to 'flex' to view the active preview state -->
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-surface-variant rounded flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-on-surface-variant">image</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface truncate max-w-[200px]">bukti_transfer_bca.jpg</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">1.2 MB</span>
+</div>
+</div>
+<button aria-label="Hapus file" class="p-2 text-error hover:bg-error-container hover:text-on-error-container rounded-full transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</section>
+<!-- Fixed Bottom CTA for Mobile / Standard Flow for Desktop -->
+<section class="mt-auto pt-8 pb-4">
+<button class="w-full bg-primary hover:bg-surface-tint text-on-primary font-label-md text-label-md py-4 rounded-xl shadow-sm transition-all flex items-center justify-center gap-2">
+<span>Kirim Bukti Pembayaran</span>
+<span class="material-symbols-outlined text-[20px]">send</span>
+</button>
+</section>
+</main>
+</body></html>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Katalog Lapangan - FutsalKita</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Lexend:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-dim": "#d2d9f4",
+                        "on-tertiary-fixed": "#3f0016",
+                        "primary-container": "#00873a",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#62df7d",
+                        "on-primary-fixed": "#002109",
+                        "surface-container": "#eaedff",
+                        "on-tertiary-container": "#fffbff",
+                        "inverse-on-surface": "#eef0ff",
+                        "surface-container-high": "#e2e7ff",
+                        "tertiary-container": "#c74668",
+                        "on-primary-fixed-variant": "#005320",
+                        "on-primary-container": "#f7fff2",
+                        "on-secondary-container": "#fffbff",
+                        "tertiary": "#a72d51",
+                        "secondary-fixed-dim": "#b7c4ff",
+                        "error": "#ba1a1a",
+                        "background": "#faf8ff",
+                        "on-secondary-fixed": "#001551",
+                        "surface-variant": "#dae2fd",
+                        "surface-tint": "#006e2d",
+                        "on-background": "#131b2e",
+                        "primary-fixed": "#7ffc97",
+                        "outline": "#6e7b6c",
+                        "on-surface": "#131b2e",
+                        "surface-container-low": "#f2f3ff",
+                        "secondary": "#1d4ed8",
+                        "surface-container-highest": "#dae2fd",
+                        "error-container": "#ffdad6",
+                        "inverse-surface": "#283044",
+                        "tertiary-fixed-dim": "#ffb2bf",
+                        "secondary-fixed": "#dce1ff",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#3e4a3d",
+                        "tertiary-fixed": "#ffd9de",
+                        "surface-bright": "#faf8ff",
+                        "on-secondary-fixed-variant": "#0039b5",
+                        "inverse-primary": "#62df7d",
+                        "on-primary": "#ffffff",
+                        "primary": "#006b2c",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#bdcaba",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#8a143c",
+                        "secondary-container": "#4069f2",
+                        "surface": "#faf8ff",
+                        "on-tertiary": "#ffffff"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "card-gap": "1rem",
+                        "stack-sm": "0.5rem",
+                        "stack-lg": "1.5rem",
+                        "section-gap": "2rem",
+                        "container-padding": "1rem",
+                        "stack-md": "1rem"
+                    },
+                    fontFamily: {
+                        "body-lg": ["Inter"],
+                        "price-tag": ["Lexend"],
+                        "body-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "h2": ["Lexend"],
+                        "h3": ["Lexend"],
+                        "h1": ["Lexend"],
+                        "body-md": ["Inter"]
+                    },
+                    fontSize: {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "price-tag": ["20px", {"lineHeight": "24px", "fontWeight": "700"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+                        "h2": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "h3": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "h1": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md w-full sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800 shadow-sm hidden md:block">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+<div class="text-xl font-bold text-green-600 dark:text-green-500 font-lexend">
+                FutsalKita
+            </div>
+<nav class="flex gap-8">
+<a class="text-slate-600 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 transition-colors font-lexend active:scale-95 duration-200" href="#">Beranda</a>
+<a class="text-green-600 dark:text-green-500 font-bold border-b-2 border-green-600 dark:border-green-500 pb-1 hover:text-green-600 dark:hover:text-green-400 transition-colors font-lexend active:scale-95 duration-200" href="#">Katalog</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 transition-colors font-lexend active:scale-95 duration-200" href="#">Jadwal</a>
+</nav>
+<div class="flex items-center gap-4">
+<button aria-label="Notifications" class="text-slate-600 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-surface-tint transition-colors active:scale-95 duration-200">
+                    Masuk
+                </button>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-7xl mx-auto px-container-padding sm:px-6 lg:px-8 py-section-gap flex flex-col md:flex-row gap-8 pb-32 md:pb-section-gap">
+<!-- Sidebar Filters -->
+<aside class="w-full md:w-64 flex-shrink-0 space-y-stack-lg sticky top-24 h-fit">
+<div class="bg-surface rounded-xl border border-outline-variant p-4 shadow-sm">
+<h2 class="font-h3 text-h3 text-on-surface mb-stack-md flex items-center gap-2">
+<span class="material-symbols-outlined">tune</span> Filter
+                </h2>
+<div class="space-y-stack-sm mb-stack-lg">
+<h3 class="font-label-md text-label-md text-on-surface">Tipe Lapangan</h3>
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="rounded text-primary focus:ring-primary border-outline-variant" type="checkbox"/>
+<span class="font-body-md text-body-md text-on-surface-variant">Sintetis</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input checked="" class="rounded text-primary focus:ring-primary border-outline-variant" type="checkbox"/>
+<span class="font-body-md text-body-md text-on-surface-variant">Vinil</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="rounded text-primary focus:ring-primary border-outline-variant" type="checkbox"/>
+<span class="font-body-md text-body-md text-on-surface-variant">Semen</span>
+</label>
+</div>
+<div class="space-y-stack-sm mb-stack-lg">
+<h3 class="font-label-md text-label-md text-on-surface">Range Harga</h3>
+<label class="flex items-center gap-2 cursor-pointer">
+<input checked="" class="text-primary focus:ring-primary border-outline-variant" name="price" type="radio"/>
+<span class="font-body-md text-body-md text-on-surface-variant">Semua Harga</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="text-primary focus:ring-primary border-outline-variant" name="price" type="radio"/>
+<span class="font-body-md text-body-md text-on-surface-variant">&lt; Rp 100k/jam</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="text-primary focus:ring-primary border-outline-variant" name="price" type="radio"/>
+<span class="font-body-md text-body-md text-on-surface-variant">Rp 100k - 200k/jam</span>
+</label>
+</div>
+<div class="space-y-stack-sm">
+<h3 class="font-label-md text-label-md text-on-surface">Rating Minimum</h3>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined">star</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant ml-2">&amp; Ke Atas</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Catalog Grid -->
+<section class="flex-1">
+<div class="flex justify-between items-center mb-stack-md">
+<h1 class="font-h2 text-h2 text-on-surface">Daftar Lapangan</h1>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Menampilkan 24 hasil</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-card-gap">
+<!-- Card 1 -->
+<article class="bg-surface rounded-xl border border-outline-variant shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
+<div class="aspect-video relative bg-surface-container overflow-hidden">
+<img alt="Lapangan Vinil Premium" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="indoor futsal court with bright blue vinyl flooring, bright overhead stadium lighting, clean professional sports environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWsoW8xe4aQHCEuyfm-3GJlEK0jiDfholCE50BTYp5wKTrnfvclcBW8Xu8Tl51J_iRKxC8VdGteq4AHry3k8drlulUIZxitskpjPix4zVJ-LZJczhyI0RO3uRIhqkOnAaWCJg7747m4_oOF-xAcYV0ZBCdTNeZXvlfDtkMwR6zrg29F3UC55AGBoQyLrjrfInxHo3k4o8Tg33QfhV7YdunYmj2H8wIINOtvhu-gmon1jUZV9uKliuDe9Bnf4W1Ydbb3vYc1c8q5i_P"/>
+<div class="absolute top-2 right-2 bg-primary-container text-on-primary-container font-label-md text-label-md px-2 py-1 rounded text-[12px]">
+                            Tersedia
+                        </div>
+</div>
+<div class="p-4 flex flex-col flex-grow">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-h3 text-h3 text-on-surface leading-tight">Arena Biru Futsal</h3>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md">4.8</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md">Vinil • Indoor</p>
+<div class="mt-auto flex items-end justify-between">
+<div>
+<span class="font-body-sm text-body-sm text-on-surface-variant block">Mulai dari</span>
+<span class="font-price-tag text-price-tag text-primary">Rp 120.000</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">/jam</span>
+</div>
+</div>
+<button class="mt-stack-md w-full bg-primary text-on-primary font-label-md text-label-md py-2 rounded-lg hover:bg-surface-tint transition-colors active:scale-95 duration-200">
+                            Pesan Sekarang
+                        </button>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="bg-surface rounded-xl border border-outline-variant shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
+<div class="aspect-video relative bg-surface-container overflow-hidden">
+<img alt="Lapangan Sintetis Outdoor" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="outdoor futsal court with artificial green turf grass, metal cage fencing, daytime sunlight casting sharp shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfBYO4gvfk_RiiVN5qkk6XL2snS2vBcwzudBAyX80pdViQ32d5IoqrzhQl9S5D5JMGIVaz511mjixFZBaH48JSKfb82uLiGdQEBSZ4XpjqLC6b8n_3rWWEPCA6eZ5rR3OeTxTh5gG_0igCEzVDVQF1AuW4gkZ9eSElVE8Pv73dzQhDnRG0bT-KWq1b54zXSlwdhzVlUcYSTmPh8l7QJzSaMCCgGlh43fXXOrQz8ZElXYyOevxMdxnL0lLxaThmZ-JzOX-H0thh9vZH"/>
+<div class="absolute top-2 right-2 bg-error text-on-error font-label-md text-label-md px-2 py-1 rounded text-[12px]">
+                            Penuh
+                        </div>
+</div>
+<div class="p-4 flex flex-col flex-grow">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-h3 text-h3 text-on-surface leading-tight">Rumput Hijau FC</h3>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md">4.5</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md">Sintetis • Outdoor</p>
+<div class="mt-auto flex items-end justify-between">
+<div>
+<span class="font-body-sm text-body-sm text-on-surface-variant block">Mulai dari</span>
+<span class="font-price-tag text-price-tag text-primary">Rp 150.000</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">/jam</span>
+</div>
+</div>
+<button class="mt-stack-md w-full border border-primary text-primary font-label-md text-label-md py-2 rounded-lg hover:bg-primary-container hover:text-on-primary-container transition-colors active:scale-95 duration-200">
+                            Cek Jadwal
+                        </button>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="bg-surface rounded-xl border border-outline-variant shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
+<div class="aspect-video relative bg-surface-container overflow-hidden">
+<img alt="Lapangan Semen Sederhana" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="indoor sports court with smooth painted concrete floor, bright red lines, natural light pouring through high windows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCETlVQb921OQTYjFTmwwpQu4CcdYbVxRs085qrmsgAiUw0pgwNJ2dh4xPMr_0p2ClfReHFE42eOkVg17f7vjqMzmg53QMkehI0_ZpJvyk5ZWWM8ewec95OhNEZ7MnSr9gwor0G1FaOvIFg__LLjmlrycLFH9m5wCGNK5J5Zz-LYqK3aUgHWT-cmx8h9xYzeuWeqarmpFHd0LLoo8Wg_8mUZX93mPNFlzvAvaMRkPpcOL91SYBsqz8KXqjJlL-fClJgaiJM3J_fD2Sf"/>
+<div class="absolute top-2 right-2 bg-primary-container text-on-primary-container font-label-md text-label-md px-2 py-1 rounded text-[12px]">
+                            Tersedia
+                        </div>
+</div>
+<div class="p-4 flex flex-col flex-grow">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-h3 text-h3 text-on-surface leading-tight">Gor Merdeka Raya</h3>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md">4.2</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md">Semen • Indoor</p>
+<div class="mt-auto flex items-end justify-between">
+<div>
+<span class="font-body-sm text-body-sm text-on-surface-variant block">Mulai dari</span>
+<span class="font-price-tag text-price-tag text-primary">Rp 80.000</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">/jam</span>
+</div>
+</div>
+<button class="mt-stack-md w-full bg-primary text-on-primary font-label-md text-label-md py-2 rounded-lg hover:bg-surface-tint transition-colors active:scale-95 duration-200">
+                            Pesan Sekarang
+                        </button>
+</div>
+</article>
+<!-- Add more cards as needed to show grid, duplicating 1 for visual fill -->
+<article class="bg-surface rounded-xl border border-outline-variant shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow hidden lg:flex">
+<div class="aspect-video relative bg-surface-container overflow-hidden">
+<img alt="Lapangan Vinil Premium 2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="indoor futsal court with bright blue vinyl flooring, bright overhead stadium lighting, clean professional sports environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDL_sCEvvmpnbzg3aWYnUFx4EpIOsCLaT4mwQIyD5M3MoA7mWSexQ8ZcLA7GMFn5oC7fNh8Rcc4Za5O7gheBMjHFb5Vo5Uu_IqONCAUg1bculeX3E0KANP0wsLF9YXYvseLEMixTKP24iv9vEgQHeq9XQrj8D5XIiiNxQw54htu8BvAkKCKlcvXHu7VFg9cUrt20Djvnc-1ITIEx4yknSYDjf2p8TKQ2tYaeUXduZjbZx41JN9UxcBjLglisEqDhfVy0nijd-UsSIe6"/>
+<div class="absolute top-2 right-2 bg-primary-container text-on-primary-container font-label-md text-label-md px-2 py-1 rounded text-[12px]">
+                            Tersedia
+                        </div>
+</div>
+<div class="p-4 flex flex-col flex-grow">
+<div class="flex justify-between items-start mb-1">
+<h3 class="font-h3 text-h3 text-on-surface leading-tight">Pro Futsal Center</h3>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md">4.9</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md">Vinil • Indoor</p>
+<div class="mt-auto flex items-end justify-between">
+<div>
+<span class="font-body-sm text-body-sm text-on-surface-variant block">Mulai dari</span>
+<span class="font-price-tag text-price-tag text-primary">Rp 180.000</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">/jam</span>
+</div>
+</div>
+<button class="mt-stack-md w-full bg-primary text-on-primary font-label-md text-label-md py-2 rounded-lg hover:bg-surface-tint transition-colors active:scale-95 duration-200">
+                            Pesan Sekarang
+                        </button>
+</div>
+</article>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 w-full mt-auto hidden md:block">
+<div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+<div>
+<div class="text-lg font-bold text-slate-900 dark:text-white font-lexend mb-4">
+                    FutsalKita
+                </div>
+<p class="font-body-sm text-body-sm text-slate-500 dark:text-slate-400">
+                    © 2024 FutsalKita. Booking Lapangan Jadi Mudah.
+                </p>
+</div>
+<div class="flex flex-col md:flex-row gap-4 md:gap-8 md:justify-end font-lexend text-sm">
+<a class="text-slate-500 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 underline transition-all" href="#">Tentang Kami</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 underline transition-all" href="#">Syarat &amp; Ketentuan</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 underline transition-all" href="#">Bantuan</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 underline transition-all" href="#">Kebijakan Privasi</a>
+</div>
+</div>
+</footer>
+<!-- BottomNavBar -->
+<nav class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] w-full rounded-t-2xl fixed bottom-0 left-0 z-50 flex justify-around items-center px-2 pb-safe h-16 md:hidden">
+<button class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 font-lexend text-[10px] font-medium hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-90 transition-transform w-full h-full rounded-xl">
+<span class="material-symbols-outlined mb-1">home</span>
+            Home
+        </button>
+<button class="flex flex-col items-center justify-center text-green-600 dark:text-green-500 bg-green-50 dark:bg-green-900/30 rounded-xl px-4 py-1 font-lexend text-[10px] font-medium hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-90 transition-transform w-full h-full">
+<span class="material-symbols-outlined mb-1">search</span>
+            Cari
+        </button>
+<button class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 font-lexend text-[10px] font-medium hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-90 transition-transform w-full h-full rounded-xl">
+<span class="material-symbols-outlined mb-1">confirmation_number</span>
+            Pesanan
+        </button>
+<button class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 font-lexend text-[10px] font-medium hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-90 transition-transform w-full h-full rounded-xl">
+<span class="material-symbols-outlined mb-1">person</span>
+            Profil
+        </button>
+</nav>
+</body></html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Booking Wizard - FutsalKita</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Lexend:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#d2d9f4",
+                        "on-tertiary-fixed": "#3f0016",
+                        "primary-container": "#00873a",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#62df7d",
+                        "on-primary-fixed": "#002109",
+                        "surface-container": "#eaedff",
+                        "on-tertiary-container": "#fffbff",
+                        "inverse-on-surface": "#eef0ff",
+                        "surface-container-high": "#e2e7ff",
+                        "tertiary-container": "#c74668",
+                        "on-primary-fixed-variant": "#005320",
+                        "on-primary-container": "#f7fff2",
+                        "on-secondary-container": "#fffbff",
+                        "tertiary": "#a72d51",
+                        "secondary-fixed-dim": "#b7c4ff",
+                        "error": "#ba1a1a",
+                        "background": "#faf8ff",
+                        "on-secondary-fixed": "#001551",
+                        "surface-variant": "#dae2fd",
+                        "surface-tint": "#006e2d",
+                        "on-background": "#131b2e",
+                        "primary-fixed": "#7ffc97",
+                        "outline": "#6e7b6c",
+                        "on-surface": "#131b2e",
+                        "surface-container-low": "#f2f3ff",
+                        "secondary": "#1d4ed8",
+                        "surface-container-highest": "#dae2fd",
+                        "error-container": "#ffdad6",
+                        "inverse-surface": "#283044",
+                        "tertiary-fixed-dim": "#ffb2bf",
+                        "secondary-fixed": "#dce1ff",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#3e4a3d",
+                        "tertiary-fixed": "#ffd9de",
+                        "surface-bright": "#faf8ff",
+                        "on-secondary-fixed-variant": "#0039b5",
+                        "inverse-primary": "#62df7d",
+                        "on-primary": "#ffffff",
+                        "primary": "#006b2c",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#bdcaba",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#8a143c",
+                        "secondary-container": "#4069f2",
+                        "surface": "#faf8ff",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "card-gap": "1rem",
+                        "stack-sm": "0.5rem",
+                        "stack-lg": "1.5rem",
+                        "section-gap": "2rem",
+                        "container-padding": "1rem",
+                        "stack-md": "1rem"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "price-tag": ["Lexend"],
+                        "body-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "h2": ["Lexend"],
+                        "h3": ["Lexend"],
+                        "h1": ["Lexend"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "price-tag": ["20px", {"lineHeight": "24px", "fontWeight": "700"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+                        "h2": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "h3": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "h1": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md">
+<!-- Top Navigation (Suppressed for transactional flow, keeping minimal header) -->
+<header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md docked full-width top-0 sticky z-50 border-b border-slate-200 shadow-sm h-16 flex items-center">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex justify-between items-center">
+<a class="text-xl font-bold text-green-600 font-lexend flex items-center gap-2" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">sports_soccer</span>
+                FutsalKita
+            </a>
+<div class="font-label-md text-label-md text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">lock</span>
+                Pembayaran Aman
+            </div>
+</div>
+</header>
+<main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-section-gap flex flex-col lg:flex-row gap-section-gap relative">
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col gap-section-gap">
+<!-- Progress Bar -->
+<div class="w-full flex flex-col gap-stack-sm">
+<div class="flex justify-between items-center font-label-md text-label-md text-on-surface-variant">
+<span>Langkah 2 dari 5</span>
+<span>Pilih Waktu &amp; Data</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full transition-all duration-500" style="width: 40%;"></div>
+</div>
+</div>
+<div class="bg-surface rounded-xl border border-outline-variant shadow-sm overflow-hidden flex flex-col">
+<div class="p-container-padding border-b border-outline-variant bg-surface-container-lowest">
+<h2 class="font-h2 text-h2 text-on-surface">Pilih Tanggal &amp; Jam</h2>
+</div>
+<div class="p-container-padding flex flex-col gap-stack-md bg-surface-container-lowest">
+<!-- Date Picker (Simplified) -->
+<div class="flex gap-2 overflow-x-auto pb-2 -mx-2 px-2 scrollbar-hide">
+<!-- Date Item 1 (Active) -->
+<button class="flex flex-col items-center justify-center min-w-[72px] p-2 rounded-lg border-2 border-primary bg-primary-container text-on-primary-container shrink-0 transition-colors">
+<span class="font-body-sm text-body-sm uppercase">Min</span>
+<span class="font-h3 text-h3">12</span>
+<span class="font-body-sm text-body-sm">Nov</span>
+</button>
+<!-- Date Item 2 -->
+<button class="flex flex-col items-center justify-center min-w-[72px] p-2 rounded-lg border border-outline-variant bg-surface hover:bg-surface-variant text-on-surface shrink-0 transition-colors">
+<span class="font-body-sm text-body-sm uppercase">Sen</span>
+<span class="font-h3 text-h3">13</span>
+<span class="font-body-sm text-body-sm">Nov</span>
+</button>
+<!-- Date Item 3 -->
+<button class="flex flex-col items-center justify-center min-w-[72px] p-2 rounded-lg border border-outline-variant bg-surface hover:bg-surface-variant text-on-surface shrink-0 transition-colors">
+<span class="font-body-sm text-body-sm uppercase">Sel</span>
+<span class="font-h3 text-h3">14</span>
+<span class="font-body-sm text-body-sm">Nov</span>
+</button>
+<!-- Date Item 4 -->
+<button class="flex flex-col items-center justify-center min-w-[72px] p-2 rounded-lg border border-outline-variant bg-surface hover:bg-surface-variant text-on-surface shrink-0 transition-colors">
+<span class="font-body-sm text-body-sm uppercase">Rab</span>
+<span class="font-h3 text-h3">15</span>
+<span class="font-body-sm text-body-sm">Nov</span>
+</button>
+<button class="flex flex-col items-center justify-center min-w-[72px] p-2 rounded-lg border border-outline-variant bg-surface hover:bg-surface-variant text-on-surface shrink-0 transition-colors">
+<span class="font-body-sm text-body-sm uppercase">Kam</span>
+<span class="font-h3 text-h3">16</span>
+<span class="font-body-sm text-body-sm">Nov</span>
+</button>
+</div>
+<!-- Time Slots -->
+<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-card-gap mt-stack-sm">
+<!-- Slot Available -->
+<button class="py-2 px-1 rounded-md border border-outline-variant bg-surface hover:border-primary hover:text-primary font-label-md text-label-md text-on-surface transition-colors">
+                            08:00
+                        </button>
+<button class="py-2 px-1 rounded-md border border-outline-variant bg-surface hover:border-primary hover:text-primary font-label-md text-label-md text-on-surface transition-colors">
+                            09:00
+                        </button>
+<button class="py-2 px-1 rounded-md border-2 border-primary bg-primary/10 text-primary font-label-md text-label-md transition-colors relative overflow-hidden">
+                            10:00
+                            <span class="absolute top-0 right-0 w-2 h-2 bg-primary rounded-bl-sm"></span>
+</button>
+<button class="py-2 px-1 rounded-md border-2 border-primary bg-primary/10 text-primary font-label-md text-label-md transition-colors relative overflow-hidden">
+                            11:00
+                            <span class="absolute top-0 right-0 w-2 h-2 bg-primary rounded-bl-sm"></span>
+</button>
+<!-- Slot Booked -->
+<button class="py-2 px-1 rounded-md border border-outline-variant/50 bg-surface-container-high text-on-surface-variant/50 font-label-md text-label-md cursor-not-allowed opacity-60" disabled="">
+                            12:00
+                        </button>
+<button class="py-2 px-1 rounded-md border border-outline-variant bg-surface hover:border-primary hover:text-primary font-label-md text-label-md text-on-surface transition-colors">
+                            13:00
+                        </button>
+<button class="py-2 px-1 rounded-md border border-outline-variant bg-surface hover:border-primary hover:text-primary font-label-md text-label-md text-on-surface transition-colors">
+                            14:00
+                        </button>
+<button class="py-2 px-1 rounded-md border border-outline-variant bg-surface hover:border-primary hover:text-primary font-label-md text-label-md text-on-surface transition-colors">
+                            15:00
+                        </button>
+<button class="py-2 px-1 rounded-md border border-outline-variant/50 bg-surface-container-high text-on-surface-variant/50 font-label-md text-label-md cursor-not-allowed opacity-60" disabled="">
+                            16:00
+                        </button>
+<button class="py-2 px-1 rounded-md border border-outline-variant bg-surface hover:border-primary hover:text-primary font-label-md text-label-md text-on-surface transition-colors">
+                            17:00
+                        </button>
+</div>
+</div>
+</div>
+<!-- Booking Data Form -->
+<div class="bg-surface rounded-xl border border-outline-variant shadow-sm overflow-hidden flex flex-col">
+<div class="p-container-padding border-b border-outline-variant bg-surface-container-lowest">
+<h2 class="font-h2 text-h2 text-on-surface">Data Pemesanan</h2>
+</div>
+<div class="p-container-padding flex flex-col gap-stack-md bg-surface-container-lowest">
+<div class="flex flex-col gap-2">
+<label class="font-label-md text-label-md text-on-surface" for="name">Nama Lengkap</label>
+<input class="w-full px-4 py-2 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none font-body-md text-body-md bg-surface" id="name" placeholder="Masukkan nama lengkap" type="text" value="Budi Santoso"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-label-md text-label-md text-on-surface" for="whatsapp">No. WhatsApp</label>
+<div class="flex relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant font-body-md text-body-md">+62</span>
+<input class="w-full pl-12 pr-4 py-2 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none font-body-md text-body-md bg-surface" id="whatsapp" placeholder="812xxxx" type="tel" value="81234567890"/>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Nomor ini akan digunakan untuk konfirmasi via WhatsApp.</p>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-label-md text-label-md text-on-surface" for="notes">Catatan Tambahan <span class="font-body-sm text-body-sm font-normal text-on-surface-variant">(Opsional)</span></label>
+<textarea class="w-full px-4 py-2 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none font-body-md text-body-md bg-surface resize-none" id="notes" placeholder="Misal: Tolong siapkan bola cadangan" rows="3"></textarea>
+</div>
+</div>
+</div>
+<!-- Mobile Action Buttons -->
+<div class="flex flex-col sm:flex-row gap-stack-sm mt-stack-md lg:hidden">
+<button class="w-full py-3 px-4 rounded-lg border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-variant transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+                    Kembali
+                </button>
+<button class="w-full py-3 px-4 rounded-lg bg-[#16a34a] text-white font-label-md text-label-md hover:bg-primary transition-colors flex items-center justify-center gap-2">
+                    Lanjut ke Pembayaran
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Sidebar / Order Summary (Sticky on Desktop) -->
+<aside class="w-full lg:w-[380px] shrink-0">
+<div class="bg-surface rounded-xl border border-outline-variant shadow-sm overflow-hidden sticky top-[88px]">
+<div class="p-container-padding border-b border-outline-variant bg-surface-container-low flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">receipt_long</span>
+<h3 class="font-h3 text-h3 text-on-surface">Ringkasan Pesanan</h3>
+</div>
+<div class="p-container-padding flex flex-col gap-stack-md bg-surface-container-lowest">
+<!-- Field Details -->
+<div class="flex gap-4 items-start pb-4 border-b border-outline-variant/50">
+<div class="w-20 h-20 rounded-lg overflow-hidden shrink-0 bg-surface-variant">
+<img alt="Lapangan futsal sintetis indoor yang terang" class="w-full h-full object-cover" data-alt="close up view of green synthetic futsal turf under bright indoor arena lighting, clean modern facility" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8AT0ALbh0iDpEkoSWozJqGbFQNBcXQn-y0j9OBQU4l2oyr1x6dLwVh2N2fWKBEyw-jxrxiRsOo1rYpAaq6yAL0pBvwtspQ9N0pM-lQzq7Fzx_VdeCsj6Yydm87IGEiWtNLnCes7vzld8TIo_iU9nxT1HS572Yt86Wi0MTw5vWCj8HAwm_2UZp2sM4J3CHO-C2nlyEh_91G3or1t7oJAbNOIQ40KEcIs8RSFuzNqnulcLvsPpvjWkjKWkUo9h13c_9NLhIwT7puL5R"/>
+</div>
+<div class="flex flex-col">
+<h4 class="font-label-md text-label-md text-on-surface">Lapangan Sintetis A</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Champion Futsal Arena</p>
+<div class="flex items-center gap-1 mt-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+<span class="font-body-sm text-body-sm">Jakarta Selatan</span>
+</div>
+</div>
+</div>
+<!-- Time Details -->
+<div class="flex flex-col gap-2 pb-4 border-b border-outline-variant/50">
+<div class="flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Tanggal</span>
+<span class="font-label-md text-label-md text-on-surface">Minggu, 12 Nov 2023</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Waktu</span>
+<span class="font-label-md text-label-md text-on-surface">10:00 - 12:00 (2 Jam)</span>
+</div>
+</div>
+<!-- Price Calculation -->
+<div class="flex flex-col gap-2 pb-4 border-b border-outline-variant/50">
+<div class="flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Harga (Rp 150.000 x 2)</span>
+<span class="font-body-sm text-body-sm text-on-surface">Rp 300.000</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Biaya Layanan</span>
+<span class="font-body-sm text-body-sm text-on-surface">Rp 2.500</span>
+</div>
+</div>
+<!-- Total -->
+<div class="flex justify-between items-center pt-2">
+<span class="font-h3 text-h3 text-on-surface">Total</span>
+<span class="font-price-tag text-price-tag text-primary">Rp 302.500</span>
+</div>
+</div>
+<!-- Desktop Action Buttons -->
+<div class="p-container-padding bg-surface-container-lowest border-t border-outline-variant hidden lg:flex flex-col gap-stack-sm">
+<button class="w-full py-3 px-4 rounded-lg bg-[#16a34a] text-white font-label-md text-label-md hover:bg-primary transition-colors flex items-center justify-center gap-2">
+                        Lanjut ke Pembayaran
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+<button class="w-full py-3 px-4 rounded-lg border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-variant transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+                        Kembali
+                    </button>
+</div>
+</div>
+</aside>
+</main>
+<!-- Footer (Suppressed for transactional flow) -->
+</body></html>

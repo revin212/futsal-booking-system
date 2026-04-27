@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+
+<html class="light" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin - Manajemen Booking | FutsalKita</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Lexend:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-dim": "#d2d9f4",
+                      "on-tertiary-fixed": "#3f0016",
+                      "primary-container": "#00873a",
+                      "on-error-container": "#93000a",
+                      "primary-fixed-dim": "#62df7d",
+                      "on-primary-fixed": "#002109",
+                      "surface-container": "#eaedff",
+                      "on-tertiary-container": "#fffbff",
+                      "inverse-on-surface": "#eef0ff",
+                      "surface-container-high": "#e2e7ff",
+                      "tertiary-container": "#c74668",
+                      "on-primary-fixed-variant": "#005320",
+                      "on-primary-container": "#f7fff2",
+                      "on-secondary-container": "#fffbff",
+                      "tertiary": "#a72d51",
+                      "secondary-fixed-dim": "#b7c4ff",
+                      "error": "#ba1a1a",
+                      "background": "#faf8ff",
+                      "on-secondary-fixed": "#001551",
+                      "surface-variant": "#dae2fd",
+                      "surface-tint": "#006e2d",
+                      "on-background": "#131b2e",
+                      "primary-fixed": "#7ffc97",
+                      "outline": "#6e7b6c",
+                      "on-surface": "#131b2e",
+                      "surface-container-low": "#f2f3ff",
+                      "secondary": "#1d4ed8",
+                      "surface-container-highest": "#dae2fd",
+                      "error-container": "#ffdad6",
+                      "inverse-surface": "#283044",
+                      "tertiary-fixed-dim": "#ffb2bf",
+                      "secondary-fixed": "#dce1ff",
+                      "on-error": "#ffffff",
+                      "on-surface-variant": "#3e4a3d",
+                      "tertiary-fixed": "#ffd9de",
+                      "surface-bright": "#faf8ff",
+                      "on-secondary-fixed-variant": "#0039b5",
+                      "inverse-primary": "#62df7d",
+                      "on-primary": "#ffffff",
+                      "primary": "#006b2c",
+                      "surface-container-lowest": "#ffffff",
+                      "outline-variant": "#bdcaba",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary-fixed-variant": "#8a143c",
+                      "secondary-container": "#4069f2",
+                      "surface": "#faf8ff",
+                      "on-tertiary": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "card-gap": "1rem",
+                      "stack-sm": "0.5rem",
+                      "stack-lg": "1.5rem",
+                      "section-gap": "2rem",
+                      "container-padding": "1rem",
+                      "stack-md": "1rem"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "price-tag": [
+                              "Lexend"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "h2": [
+                              "Lexend"
+                      ],
+                      "h3": [
+                              "Lexend"
+                      ],
+                      "h1": [
+                              "Lexend"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "price-tag": [
+                              "20px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "h2": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "h3": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "h1": [
+                              "30px",
+                              {
+                                      "lineHeight": "38px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      }
+              }
+            },
+          }
+    </script>
+</head>
+<body class="bg-background text-on-background antialiased min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="bg-white/80 backdrop-blur-md font-lexend full-width top-0 sticky z-50 border-b border-slate-200 shadow-sm">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+<div class="text-xl font-bold text-green-600">
+                FutsalKita
+            </div>
+<div class="hidden md:flex space-x-8">
+<a class="text-slate-600 hover:text-green-600 transition-colors active:scale-95 duration-200" href="#">Beranda</a>
+<a class="text-slate-600 hover:text-green-600 transition-colors active:scale-95 duration-200" href="#">Katalog</a>
+<a class="text-green-600 font-bold border-b-2 border-green-600 pb-1 hover:text-green-600 transition-colors active:scale-95 duration-200" href="#">Jadwal</a>
+</div>
+<div class="flex items-center space-x-4">
+<button class="text-slate-600 hover:text-green-600 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-outline-variant cursor-pointer">
+<img alt="Foto Profil Pengguna" class="w-full h-full object-cover" data-alt="close up of a smiling man with short brown hair wearing a blue shirt against a neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADhzoEBb0UnNQ9PQGzlgqz09yDDlCfLI1KO_mRmChFeoE21w_j0gy6YhVsPqNppG0aaJ67VQnPN-8X9Ih_Qxsqouz6fnTp4bsbwLAjYfp3Is46DWfSEMX9NUBjqGOlq9u9WlGxSm-216MKjOF_2JkA8Chf1vp9k3t6aHIzk8R622JevwlVjlWvExLDy_EAELYMUtdJTreCgZTHh6xbrVlFuNZGr_Miwd5_KFl_PJMR-bK1detnMT5cuUlozb-IkOd_7lZwhM3faywa"/>
+</div>
+<button class="hidden md:block bg-primary text-on-primary px-4 py-2 rounded-lg font-label-md hover:bg-primary-container hover:text-on-primary-container transition-colors active:scale-95 duration-200">
+                    Masuk
+                </button>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-section-gap w-full">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-stack-lg gap-stack-md">
+<div>
+<h1 class="font-h1 text-h1 text-on-background">Manajemen Booking</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Kelola jadwal pemesanan lapangan Anda.</p>
+</div>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-lg font-label-md hover:bg-surface-tint transition-colors shadow-sm flex items-center gap-2 w-full md:w-auto justify-center active:scale-95 duration-200">
+<span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+                Tambah Booking Manual
+            </button>
+</div>
+<!-- Filters Section -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant p-container-padding mb-card-gap">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-stack-md items-end">
+<!-- Search -->
+<div class="col-span-1 md:col-span-1">
+<label class="block font-label-md text-label-md text-on-surface mb-stack-sm">Cari Booking</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="w-full pl-10 pr-3 py-2 bg-surface rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none font-body-sm text-body-sm text-on-surface placeholder-on-surface-variant/50 transition-colors" placeholder="ID, Nama User..." type="text"/>
+</div>
+</div>
+<!-- Filter Lapangan -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-stack-sm">Lapangan</label>
+<select class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none font-body-sm text-body-sm text-on-surface appearance-none transition-colors">
+<option value="">Semua Lapangan</option>
+<option value="1">Lapangan Sintetis A</option>
+<option value="2">Lapangan Vinyl B</option>
+<option value="3">Lapangan Semen C</option>
+</select>
+</div>
+<!-- Filter Status -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-stack-sm">Status Booking</label>
+<select class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none font-body-sm text-body-sm text-on-surface appearance-none transition-colors">
+<option value="">Semua Status</option>
+<option value="menunggu">Menunggu Pembayaran</option>
+<option value="berhasil">Berhasil</option>
+<option value="batal">Dibatalkan</option>
+</select>
+</div>
+<!-- Date Range -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-stack-sm">Tanggal Main</label>
+<input class="w-full px-3 py-2 bg-surface rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none font-body-sm text-body-sm text-on-surface transition-colors" type="date"/>
+</div>
+</div>
+</div>
+<!-- Table Data -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="p-4 font-label-md text-label-md text-on-surface-variant whitespace-nowrap">ID Booking</th>
+<th class="p-4 font-label-md text-label-md text-on-surface-variant whitespace-nowrap">User Info</th>
+<th class="p-4 font-label-md text-label-md text-on-surface-variant whitespace-nowrap">Lapangan &amp; Jadwal</th>
+<th class="p-4 font-label-md text-label-md text-on-surface-variant whitespace-nowrap">Status Pembayaran</th>
+<th class="p-4 font-label-md text-label-md text-on-surface-variant whitespace-nowrap">Status Booking</th>
+<th class="p-4 font-label-md text-label-md text-on-surface-variant whitespace-nowrap text-right">Aksi</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/50">
+<!-- Row 1 (Menunggu) -->
+<tr class="hover:bg-surface-container-lowest/50 transition-colors">
+<td class="p-4">
+<span class="font-body-md text-body-md text-on-surface font-semibold">#BK-2401-001</span>
+<div class="font-body-sm text-body-sm text-on-surface-variant mt-1">2 jam lalu</div>
+</td>
+<td class="p-4">
+<div class="font-body-md text-body-md text-on-surface font-medium">Budi Santoso</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">+62 812-3456-7890</div>
+</td>
+<td class="p-4">
+<div class="font-body-md text-body-md text-on-surface font-medium">Lapangan Sintetis A</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="calendar_today">calendar_today</span>
+                                    15 Jan 2024, 19:00 - 21:00
+                                </div>
+</td>
+<td class="p-4">
+<div class="font-price-tag text-price-tag text-on-surface mb-1">Rp 250.000</div>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[12px] font-semibold bg-tertiary-container/10 text-tertiary-container">Belum Lunas</span>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-semibold bg-[#fef08a]/20 text-[#a16207] border border-[#fef08a]">
+<span class="material-symbols-outlined text-[14px] mr-1" data-icon="schedule">schedule</span>
+                                    Menunggu
+                                </span>
+</td>
+<td class="p-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="p-2 text-primary hover:bg-primary-container/10 rounded-lg transition-colors tooltip-trigger" title="Konfirmasi Pembayaran">
+<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-variant/50 rounded-lg transition-colors tooltip-trigger" title="Reschedule">
+<span class="material-symbols-outlined" data-icon="edit_calendar">edit_calendar</span>
+</button>
+<button class="p-2 text-error hover:bg-error-container/20 rounded-lg transition-colors tooltip-trigger" title="Batalkan">
+<span class="material-symbols-outlined" data-icon="cancel">cancel</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 (Berhasil) -->
+<tr class="hover:bg-surface-container-lowest/50 transition-colors">
+<td class="p-4">
+<span class="font-body-md text-body-md text-on-surface font-semibold">#BK-2401-002</span>
+<div class="font-body-sm text-body-sm text-on-surface-variant mt-1">Kemarin</div>
+</td>
+<td class="p-4">
+<div class="font-body-md text-body-md text-on-surface font-medium">Tim FC Garuda</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">+62 857-1122-3344</div>
+</td>
+<td class="p-4">
+<div class="font-body-md text-body-md text-on-surface font-medium">Lapangan Vinyl B</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="calendar_today">calendar_today</span>
+                                    16 Jan 2024, 20:00 - 22:00
+                                </div>
+</td>
+<td class="p-4">
+<div class="font-price-tag text-price-tag text-on-surface mb-1">Rp 300.000</div>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[12px] font-semibold bg-primary-container/10 text-primary-container">Lunas Transfer</span>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-semibold bg-primary-container/10 text-primary-container border border-primary-container/20">
+<span class="material-symbols-outlined text-[14px] mr-1" data-icon="check_circle">check_circle</span>
+                                    Berhasil
+                                </span>
+</td>
+<td class="p-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="p-2 text-on-surface-variant hover:bg-surface-variant/50 rounded-lg transition-colors tooltip-trigger" title="Detail">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 (Dibatalkan) -->
+<tr class="hover:bg-surface-container-lowest/50 transition-colors opacity-75">
+<td class="p-4">
+<span class="font-body-md text-body-md text-on-surface font-semibold line-through">#BK-2401-003</span>
+<div class="font-body-sm text-body-sm text-on-surface-variant mt-1">3 Hari lalu</div>
+</td>
+<td class="p-4">
+<div class="font-body-md text-body-md text-on-surface font-medium">Andi Pratama</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">+62 899-8877-6655</div>
+</td>
+<td class="p-4">
+<div class="font-body-md text-body-md text-on-surface font-medium">Lapangan Semen C</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="calendar_today">calendar_today</span>
+                                    18 Jan 2024, 16:00 - 18:00
+                                </div>
+</td>
+<td class="p-4">
+<div class="font-price-tag text-price-tag text-on-surface mb-1">Rp 150.000</div>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[12px] font-semibold bg-error-container/10 text-error">-</span>
+</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-semibold bg-error-container/20 text-error border border-error/20">
+<span class="material-symbols-outlined text-[14px] mr-1" data-icon="cancel">cancel</span>
+                                    Dibatalkan
+                                </span>
+</td>
+<td class="p-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="p-2 text-on-surface-variant hover:bg-surface-variant/50 rounded-lg transition-colors tooltip-trigger" title="Detail">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="p-4 border-t border-outline-variant flex items-center justify-between bg-surface-container-low">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Menampilkan 1 - 3 dari 45 booking</span>
+<div class="flex items-center gap-2">
+<button class="p-1 rounded-md border border-outline-variant text-on-surface-variant disabled:opacity-50 hover:bg-surface-variant transition-colors" disabled="">
+<span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="px-3 py-1 rounded-md bg-primary text-on-primary font-label-md text-label-md">1</button>
+<button class="px-3 py-1 rounded-md border border-outline-variant text-on-surface hover:bg-surface-variant transition-colors font-label-md text-label-md">2</button>
+<button class="px-3 py-1 rounded-md border border-outline-variant text-on-surface hover:bg-surface-variant transition-colors font-label-md text-label-md">3</button>
+<span class="text-on-surface-variant">...</span>
+<button class="p-1 rounded-md border border-outline-variant text-on-surface hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="bg-white fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-safe h-16 md:hidden rounded-t-2xl border-t border-slate-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] font-lexend text-[10px] font-medium">
+<a class="flex flex-col items-center justify-center text-slate-500 hover:bg-slate-50 active:scale-90 transition-transform w-full py-1" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+            Home
+        </a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:bg-slate-50 active:scale-90 transition-transform w-full py-1" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="search">search</span>
+            Cari
+        </a>
+<a class="flex flex-col items-center justify-center text-green-600 bg-green-50 rounded-xl px-4 py-1 active:scale-90 transition-transform w-full" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="confirmation_number">confirmation_number</span>
+            Pesanan
+        </a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:bg-slate-50 active:scale-90 transition-transform w-full py-1" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="person">person</span>
+            Profil
+        </a>
+</nav>
+<!-- Footer (Hidden on Mobile due to BottomNavBar) -->
+<footer class="bg-slate-50 border-t border-slate-200 font-lexend text-sm hidden md:block">
+<div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+<div>
+<div class="text-lg font-bold text-slate-900 mb-4">FutsalKita</div>
+<p class="text-slate-500">© 2024 FutsalKita. Booking Lapangan Jadi Mudah.</p>
+</div>
+<div class="flex flex-wrap gap-4 md:justify-end">
+<a class="text-slate-500 hover:text-green-600 underline transition-all" href="#">Tentang Kami</a>
+<a class="text-slate-500 hover:text-green-600 underline transition-all" href="#">Syarat &amp; Ketentuan</a>
+<a class="text-slate-500 hover:text-green-600 underline transition-all" href="#">Bantuan</a>
+<a class="text-slate-500 hover:text-green-600 underline transition-all" href="#">Kebijakan Privasi</a>
+</div>
+</div>
+</footer>
+</body></html>

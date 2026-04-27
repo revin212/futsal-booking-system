@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pengaturan Sistem - FutsalKita Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Lexend:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-dim": "#d2d9f4",
+                      "on-tertiary-fixed": "#3f0016",
+                      "primary-container": "#00873a",
+                      "on-error-container": "#93000a",
+                      "primary-fixed-dim": "#62df7d",
+                      "on-primary-fixed": "#002109",
+                      "surface-container": "#eaedff",
+                      "on-tertiary-container": "#fffbff",
+                      "inverse-on-surface": "#eef0ff",
+                      "surface-container-high": "#e2e7ff",
+                      "tertiary-container": "#c74668",
+                      "on-primary-fixed-variant": "#005320",
+                      "on-primary-container": "#f7fff2",
+                      "on-secondary-container": "#fffbff",
+                      "tertiary": "#a72d51",
+                      "secondary-fixed-dim": "#b7c4ff",
+                      "error": "#ba1a1a",
+                      "background": "#faf8ff",
+                      "on-secondary-fixed": "#001551",
+                      "surface-variant": "#dae2fd",
+                      "surface-tint": "#006e2d",
+                      "on-background": "#131b2e",
+                      "primary-fixed": "#7ffc97",
+                      "outline": "#6e7b6c",
+                      "on-surface": "#131b2e",
+                      "surface-container-low": "#f2f3ff",
+                      "secondary": "#1d4ed8",
+                      "surface-container-highest": "#dae2fd",
+                      "error-container": "#ffdad6",
+                      "inverse-surface": "#283044",
+                      "tertiary-fixed-dim": "#ffb2bf",
+                      "secondary-fixed": "#dce1ff",
+                      "on-error": "#ffffff",
+                      "on-surface-variant": "#3e4a3d",
+                      "tertiary-fixed": "#ffd9de",
+                      "surface-bright": "#faf8ff",
+                      "on-secondary-fixed-variant": "#0039b5",
+                      "inverse-primary": "#62df7d",
+                      "on-primary": "#ffffff",
+                      "primary": "#006b2c",
+                      "surface-container-lowest": "#ffffff",
+                      "outline-variant": "#bdcaba",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary-fixed-variant": "#8a143c",
+                      "secondary-container": "#4069f2",
+                      "surface": "#faf8ff",
+                      "on-tertiary": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "card-gap": "1rem",
+                      "stack-sm": "0.5rem",
+                      "stack-lg": "1.5rem",
+                      "section-gap": "2rem",
+                      "container-padding": "1rem",
+                      "stack-md": "1rem"
+              },
+              "fontFamily": {
+                      "body-lg": ["Inter"],
+                      "price-tag": ["Lexend"],
+                      "body-sm": ["Inter"],
+                      "label-md": ["Inter"],
+                      "h2": ["Lexend"],
+                      "h3": ["Lexend"],
+                      "h1": ["Lexend"],
+                      "body-md": ["Inter"]
+              },
+              "fontSize": {
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "price-tag": ["20px", {"lineHeight": "24px", "fontWeight": "700"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+                      "h2": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "h3": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "h1": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md font-lexend docked full-width top-0 sticky z-50 border-b border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+<div class="flex items-center gap-8">
+<a class="text-xl font-bold text-green-600 dark:text-green-500" href="#">FutsalKita</a>
+<nav class="hidden md:flex gap-6">
+<!-- Nav items inactive as this is an Admin Settings page -->
+<a class="text-slate-600 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 transition-colors active:scale-95 duration-200 font-label-md text-label-md" href="#">Beranda</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 transition-colors active:scale-95 duration-200 font-label-md text-label-md" href="#">Katalog</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 transition-colors active:scale-95 duration-200 font-label-md text-label-md" href="#">Jadwal</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button aria-label="notifications" class="text-slate-600 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</button>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-surface-tint transition-colors">
+                    Masuk
+                </button>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow max-w-7xl mx-auto w-full px-container-padding sm:px-6 lg:px-8 py-section-gap">
+<div class="mb-section-gap flex flex-col md:flex-row md:items-center justify-between gap-stack-md">
+<div>
+<h1 class="font-h1 text-h1 text-on-background">Pengaturan Sistem</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">Kelola informasi bisnis, metode pembayaran, dan notifikasi otomatis.</p>
+</div>
+<div class="flex gap-stack-sm">
+<button class="flex items-center gap-2 border border-outline text-on-surface font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">chat</span>
+                    Tes Kirim WhatsApp
+                </button>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-surface-tint transition-colors shadow-sm">
+                    Simpan Perubahan
+                </button>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-card-gap">
+<!-- Left Column: Business & Payment -->
+<div class="lg:col-span-2 flex flex-col gap-card-gap">
+<!-- Info Bisnis Section -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/40 p-stack-lg">
+<div class="flex items-center gap-3 mb-stack-md border-b border-surface-variant pb-stack-sm">
+<span class="material-symbols-outlined text-primary">storefront</span>
+<h2 class="font-h3 text-h3 text-on-surface">Info Bisnis</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-label-md text-on-surface-variant">Nama Venue</label>
+<input class="font-body-md text-body-md text-on-surface bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="text" value="Champion Futsal Arena"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-label-md text-on-surface-variant">Nomor Telepon / WA</label>
+<input class="font-body-md text-body-md text-on-surface bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="text" value="081234567890"/>
+</div>
+<div class="col-span-1 md:col-span-2 flex flex-col gap-1">
+<label class="font-label-md text-label-md text-on-surface-variant">Alamat Lengkap</label>
+<textarea class="font-body-md text-body-md text-on-surface bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all resize-none" rows="3">Jl. Sudirman No. 45, Komplek Olahraga, Jakarta Selatan</textarea>
+</div>
+</div>
+</section>
+<!-- Rekening & QRIS Section -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/40 p-stack-lg">
+<div class="flex items-center gap-3 mb-stack-md border-b border-surface-variant pb-stack-sm">
+<span class="material-symbols-outlined text-primary">account_balance_wallet</span>
+<h2 class="font-h3 text-h3 text-on-surface">Rekening &amp; QRIS</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md mb-stack-lg">
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-label-md text-on-surface-variant">Nama Bank</label>
+<select class="font-body-md text-body-md text-on-surface bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all appearance-none">
+<option>BCA</option>
+<option>Mandiri</option>
+<option>BRI</option>
+<option>BNI</option>
+</select>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-label-md text-on-surface-variant">Nomor Rekening</label>
+<input class="font-body-md text-body-md text-on-surface bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="text" value="1234567890"/>
+</div>
+<div class="col-span-1 md:col-span-2 flex flex-col gap-1">
+<label class="font-label-md text-label-md text-on-surface-variant">Atas Nama</label>
+<input class="font-body-md text-body-md text-on-surface bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="text" value="PT Champion Olahraga Utama"/>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-label-md text-label-md text-on-surface-variant">Upload QRIS Pembayaran</label>
+<div class="border-2 border-dashed border-outline-variant rounded-xl p-stack-lg flex flex-col items-center justify-center text-center bg-surface-container-low hover:bg-surface-container transition-colors cursor-pointer group">
+<div class="w-16 h-16 rounded-full bg-surface-dim flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-outline text-[32px]">qr_code_scanner</span>
+</div>
+<p class="font-label-md text-label-md text-on-surface mb-1">Tarik &amp; Lepas gambar QRIS ke sini</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">atau klik untuk menelusuri file (PNG, JPG, max 2MB)</p>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: WhatsApp Template -->
+<div class="lg:col-span-1 flex flex-col gap-card-gap">
+<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/40 p-stack-lg flex flex-col h-full">
+<div class="flex items-center gap-3 mb-stack-md border-b border-surface-variant pb-stack-sm">
+<span class="material-symbols-outlined text-primary">mark_email_read</span>
+<h2 class="font-h3 text-h3 text-on-surface">WhatsApp Template</h2>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-stack-md">
+                        Sesuaikan pesan otomatis yang dikirim ke pelanggan saat status booking berhasil.
+                    </p>
+<div class="flex flex-col gap-1 flex-grow">
+<label class="font-label-md text-label-md text-on-surface-variant">Template Pesan Konfirmasi</label>
+<textarea class="font-body-md text-body-md text-on-surface bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all resize-none flex-grow" rows="10">Halo {{nama_pelanggan}},
+
+Booking lapangan futsal Anda di {{nama_venue}} telah BERHASIL dikonfirmasi!
+
+Detail Booking:
+Tanggal: {{tanggal}}
+Waktu: {{waktu_mulai}} - {{waktu_selesai}}
+Lapangan: {{nama_lapangan}}
+
+Terima kasih telah memilih kami. Main Yuk!</textarea>
+</div>
+<div class="mt-stack-md bg-surface-container rounded-lg p-stack-sm">
+<h3 class="font-label-md text-label-md text-on-surface mb-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">info</span> Variabel Tersedia
+                        </h3>
+<div class="flex flex-wrap gap-2">
+<span class="bg-surface-container-high text-on-surface font-body-sm text-[12px] px-2 py-1 rounded border border-outline-variant cursor-help" title="Nama Pemesan">{{nama_pelanggan}}</span>
+<span class="bg-surface-container-high text-on-surface font-body-sm text-[12px] px-2 py-1 rounded border border-outline-variant cursor-help" title="Nama Bisnis Anda">{{nama_venue}}</span>
+<span class="bg-surface-container-high text-on-surface font-body-sm text-[12px] px-2 py-1 rounded border border-outline-variant cursor-help" title="Tanggal Main">{{tanggal}}</span>
+<span class="bg-surface-container-high text-on-surface font-body-sm text-[12px] px-2 py-1 rounded border border-outline-variant cursor-help" title="Jam Mulai">{{waktu_mulai}}</span>
+<span class="bg-surface-container-high text-on-surface font-body-sm text-[12px] px-2 py-1 rounded border border-outline-variant cursor-help" title="Jam Selesai">{{waktu_selesai}}</span>
+<span class="bg-surface-container-high text-on-surface font-body-sm text-[12px] px-2 py-1 rounded border border-outline-variant cursor-help" title="Nama/Nomor Lapangan">{{nama_lapangan}}</span>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 full-width mt-auto">
+<div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-8 font-lexend text-sm">
+<div>
+<p class="text-lg font-bold text-slate-900 dark:text-white mb-4">FutsalKita</p>
+<p class="text-slate-500 dark:text-slate-400">© 2024 FutsalKita. Booking Lapangan Jadi Mudah.</p>
+</div>
+<div class="flex flex-wrap gap-x-8 gap-y-4 md:justify-end">
+<a class="text-slate-500 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 underline transition-all" href="#">Tentang Kami</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 underline transition-all" href="#">Syarat &amp; Ketentuan</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 underline transition-all" href="#">Bantuan</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-green-600 dark:hover:text-green-400 underline transition-all" href="#">Kebijakan Privasi</a>
+</div>
+</div>
+</footer>
+</body></html>
