@@ -3,9 +3,11 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
 import { useLapanganListQuery } from "@/features/lapangan/queries";
+import { useLapanganDetailQuery } from "@/features/lapangan/queries";
 import { useSlotQuery } from "@/features/slot/queries";
 
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -29,6 +31,7 @@ export function JadwalPage() {
 
   const [lapanganId, setLapanganId] = useState<number | null>(initialLapanganId);
   const [tanggal, setTanggal] = useState<string>(initialTanggal);
+  const [onlyAvailable, setOnlyAvailable] = useState<boolean>(sp.get("only") === "available");
 
   useEffect(() => {
     if (lapanganId != null) return;
@@ -49,14 +52,40 @@ export function JadwalPage() {
   useEffect(() => {
     if (lapanganId) sp.set("lapanganId", String(lapanganId));
     if (tanggal) sp.set("tanggal", tanggal);
+    if (onlyAvailable) sp.set("only", "available");
+    else sp.delete("only");
     setSp(sp, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lapanganId, tanggal]);
+  }, [lapanganId, tanggal, onlyAvailable]);
+
+  const lapanganDetailQ = useLapanganDetailQuery(lapanganId ?? 0);
 
   const slotQ = useSlotQuery({
     lapanganId: lapanganId ?? 0,
     tanggal,
   });
+
+  const visibleSlots = useMemo(() => {
+    const all = slotQ.data ?? [];
+    return onlyAvailable ? all.filter((s) => s.tersedia) : all;
+  }, [onlyAvailable, slotQ.data]);
+
+  const priceTag = useMemo(() => {
+    const d = lapanganDetailQ.data;
+    if (!d) return null;
+    return {
+      regular: Number(d.hargaRegular),
+      peak: Number(d.hargaPeakHour),
+      weekend: Number(d.hargaWeekend),
+    };
+  }, [lapanganDetailQ.data]);
+
+  function getHargaLabel(harga: number) {
+    if (!priceTag) return null;
+    if (harga === priceTag.peak) return { text: "peak", variant: "default" as const };
+    if (harga === priceTag.weekend) return { text: "weekend", variant: "outline" as const };
+    return { text: "regular", variant: "secondary" as const };
+  }
 
   useEffect(() => {
     if (lapanganQ.isError) toast.error((lapanganQ.error as any)?.message ?? "Gagal memuat lapangan");
@@ -101,8 +130,19 @@ export function JadwalPage() {
       <div className="rounded-2xl border bg-card p-4">
         <div className="flex items-center justify-between gap-3">
           <div className="font-lexend font-semibold">Jam & Ketersediaan</div>
-          <div className="text-xs text-muted-foreground">
-            Klik jam yang <span className="font-semibold">available</span> untuk lanjut booking.
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setOnlyAvailable((v) => !v)}
+              className={`text-xs font-semibold rounded-full border px-3 py-1 transition-colors ${
+                onlyAvailable ? "bg-primary text-primary-foreground border-primary" : "bg-card hover:bg-muted/30"
+              }`}
+            >
+              {onlyAvailable ? "Hanya available" : "Tampilkan semua"}
+            </button>
+            <div className="text-xs text-muted-foreground">
+              Klik jam <span className="font-semibold">available</span> untuk booking.
+            </div>
           </div>
         </div>
 
@@ -113,12 +153,13 @@ export function JadwalPage() {
                 <Skeleton key={i} className="h-12 rounded-xl" />
               ))}
             </div>
-          ) : (slotQ.data?.length ?? 0) === 0 ? (
+          ) : (visibleSlots.length ?? 0) === 0 ? (
             <div className="text-sm text-muted-foreground">Tidak ada slot untuk tanggal ini.</div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {(slotQ.data ?? []).map((s) => {
+              {visibleSlots.map((s) => {
                 const disabled = !s.tersedia || !lapanganId;
+                const label = getHargaLabel(s.harga);
                 return (
                   <button
                     key={s.jam}
@@ -136,8 +177,11 @@ export function JadwalPage() {
                   >
                     <div className="flex items-center justify-between">
                       <div className="font-lexend font-semibold">{s.jam}</div>
-                      <div className={`text-xs font-semibold ${s.tersedia ? "text-primary" : ""}`}>
-                        {s.tersedia ? "available" : "booked"}
+                      <div className="flex items-center gap-2">
+                        {label && <Badge variant={label.variant}>{label.text}</Badge>}
+                        <div className={`text-xs font-semibold ${s.tersedia ? "text-primary" : ""}`}>
+                          {s.tersedia ? "available" : "booked"}
+                        </div>
                       </div>
                     </div>
                     <div className="text-sm mt-1">{formatRupiah(s.harga)}</div>
