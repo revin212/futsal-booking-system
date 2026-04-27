@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -44,6 +45,9 @@ public class Booking {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private BookingStatus status = BookingStatus.DIBUAT;
+
+  @Column(name = "total_harga", precision = 12, scale = 2)
+  private BigDecimal totalHarga;
 
   @CreationTimestamp
   @Column(name = "created_at", nullable = false, updatable = false)
@@ -103,6 +107,14 @@ public class Booking {
 
   public void setStatus(BookingStatus status) {
     this.status = status;
+  }
+
+  public BigDecimal getTotalHarga() {
+    return totalHarga;
+  }
+
+  public void setTotalHarga(BigDecimal totalHarga) {
+    this.totalHarga = totalHarga;
   }
 
   public Instant getCreatedAt() {

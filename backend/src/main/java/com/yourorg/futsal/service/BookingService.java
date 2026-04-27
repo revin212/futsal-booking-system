@@ -1,0 +1,109 @@
+package com.yourorg.futsal.service;
+
+import com.yourorg.futsal.domain.entity.Booking;
+import com.yourorg.futsal.domain.entity.JamOperasional;
+import com.yourorg.futsal.domain.enums.BookingStatus;
+import com.yourorg.futsal.domain.repo.BookingRepository;
+import com.yourorg.futsal.domain.repo.JamOperasionalRepository;
+import com.yourorg.futsal.domain.repo.LapanganRepository;
+import com.yourorg.futsal.web.exception.ApiException;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.UUID;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
+@Service
+public class BookingService {
+  private final LapanganRepository lapanganRepo;
+  private final JamOperasionalRepository jamRepo;
+  private final BookingRepository bookingRepo;
+  private final PricingService pricingService;
+
+  public BookingService(
+      LapanganRepository lapanganRepo,
+      JamOperasionalRepository jamRepo,
+      BookingRepository bookingRepo,
+      PricingService pricingService
+  ) {
+    this.lapanganRepo = lapanganRepo;
+    this.jamRepo = jamRepo;
+    this.bookingRepo = bookingRepo;
+    this.pricingService = pricingService;
+  }
+
+  public Booking createBooking(UUID userId, Long lapanganId, LocalDate tanggalMain, LocalTime jamMulai, int durasiJam) {
+    var lapangan = lapanganRepo.findById(lapanganId)
+        .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Lapangan tidak ditemukan."));
+
+    if (!lapangan.isAktif()) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Lapangan tidak aktif.");
+    }
+
+    if (durasiJam < 1) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Durasi minimal 1 jam.");
+    }
+
+    if (jamMulai.getMinute() != 0 || jamMulai.getSecond() != 0) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Jam mulai harus tepat per 1 jam (menit = 00).");
+    }
+
+    LocalTime jamSelesai = jamMulai.plusHours(durasiJam);
+    if (!jamMulai.isBefore(jamSelesai)) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Jam tidak valid.");
+    }
+
+    JamOperasional jo = findJamOperasional(lapanganId, hariKe(tanggalMain));
+    if (jamMulai.isBefore(jo.getJamBuka()) || jamSelesai.isAfter(jo.getJamTutup())) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Booking di luar jam operasional.");
+    }
+
+    // Conflict check: any overlap with non-cancelled booking blocks immediately.
+    List<Booking> existing = bookingRepo.findByLapanganIdAndTanggalMainNonCancelled(
+        lapanganId, tanggalMain, BookingStatus.DIBATALKAN
+    );
+    boolean conflict = existing.stream().anyMatch(b ->
+        b.getJamMulai().isBefore(jamSelesai) && b.getJamSelesai().isAfter(jamMulai)
+    );
+    if (conflict) {
+      throw new ApiException(HttpStatus.CONFLICT, "Conflict", "Slot sudah dibooking.");
+    }
+
+    BigDecimal total = BigDecimal.ZERO;
+    LocalTime t = jamMulai;
+    for (int i = 0; i < durasiJam; i++) {
+      total = total.add(pricingService.hargaPerJam(lapangan, tanggalMain, t));
+      t = t.plusHours(1);
+    }
+
+    Booking b = new Booking();
+    b.setUserId(userId);
+    b.setLapangan(lapangan);
+    b.setTanggalMain(tanggalMain);
+    b.setJamMulai(jamMulai);
+    b.setJamSelesai(jamSelesai);
+    b.setStatus(BookingStatus.DIBUAT);
+    b.setTotalHarga(total);
+    return bookingRepo.save(b);
+  }
+
+  private JamOperasional findJamOperasional(Long lapanganId, int hariKe) {
+    return jamRepo.findByLapanganIdAndIsAktifTrueOrderByHariKeAsc(lapanganId)
+        .stream()
+        .filter(j -> j.getHariKe() == hariKe)
+        .findFirst()
+        .orElseThrow(() -> new ApiException(
+            HttpStatus.BAD_REQUEST,
+            "Bad Request",
+            "Jam operasional tidak ditemukan untuk hari ini."
+        ));
+  }
+
+  private int hariKe(LocalDate tanggal) {
+    int dow = tanggal.getDayOfWeek().getValue(); // 1=Mon ... 7=Sun
+    return dow % 7;
+  }
+}
+

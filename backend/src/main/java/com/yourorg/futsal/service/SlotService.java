@@ -55,15 +55,22 @@ public class SlotService {
       throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", "Jam operasional tidak valid.");
     }
 
+    // Phase 2 perf: load bookings once per tanggal (instead of per slot).
+    var bookings = bookingRepo.findByLapanganIdAndTanggalMainNonCancelled(
+        lapanganId, tanggal, BookingStatus.DIBATALKAN
+    );
+
     List<SlotResponse> out = new ArrayList<>();
     LocalTime jamMulai = jamBuka;
     while (jamMulai.isBefore(jamTutup)) {
       LocalTime jamSelesai = jamMulai.plusHours(1);
       if (jamSelesai.isAfter(jamTutup)) break;
 
-      boolean tersedia = bookingRepo.findOverlappingNonCancelled(
-          lapanganId, tanggal, jamMulai, jamSelesai, BookingStatus.DIBATALKAN
-      ).isEmpty();
+      final LocalTime slotMulai = jamMulai;
+      final LocalTime slotSelesai = jamSelesai;
+      boolean tersedia = bookings.stream().noneMatch(b ->
+          b.getJamMulai().isBefore(slotSelesai) && b.getJamSelesai().isAfter(slotMulai)
+      );
 
       out.add(new SlotResponse(
           HHMM.format(jamMulai),

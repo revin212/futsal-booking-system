@@ -97,28 +97,42 @@ export function JadwalPage() {
             </div>
           </div>
         ) : (
-          <FullCalendar
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-            initialView="dayGridMonth"
-            headerToolbar={{
-              left: "prev,next today",
-              center: "title",
-              right: "dayGridMonth,timeGridWeek",
-            }}
-            height="auto"
-            events={eventsQ.data ?? []}
-            datesSet={(arg) => {
-              const start = arg.startStr.slice(0, 10);
-              const end = arg.endStr.slice(0, 10);
-              setRange({ start, end });
-            }}
-            dateClick={(arg) => {
-              if (!lapanganId) return;
-              const tanggal = arg.dateStr.slice(0, 10);
-              const jam = arg.dateStr.includes("T") ? arg.dateStr.slice(11, 16) : "07:00";
-              navigate(`/booking/new?lapanganId=${lapanganId}&tanggal=${tanggal}&jam=${jam}`);
-            }}
-          />
+          <div className="relative">
+            {(eventsQ.data?.length ?? 0) === 0 && (
+              <div className="mb-3 rounded-xl border bg-muted/20 px-3 py-2 text-sm text-muted-foreground">
+                Belum ada booking di range ini. Klik tanggal/slot kosong untuk mulai booking (placeholder).
+              </div>
+            )}
+            <FullCalendar
+              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+              initialView="dayGridMonth"
+              headerToolbar={{
+                left: "prev,next today",
+                center: "title",
+                right: "dayGridMonth,timeGridWeek",
+              }}
+              height="auto"
+              events={eventsQ.data ?? []}
+              datesSet={(arg) => {
+                const start = arg.startStr.slice(0, 10);
+                const end = arg.endStr.slice(0, 10);
+                setRange({ start, end });
+              }}
+              eventClick={(arg) => {
+                // prevent event click from being treated like empty-slot navigation
+                arg.jsEvent.preventDefault();
+                const ep = (arg.event.extendedProps ?? {}) as any;
+                const status = ep?.status ? String(ep.status) : "BOOKED";
+                toast.message(`Slot sudah dibooking (${status})`);
+              }}
+              dateClick={(arg) => {
+                if (!lapanganId) return;
+                const tanggal = arg.dateStr.slice(0, 10);
+                const jam = arg.dateStr.includes("T") ? arg.dateStr.slice(11, 16) : "07:00";
+                navigate(`/booking/new?lapanganId=${lapanganId}&tanggal=${tanggal}&jam=${jam}`);
+              }}
+            />
+          </div>
         )}
       </div>
     </div>

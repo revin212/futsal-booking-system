@@ -18,6 +18,19 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
       where b.lapangan.id = :lapanganId
         and b.tanggalMain = :tanggal
         and b.status <> :statusBatal
+      order by b.jamMulai asc
+      """)
+  List<Booking> findByLapanganIdAndTanggalMainNonCancelled(
+      @Param("lapanganId") Long lapanganId,
+      @Param("tanggal") LocalDate tanggal,
+      @Param("statusBatal") BookingStatus statusBatal
+  );
+
+  @Query("""
+      select b from Booking b
+      where b.lapangan.id = :lapanganId
+        and b.tanggalMain = :tanggal
+        and b.status <> :statusBatal
         and b.jamMulai < :jamSelesai
         and b.jamSelesai > :jamMulai
       order by b.jamMulai asc
