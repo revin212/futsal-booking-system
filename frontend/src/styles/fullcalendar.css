@@ -1,0 +1,64 @@
+/* Minimal FullCalendar styling (Phase 2) without relying on package CSS paths. */
+
+.fc {
+  --fc-border-color: hsl(var(--border));
+  --fc-page-bg-color: transparent;
+  --fc-small-font-size: 0.875rem;
+  --fc-today-bg-color: hsl(var(--primary) / 0.08);
+  --fc-event-border-color: transparent;
+  --fc-event-bg-color: hsl(var(--primary));
+  --fc-event-text-color: hsl(var(--primary-foreground));
+}
+
+.fc .fc-toolbar-title {
+  font-family: var(--font-lexend, ui-sans-serif);
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.fc .fc-button {
+  border-radius: 0.5rem;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  padding: 0.4rem 0.6rem;
+  box-shadow: none;
+}
+
+.fc .fc-button:hover {
+  background: hsl(var(--muted));
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+  background: hsl(var(--primary));
+  border-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.fc .fc-daygrid-day-frame,
+.fc .fc-timegrid-slot,
+.fc .fc-timegrid-col-frame {
+  border-color: hsl(var(--border));
+}
+
+.fc .fc-daygrid-day-number {
+  color: hsl(var(--muted-foreground));
+  font-size: 0.875rem;
+}
+
+.fc .fc-col-header-cell-cushion {
+  color: hsl(var(--muted-foreground));
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.fc .fc-event {
+  border-radius: 0.5rem;
+  padding: 0.1rem 0.25rem;
+}
+
+.fc .fc-event-title {
+  font-weight: 600;
+}
+
