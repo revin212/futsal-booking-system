@@ -31,6 +31,11 @@ export function TopNav() {
             <NavLink to="/jadwal" className={navLinkClass}>
               Jadwal
             </NavLink>
+            {user && (
+              <NavLink to="/booking-saya" className={navLinkClass}>
+                Booking Saya
+              </NavLink>
+            )}
           </nav>
         </div>
 

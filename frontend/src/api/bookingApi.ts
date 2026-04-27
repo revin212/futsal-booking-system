@@ -27,3 +27,16 @@ export async function postBooking(req: CreateBookingRequest) {
   });
 }
 
+export async function getBookingSaya() {
+  return apiFetch<Booking[]>("/booking-saya", {
+    auth: true,
+  });
+}
+
+export async function patchBatalkanBooking(id: number) {
+  return apiFetch<Booking>(`/booking/${id}/batalkan`, {
+    method: "PATCH",
+    auth: true,
+  });
+}
+

@@ -8,6 +8,8 @@ import jakarta.validation.Valid;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +35,12 @@ public class BookingController {
         req.durasiJam()
     );
     return BookingResponse.from(booking);
+  }
+
+  @PatchMapping("/{id}/batalkan")
+  public BookingResponse cancel(@PathVariable Long id, Authentication auth) {
+    UUID userId = getUserId(auth);
+    return BookingResponse.from(bookingService.cancelBooking(userId, id));
   }
 
   private UUID getUserId(Authentication auth) {

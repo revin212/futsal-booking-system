@@ -6,10 +6,14 @@ import com.yourorg.futsal.domain.enums.BookingStatus;
 import com.yourorg.futsal.domain.repo.BookingRepository;
 import com.yourorg.futsal.domain.repo.JamOperasionalRepository;
 import com.yourorg.futsal.domain.repo.LapanganRepository;
+import com.yourorg.futsal.domain.repo.PengaturanSistemRepository;
 import com.yourorg.futsal.web.exception.ApiException;
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
@@ -17,20 +21,25 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class BookingService {
+  private static final ZoneId DEFAULT_ZONE = ZoneId.of("Asia/Jakarta");
+
   private final LapanganRepository lapanganRepo;
   private final JamOperasionalRepository jamRepo;
   private final BookingRepository bookingRepo;
+  private final PengaturanSistemRepository settingsRepo;
   private final PricingService pricingService;
 
   public BookingService(
       LapanganRepository lapanganRepo,
       JamOperasionalRepository jamRepo,
       BookingRepository bookingRepo,
+      PengaturanSistemRepository settingsRepo,
       PricingService pricingService
   ) {
     this.lapanganRepo = lapanganRepo;
     this.jamRepo = jamRepo;
     this.bookingRepo = bookingRepo;
+    this.settingsRepo = settingsRepo;
     this.pricingService = pricingService;
   }
 
@@ -87,6 +96,51 @@ public class BookingService {
     b.setStatus(BookingStatus.DIBUAT);
     b.setTotalHarga(total);
     return bookingRepo.save(b);
+  }
+
+  public List<Booking> listByUser(UUID userId) {
+    return bookingRepo.findByUserIdOrderByCreatedAtDesc(userId);
+  }
+
+  public Booking cancelBooking(UUID userId, Long bookingId) {
+    Booking booking = bookingRepo.findById(bookingId)
+        .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Booking tidak ditemukan."));
+
+    if (!booking.getUserId().equals(userId)) {
+      throw new ApiException(HttpStatus.FORBIDDEN, "Forbidden", "Akses ditolak.");
+    }
+
+    if (booking.getStatus() == BookingStatus.DIBATALKAN) {
+      return booking;
+    }
+
+    int minJam = getMinJamBatalkan();
+    LocalDateTime now = LocalDateTime.now(DEFAULT_ZONE);
+    LocalDateTime waktuMain = LocalDateTime.of(booking.getTanggalMain(), booking.getJamMulai());
+    long diffMinutes = Duration.between(now, waktuMain).toMinutes();
+
+    if (diffMinutes < (long) minJam * 60) {
+      throw new ApiException(
+          HttpStatus.BAD_REQUEST,
+          "Bad Request",
+          "Booking tidak bisa dibatalkan (melebihi batas waktu pembatalan)."
+      );
+    }
+
+    booking.setStatus(BookingStatus.DIBATALKAN);
+    return bookingRepo.save(booking);
+  }
+
+  private int getMinJamBatalkan() {
+    return settingsRepo.findByKey("MinJamBatalkan")
+        .map(s -> {
+          try {
+            return Integer.parseInt(s.getValue());
+          } catch (NumberFormatException e) {
+            return 2;
+          }
+        })
+        .orElse(2);
   }
 
   private JamOperasional findJamOperasional(Long lapanganId, int hariKe) {

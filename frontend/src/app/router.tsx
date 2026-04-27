@@ -6,6 +6,7 @@ import { JadwalPage } from "@/pages/JadwalPage";
 import { MasukPage } from "@/pages/MasukPage";
 import { LapanganDetailPage } from "@/pages/LapanganDetailPage";
 import { BookingNewPage } from "@/pages/BookingNewPage";
+import { BookingSayaPage } from "@/pages/BookingSayaPage";
 
 export const router = createBrowserRouter([
   {
@@ -16,6 +17,7 @@ export const router = createBrowserRouter([
       { path: "/lapangan/:id", element: <LapanganDetailPage /> },
       { path: "/jadwal", element: <JadwalPage /> },
       { path: "/booking/new", element: <BookingNewPage /> },
+      { path: "/booking-saya", element: <BookingSayaPage /> },
       { path: "/masuk", element: <MasukPage /> }
     ],
   },
