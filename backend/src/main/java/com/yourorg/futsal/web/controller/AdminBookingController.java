@@ -31,7 +31,7 @@ public class AdminBookingController {
 
   @GetMapping
   public List<BookingResponse> listMenungguVerifikasi() {
-    return bookingRepo.findByStatusOrderByCreatedAtDesc(BookingStatus.MENUNGGU_VERIFIKASI)
+    return bookingRepo.findByStatusWithLapanganOrderByCreatedAtDesc(BookingStatus.MENUNGGU_VERIFIKASI)
         .stream()
         .map(BookingResponse::from)
         .toList();

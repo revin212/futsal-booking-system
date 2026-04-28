@@ -5,6 +5,7 @@ import com.yourorg.futsal.domain.enums.BookingStatus;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -27,9 +28,28 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
       @Param("statusBatal") BookingStatus statusBatal
   );
 
-  List<Booking> findByUserIdOrderByCreatedAtDesc(UUID userId);
+  @Query("""
+      select b from Booking b
+      join fetch b.lapangan l
+      where b.userId = :userId
+      order by b.createdAt desc
+      """)
+  List<Booking> findByUserIdWithLapanganOrderByCreatedAtDesc(@Param("userId") UUID userId);
 
-  List<Booking> findByStatusOrderByCreatedAtDesc(BookingStatus status);
+  @Query("""
+      select b from Booking b
+      join fetch b.lapangan l
+      where b.status = :status
+      order by b.createdAt desc
+      """)
+  List<Booking> findByStatusWithLapanganOrderByCreatedAtDesc(@Param("status") BookingStatus status);
+
+  @Query("""
+      select b from Booking b
+      join fetch b.lapangan l
+      where b.id = :id
+      """)
+  Optional<Booking> findByIdWithLapangan(@Param("id") Long id);
 
   @Query("""
       select b from Booking b

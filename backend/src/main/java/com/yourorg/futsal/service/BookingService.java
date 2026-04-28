@@ -107,11 +107,11 @@ public class BookingService {
   }
 
   public List<Booking> listByUser(UUID userId) {
-    return bookingRepo.findByUserIdOrderByCreatedAtDesc(userId);
+    return bookingRepo.findByUserIdWithLapanganOrderByCreatedAtDesc(userId);
   }
 
   public Booking getBookingDetailForUser(UUID userId, Long bookingId) {
-    Booking booking = bookingRepo.findById(bookingId)
+    Booking booking = bookingRepo.findByIdWithLapangan(bookingId)
         .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Booking tidak ditemukan."));
     if (!booking.getUserId().equals(userId)) {
       throw new ApiException(HttpStatus.FORBIDDEN, "Forbidden", "Akses ditolak.");
@@ -120,7 +120,7 @@ public class BookingService {
   }
 
   public Booking uploadBuktiBayar(UUID userId, Long bookingId, MultipartFile file) {
-    Booking booking = bookingRepo.findById(bookingId)
+    Booking booking = bookingRepo.findByIdWithLapangan(bookingId)
         .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Booking tidak ditemukan."));
 
     if (!booking.getUserId().equals(userId)) {
@@ -171,7 +171,7 @@ public class BookingService {
   }
 
   public Booking konfirmasiBayar(UUID userId, Long bookingId) {
-    Booking booking = bookingRepo.findById(bookingId)
+    Booking booking = bookingRepo.findByIdWithLapangan(bookingId)
         .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Booking tidak ditemukan."));
 
     if (!booking.getUserId().equals(userId)) {
@@ -191,7 +191,7 @@ public class BookingService {
   }
 
   public Booking adminVerifikasi(Long bookingId, boolean approve) {
-    Booking booking = bookingRepo.findById(bookingId)
+    Booking booking = bookingRepo.findByIdWithLapangan(bookingId)
         .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Booking tidak ditemukan."));
 
     if (booking.getStatus() != BookingStatus.MENUNGGU_VERIFIKASI) {
