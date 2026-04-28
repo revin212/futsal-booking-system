@@ -29,6 +29,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
   List<Booking> findByUserIdOrderByCreatedAtDesc(UUID userId);
 
+  List<Booking> findByStatusOrderByCreatedAtDesc(BookingStatus status);
+
   @Query("""
       select b from Booking b
       where b.lapangan.id = :lapanganId

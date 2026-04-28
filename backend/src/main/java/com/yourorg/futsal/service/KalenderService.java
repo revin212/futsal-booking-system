@@ -45,9 +45,11 @@ public class KalenderService {
 
       String color = switch (b.getStatus()) {
         case DIBATALKAN -> "#94a3b8";
-        case DIBAYAR -> "#16a34a";
+        case LUNAS, DIBAYAR -> "#16a34a";
+        case MENUNGGU_VERIFIKASI -> "#2563eb";
+        case DITOLAK -> "#dc2626";
         case SELESAI -> "#0f172a";
-        case DIBUAT -> "#f59e0b";
+        case DIBUAT, MENUNGGU_PEMBAYARAN -> "#f59e0b";
       };
 
       return KalenderEventResponse.fromBooking(b, startIso, endIso, color);

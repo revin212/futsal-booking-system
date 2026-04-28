@@ -13,9 +13,11 @@ public record KalenderEventResponse(
   public static KalenderEventResponse fromBooking(Booking b, String startIso, String endIso, String color) {
     String title = switch (b.getStatus()) {
       case DIBATALKAN -> "Dibatalkan";
-      case DIBAYAR -> "Dibayar";
+      case LUNAS, DIBAYAR -> "Lunas";
+      case MENUNGGU_VERIFIKASI -> "Menunggu verifikasi";
+      case DITOLAK -> "Ditolak";
       case SELESAI -> "Selesai";
-      case DIBUAT -> "Dipesan";
+      case DIBUAT, MENUNGGU_PEMBAYARAN -> "Menunggu pembayaran";
     };
 
     return new KalenderEventResponse(

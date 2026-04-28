@@ -11,11 +11,17 @@ public record BookingResponse(
     Long id,
     UUID userId,
     Long lapanganId,
+    String lapanganNama,
     LocalDate tanggalMain,
     LocalTime jamMulai,
     LocalTime jamSelesai,
     String status,
     BigDecimal totalHarga,
+    String metodePembayaran,
+    BigDecimal dpNominal,
+    BigDecimal paidAmount,
+    String buktiBayarPath,
+    Instant verifiedAt,
     Instant createdAt
 ) {
   public static BookingResponse from(Booking b) {
@@ -23,11 +29,17 @@ public record BookingResponse(
         b.getId(),
         b.getUserId(),
         b.getLapangan().getId(),
+        b.getLapangan().getNama(),
         b.getTanggalMain(),
         b.getJamMulai(),
         b.getJamSelesai(),
         b.getStatus().name(),
         b.getTotalHarga(),
+        b.getMetodePembayaran(),
+        b.getDpNominal(),
+        b.getPaidAmount(),
+        b.getBuktiBayarPath(),
+        b.getVerifiedAt(),
         b.getCreatedAt()
     );
   }

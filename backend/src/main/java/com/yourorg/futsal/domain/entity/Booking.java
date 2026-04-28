@@ -49,6 +49,21 @@ public class Booking {
   @Column(name = "total_harga", precision = 12, scale = 2)
   private BigDecimal totalHarga;
 
+  @Column(name = "metode_pembayaran")
+  private String metodePembayaran;
+
+  @Column(name = "dp_nominal", precision = 12, scale = 2)
+  private BigDecimal dpNominal;
+
+  @Column(name = "paid_amount", precision = 12, scale = 2)
+  private BigDecimal paidAmount;
+
+  @Column(name = "bukti_bayar_path")
+  private String buktiBayarPath;
+
+  @Column(name = "verified_at")
+  private Instant verifiedAt;
+
   @CreationTimestamp
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
@@ -115,6 +130,46 @@ public class Booking {
 
   public void setTotalHarga(BigDecimal totalHarga) {
     this.totalHarga = totalHarga;
+  }
+
+  public String getMetodePembayaran() {
+    return metodePembayaran;
+  }
+
+  public void setMetodePembayaran(String metodePembayaran) {
+    this.metodePembayaran = metodePembayaran;
+  }
+
+  public BigDecimal getDpNominal() {
+    return dpNominal;
+  }
+
+  public void setDpNominal(BigDecimal dpNominal) {
+    this.dpNominal = dpNominal;
+  }
+
+  public BigDecimal getPaidAmount() {
+    return paidAmount;
+  }
+
+  public void setPaidAmount(BigDecimal paidAmount) {
+    this.paidAmount = paidAmount;
+  }
+
+  public String getBuktiBayarPath() {
+    return buktiBayarPath;
+  }
+
+  public void setBuktiBayarPath(String buktiBayarPath) {
+    this.buktiBayarPath = buktiBayarPath;
+  }
+
+  public Instant getVerifiedAt() {
+    return verifiedAt;
+  }
+
+  public void setVerifiedAt(Instant verifiedAt) {
+    this.verifiedAt = verifiedAt;
   }
 
   public Instant getCreatedAt() {
