@@ -26,6 +26,11 @@ public record BookingResponse(
     Instant verifiedAt,
     String invoiceNumber,
     Instant invoiceIssuedAt,
+    String refundStatus,
+    Instant refundRequestedAt,
+    Instant refundProcessedAt,
+    String refundReason,
+    BigDecimal refundAmount,
     Instant createdAt
 ) {
   public static BookingResponse from(Booking b) {
@@ -51,6 +56,11 @@ public record BookingResponse(
         b.getVerifiedAt(),
         b.getInvoiceNumber(),
         b.getInvoiceIssuedAt(),
+        b.getRefundStatus(),
+        b.getRefundRequestedAt(),
+        b.getRefundProcessedAt(),
+        b.getRefundReason(),
+        b.getRefundAmount(),
         b.getCreatedAt()
     );
   }

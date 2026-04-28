@@ -73,6 +73,21 @@ public class Booking {
   @Column(name = "invoice_issued_at")
   private Instant invoiceIssuedAt;
 
+  @Column(name = "refund_status", nullable = false)
+  private String refundStatus = "NONE";
+
+  @Column(name = "refund_requested_at")
+  private Instant refundRequestedAt;
+
+  @Column(name = "refund_processed_at")
+  private Instant refundProcessedAt;
+
+  @Column(name = "refund_reason")
+  private String refundReason;
+
+  @Column(name = "refund_amount", precision = 12, scale = 2)
+  private BigDecimal refundAmount;
+
   @CreationTimestamp
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
@@ -203,6 +218,46 @@ public class Booking {
 
   public void setInvoiceIssuedAt(Instant invoiceIssuedAt) {
     this.invoiceIssuedAt = invoiceIssuedAt;
+  }
+
+  public String getRefundStatus() {
+    return refundStatus;
+  }
+
+  public void setRefundStatus(String refundStatus) {
+    this.refundStatus = refundStatus;
+  }
+
+  public Instant getRefundRequestedAt() {
+    return refundRequestedAt;
+  }
+
+  public void setRefundRequestedAt(Instant refundRequestedAt) {
+    this.refundRequestedAt = refundRequestedAt;
+  }
+
+  public Instant getRefundProcessedAt() {
+    return refundProcessedAt;
+  }
+
+  public void setRefundProcessedAt(Instant refundProcessedAt) {
+    this.refundProcessedAt = refundProcessedAt;
+  }
+
+  public String getRefundReason() {
+    return refundReason;
+  }
+
+  public void setRefundReason(String refundReason) {
+    this.refundReason = refundReason;
+  }
+
+  public BigDecimal getRefundAmount() {
+    return refundAmount;
+  }
+
+  public void setRefundAmount(BigDecimal refundAmount) {
+    this.refundAmount = refundAmount;
   }
 
   public Instant getCreatedAt() {

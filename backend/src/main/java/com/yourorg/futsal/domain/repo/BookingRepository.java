@@ -156,5 +156,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
         and b.tanggalMain = :tanggal
       """)
   long countByStatusAndTanggalMain(@Param("status") BookingStatus status, @Param("tanggal") LocalDate tanggal);
+
+  @Query("""
+      select b from Booking b
+      join fetch b.lapangan l
+      where upper(b.refundStatus) = :refundStatus
+      order by b.refundRequestedAt desc nulls last, b.createdAt desc
+      """)
+  List<Booking> findRefundByStatusWithLapangan(@Param("refundStatus") String refundStatus);
 }
 

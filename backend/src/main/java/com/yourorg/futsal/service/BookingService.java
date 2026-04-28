@@ -45,6 +45,7 @@ public class BookingService {
   private final PengaturanSistemRepository settingsRepo;
   private final PricingService pricingService;
   private final WhatsappNotificationService waService;
+  private final AuditLogService auditLogService;
 
   public BookingService(
       LapanganRepository lapanganRepo,
@@ -52,7 +53,8 @@ public class BookingService {
       BookingRepository bookingRepo,
       PengaturanSistemRepository settingsRepo,
       PricingService pricingService,
-      WhatsappNotificationService waService
+      WhatsappNotificationService waService,
+      AuditLogService auditLogService
   ) {
     this.lapanganRepo = lapanganRepo;
     this.jamRepo = jamRepo;
@@ -60,6 +62,7 @@ public class BookingService {
     this.settingsRepo = settingsRepo;
     this.pricingService = pricingService;
     this.waService = waService;
+    this.auditLogService = auditLogService;
   }
 
   public Booking createBooking(
@@ -320,6 +323,13 @@ public class BookingService {
     if (booking.getStatus() == BookingStatus.DIBATALKAN) {
       return booking;
     }
+    if (booking.getStatus() == BookingStatus.LUNAS) {
+      throw new ApiException(
+          HttpStatus.BAD_REQUEST,
+          "Bad Request",
+          "Booking sudah lunas. Gunakan fitur refund untuk pembatalan."
+      );
+    }
 
     int minJam = getMinJamBatalkan();
     LocalDateTime now = LocalDateTime.now(DEFAULT_ZONE);
@@ -336,6 +346,61 @@ public class BookingService {
 
     booking.setStatus(BookingStatus.DIBATALKAN);
     return bookingRepo.save(booking);
+  }
+
+  public Booking requestRefund(UUID userId, Long bookingId, String reason) {
+    Booking booking = bookingRepo.findByIdWithLapangan(bookingId)
+        .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Booking tidak ditemukan."));
+    if (!booking.getUserId().equals(userId)) {
+      throw new ApiException(HttpStatus.FORBIDDEN, "Forbidden", "Akses ditolak.");
+    }
+    if (booking.getStatus() != BookingStatus.LUNAS) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Refund hanya untuk booking status LUNAS.");
+    }
+    if (!"NONE".equalsIgnoreCase(booking.getRefundStatus()) && !"REJECTED".equalsIgnoreCase(booking.getRefundStatus())) {
+      return booking;
+    }
+
+    int minJam = getMinJamBatalkan();
+    LocalDateTime now = LocalDateTime.now(DEFAULT_ZONE);
+    LocalDateTime waktuMain = LocalDateTime.of(booking.getTanggalMain(), booking.getJamMulai());
+    long diffMinutes = Duration.between(now, waktuMain).toMinutes();
+    if (diffMinutes < (long) minJam * 60) {
+      throw new ApiException(
+          HttpStatus.BAD_REQUEST,
+          "Bad Request",
+          "Refund tidak bisa diajukan (melebihi batas waktu pembatalan)."
+      );
+    }
+
+    booking.setStatus(BookingStatus.DIBATALKAN); // release slot for rebooking
+    booking.setRefundStatus("PENDING");
+    booking.setRefundRequestedAt(Instant.now());
+    booking.setRefundReason(reason == null ? null : reason.trim());
+    booking.setRefundAmount(booking.getPaidAmount());
+    Booking saved = bookingRepo.save(booking);
+    auditLogService.log(userId, "USER", "REFUND_REQUESTED", "BOOKING", String.valueOf(saved.getId()), saved.getRefundReason());
+    return saved;
+  }
+
+  public Booking adminProcessRefund(Long bookingId, boolean approve, String note) {
+    Booking booking = bookingRepo.findByIdWithLapangan(bookingId)
+        .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Booking tidak ditemukan."));
+    if (!"PENDING".equalsIgnoreCase(booking.getRefundStatus())) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Refund tidak dalam status PENDING.");
+    }
+    booking.setRefundProcessedAt(Instant.now());
+    if (approve) {
+      booking.setRefundStatus("REFUNDED");
+    } else {
+      booking.setRefundStatus("REJECTED");
+    }
+    if (note != null && !note.isBlank()) {
+      booking.setRefundReason((booking.getRefundReason() == null ? "" : booking.getRefundReason() + " | ") + note.trim());
+    }
+    Booking saved = bookingRepo.save(booking);
+    auditLogService.log(null, "ADMIN", approve ? "REFUND_APPROVED" : "REFUND_REJECTED", "BOOKING", String.valueOf(saved.getId()), note);
+    return saved;
   }
 
   private int getMinJamBatalkan() {
