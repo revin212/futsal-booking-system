@@ -88,6 +88,9 @@ export function AdminLoginPage() {
             <Button asChild variant="outline" className="rounded-lg" size="sm">
               <Link to="/">Beranda</Link>
             </Button>
+            <Button asChild variant="ghost" className="rounded-lg" size="sm">
+              <Link to="/masuk">Login User</Link>
+            </Button>
             <Button
               variant="ghost"
               size="sm"

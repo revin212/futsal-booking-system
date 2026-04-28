@@ -42,7 +42,11 @@ export function TopNav() {
               <NavLink to="/admin/dashboard" className={navLinkClass}>
                 Admin
               </NavLink>
-            ) : null}
+            ) : (
+              <NavLink to="/admin/login" className={navLinkClass}>
+                Admin Login
+              </NavLink>
+            )}
           </nav>
         </div>
 
