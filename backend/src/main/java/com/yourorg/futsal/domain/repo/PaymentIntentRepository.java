@@ -1,6 +1,8 @@
 package com.yourorg.futsal.domain.repo;
 
 import com.yourorg.futsal.domain.entity.PaymentIntent;
+import com.yourorg.futsal.domain.enums.BookingStatus;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,6 +33,25 @@ public interface PaymentIntentRepository extends JpaRepository<PaymentIntent, UU
       @Param("id") UUID id,
       @Param("expectedStatus") String expectedStatus,
       @Param("newStatus") String newStatus
+  );
+
+  @Modifying
+  @Query("""
+      update PaymentIntent p
+      set p.status = 'EXPIRED'
+      where p.status = 'PENDING'
+        and exists (
+          select 1 from Booking b
+          where b.id = p.bookingId
+            and (
+              b.status <> :pendingStatus
+              or b.createdAt < :cutoff
+            )
+        )
+      """)
+  int expirePendingByBookingState(
+      @Param("pendingStatus") BookingStatus pendingStatus,
+      @Param("cutoff") Instant cutoff
   );
 }
 

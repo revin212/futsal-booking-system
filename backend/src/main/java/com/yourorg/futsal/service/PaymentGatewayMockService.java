@@ -67,7 +67,7 @@ public class PaymentGatewayMockService {
     return intentRepo.save(p);
   }
 
-  @Transactional(readOnly = true)
+  @Transactional
   public PaymentIntent getIntentForUser(UUID userId, UUID intentId) {
     var p = intentRepo.findById(intentId)
         .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Payment intent tidak ditemukan."));
@@ -75,6 +75,16 @@ public class PaymentGatewayMockService {
         .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Booking tidak ditemukan."));
     if (!booking.getUserId().equals(userId)) {
       throw new ApiException(HttpStatus.FORBIDDEN, "Forbidden", "Akses ditolak.");
+    }
+    // Hardening: jika booking sudah expired/batal, expose intent sebagai EXPIRED.
+    if ("PENDING".equalsIgnoreCase(p.getStatus())) {
+      Instant cutoff = Instant.now().minus(PAYMENT_HOLD_MINUTES, ChronoUnit.MINUTES);
+      boolean bookingExpiredWindow = booking.getCreatedAt() != null && booking.getCreatedAt().isBefore(cutoff);
+      boolean bookingNotPending = booking.getStatus() != BookingStatus.MENUNGGU_PEMBAYARAN;
+      if (bookingNotPending || bookingExpiredWindow) {
+        p.setStatus("EXPIRED");
+        intentRepo.save(p);
+      }
     }
     return p;
   }

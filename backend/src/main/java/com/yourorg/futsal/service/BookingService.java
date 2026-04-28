@@ -357,8 +357,13 @@ public class BookingService {
     if (booking.getStatus() != BookingStatus.LUNAS) {
       throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Refund hanya untuk booking status LUNAS.");
     }
-    if (!"NONE".equalsIgnoreCase(booking.getRefundStatus()) && !"REJECTED".equalsIgnoreCase(booking.getRefundStatus())) {
+    String rs = booking.getRefundStatus() == null ? "NONE" : booking.getRefundStatus().trim().toUpperCase();
+    if ("PENDING".equals(rs)) {
+      // idempotent: refund request hanya sekali selama masih PENDING
       return booking;
+    }
+    if (!"NONE".equals(rs) && !"REJECTED".equals(rs)) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Refund sudah diproses.");
     }
 
     int minJam = getMinJamBatalkan();
@@ -379,7 +384,21 @@ public class BookingService {
     booking.setRefundReason(reason == null ? null : reason.trim());
     booking.setRefundAmount(booking.getPaidAmount());
     Booking saved = bookingRepo.save(booking);
-    auditLogService.log(userId, "USER", "REFUND_REQUESTED", "BOOKING", String.valueOf(saved.getId()), saved.getRefundReason());
+    auditLogService.log(
+        userId,
+        "USER",
+        "REFUND_REQUESTED",
+        "BOOKING",
+        String.valueOf(saved.getId()),
+        json("""
+            {"reason":"%s","refundAmount":%s,"refundStatus":"%s","bookingStatus":"%s"}
+            """.trim(),
+            saved.getRefundReason(),
+            saved.getRefundAmount(),
+            saved.getRefundStatus(),
+            saved.getStatus().name()
+        )
+    );
     return saved;
   }
 
@@ -395,12 +414,54 @@ public class BookingService {
     } else {
       booking.setRefundStatus("REJECTED");
     }
-    if (note != null && !note.isBlank()) {
-      booking.setRefundReason((booking.getRefundReason() == null ? "" : booking.getRefundReason() + " | ") + note.trim());
-    }
     Booking saved = bookingRepo.save(booking);
-    auditLogService.log(null, "ADMIN", approve ? "REFUND_APPROVED" : "REFUND_REJECTED", "BOOKING", String.valueOf(saved.getId()), note);
+    auditLogService.log(
+        null,
+        "ADMIN",
+        approve ? "REFUND_APPROVED" : "REFUND_REJECTED",
+        "BOOKING",
+        String.valueOf(saved.getId()),
+        json("""
+            {"note":"%s","refundAmount":%s,"refundStatus":"%s","bookingStatus":"%s"}
+            """.trim(),
+            note,
+            saved.getRefundAmount(),
+            saved.getRefundStatus(),
+            saved.getStatus().name()
+        )
+    );
     return saved;
+  }
+
+  private static String json(String template, Object... args) {
+    Object[] safe = new Object[args.length];
+    for (int i = 0; i < args.length; i++) {
+      safe[i] = jsonValue(args[i]);
+    }
+    return String.format(template, safe);
+  }
+
+  private static String jsonValue(Object v) {
+    if (v == null) return "";
+    if (v instanceof BigDecimal) return v.toString();
+    String s = String.valueOf(v);
+    return jsonEscape(s);
+  }
+
+  private static String jsonEscape(String s) {
+    StringBuilder out = new StringBuilder(s.length() + 16);
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      switch (c) {
+        case '\\' -> out.append("\\\\");
+        case '"' -> out.append("\\\"");
+        case '\n' -> out.append("\\n");
+        case '\r' -> out.append("\\r");
+        case '\t' -> out.append("\\t");
+        default -> out.append(c);
+      }
+    }
+    return out.toString();
   }
 
   private int getMinJamBatalkan() {
