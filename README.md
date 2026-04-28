@@ -42,6 +42,33 @@ Catatan:
 - Jika email tersebut adalah akun `ADMIN`, endpoint Google login akan menolak dan meminta pakai Admin Login.
 - Akun admin dibuat manual di database (seed/default via Flyway `V1` + password via Flyway `V9`).
 
+## Phase 6: Mock Payment Gateway
+Alur pembayaran sekarang memakai **payment intent** + halaman gateway mock.
+
+- Buat booking (status `MENUNGGU_PEMBAYARAN`)
+- Buka detail booking: `http://localhost/booking/:id`
+- Klik **“Bayar via Gateway (Mock)”** → diarahkan ke:
+  - `http://localhost/payment-gateway/:intentId`
+- Klik **Pay Success** → backend set booking jadi `LUNAS` + trigger notifikasi.
+
+Backend endpoints:
+- `POST /api/payment-intent` `{ "bookingId": <id> }` (auth)
+- `GET /api/payment-intent/{intentId}` (auth)
+- `POST /api/mock-gateway/{intentId}/pay` (auth)
+- `POST /api/mock-gateway/{intentId}/fail` (auth)
+
+## Phase 7: WhatsApp Notification Provider (CallMeBot optional)
+Default notifikasi tetap **WA mock** (log + simpan ke DB `notification_log`).
+
+Kalau mau kirim WA gratis via **CallMeBot** (personal use), set:
+- `pengaturan_sistem.WaProvider = CALLMEBOT`
+- `pengaturan_sistem.CallMeBotApiKey = <apikey>`
+- Pastikan user punya `no_hp` yang valid (format `+62...`) agar notifikasi user bisa terkirim.
+
+Catatan:
+- CallMeBot adalah layanan pihak ketiga, bukan WhatsApp resmi.
+- Jika konfigurasi belum lengkap, sistem akan **SKIP** pengiriman dan tetap menyimpan log.
+
 ## Cara membuat Google OAuth Client ID (Web)
 1. Buka Google Cloud Console → pilih/buat Project.
 2. **OAuth consent screen**: set ke *External* (untuk testing), isi data minimum.
