@@ -29,6 +29,19 @@ JWT_SECRET=CHANGE_ME_TO_A_LONG_RANDOM_SECRET
 Catatan:
 - Kalau `GOOGLE_CLIENT_ID` masih `CHANGE_ME...` maka tombol login Google di `/masuk` akan disable, dan backend akan menolak token.
 
+## Admin dashboard login (mock, non-Google)
+Untuk **akses admin dashboard** gunakan login email+password (bukan Google OAuth).
+
+- **Route**: `http://localhost/admin/login`
+- **Credentials (default seed)**:
+  - Email: `admin@futsal.com`
+  - Password: `admin12345`
+
+Catatan:
+- Akun yang dibuat dari **Google OAuth selalu role `USER`**.
+- Jika email tersebut adalah akun `ADMIN`, endpoint Google login akan menolak dan meminta pakai Admin Login.
+- Akun admin dibuat manual di database (seed/default via Flyway `V1` + password via Flyway `V9`).
+
 ## Cara membuat Google OAuth Client ID (Web)
 1. Buka Google Cloud Console → pilih/buat Project.
 2. **OAuth consent screen**: set ke *External* (untuk testing), isi data minimum.
