@@ -130,7 +130,7 @@ export function BookingDetailPage() {
               </div>
               {b.verifiedAt ? (
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Verified at</span>
+                  <span className="text-muted-foreground">Tanggal Pembayaran</span>
                   <span className="font-mono text-xs">{b.verifiedAt}</span>
                 </div>
               ) : null}
