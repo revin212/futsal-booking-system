@@ -1,10 +1,26 @@
 import { useQuery } from "@tanstack/react-query";
-import { getBookingSaya } from "@/api/bookingApi";
+import { getAdminBookingMenungguVerifikasi, getBookingDetail, getBookingSaya } from "@/api/bookingApi";
 
 export function useBookingSayaQuery() {
   return useQuery({
     queryKey: ["booking", "saya"],
     queryFn: getBookingSaya,
+  });
+}
+
+export function useBookingDetailQuery(id: number) {
+  return useQuery({
+    queryKey: ["booking", "detail", id],
+    queryFn: () => getBookingDetail(id),
+    enabled: Number.isFinite(id) && id > 0,
+  });
+}
+
+export function useAdminMenungguVerifikasiQuery(enabled: boolean) {
+  return useQuery({
+    queryKey: ["admin", "booking", "menunggu_verifikasi"],
+    queryFn: getAdminBookingMenungguVerifikasi,
+    enabled,
   });
 }
 

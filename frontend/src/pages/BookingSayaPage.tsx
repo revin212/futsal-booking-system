@@ -140,6 +140,9 @@ export function BookingSayaPage() {
               </CardContent>
               <CardFooter className="gap-2">
                 <Button asChild variant="outline" className="rounded-lg" size="sm">
+                  <Link to={`/booking/${b.id}`}>Detail / Pembayaran</Link>
+                </Button>
+                <Button asChild variant="outline" className="rounded-lg" size="sm">
                   <Link to={`/jadwal?lapanganId=${b.lapanganId}`}>Lihat di Jadwal</Link>
                 </Button>
                 <Button

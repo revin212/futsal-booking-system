@@ -10,3 +10,4 @@
 **/*.iml
 backend/storage/uploads/
 postgres-data/
+**/tsconfig.tsbuildinfo
