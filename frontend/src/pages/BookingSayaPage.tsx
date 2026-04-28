@@ -80,6 +80,9 @@ export function BookingSayaPage() {
             Batas waktu pembayaran untuk booking status <span className="font-semibold">MENUNGGU_PEMBAYARAN</span> adalah{" "}
             <span className="font-semibold">10 menit</span> sejak booking dibuat.
           </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Batas pembatalan booking adalah <span className="font-semibold">maksimal 1 jam</span> sebelum jadwal main.
+          </p>
         </div>
         <Button asChild variant="outline" className="rounded-lg">
           <Link to="/jadwal">Ke Jadwal</Link>
@@ -166,7 +169,7 @@ export function BookingSayaPage() {
                 ) : (
                   <div className="mt-2 text-xs text-muted-foreground">
                     Pembatalan mengikuti aturan sistem (MinJamBatalkan). Jika sudah terlalu dekat dengan jam main,
-                    pembatalan ditolak.
+                    pembatalan ditolak (maksimal 1 jam sebelum jadwal).
                   </div>
                 )}
               </CardContent>
