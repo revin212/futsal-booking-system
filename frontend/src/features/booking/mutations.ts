@@ -76,10 +76,12 @@ export function useMockPayBookingMutation() {
   return useMutation({
     mutationFn: ({ id }: { id: number }) => postBayarMockBooking(id),
     onSuccess: (res) => {
-      toast.success("Pembayaran berhasil (mock). Menunggu verifikasi admin.");
+      toast.success("Pembayaran berhasil (mock). Booking kamu sudah lunas.");
       queryClient.invalidateQueries({ queryKey: ["booking", "detail", res.id] });
       queryClient.invalidateQueries({ queryKey: ["booking", "saya"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "booking", "menunggu_verifikasi"] });
+      queryClient.invalidateQueries({ queryKey: ["slot"] });
+      queryClient.invalidateQueries({ queryKey: ["kalender"] });
     },
     onError: (err: any) => {
       toast.error(err?.message ?? "Gagal memproses pembayaran");

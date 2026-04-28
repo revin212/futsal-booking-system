@@ -225,7 +225,10 @@ public class BookingService {
       return booking;
     }
     if (booking.getStatus() == BookingStatus.MENUNGGU_VERIFIKASI) {
-      return booking;
+      // legacy/manual flow; mock payment finalizes immediately.
+      booking.setStatus(BookingStatus.LUNAS);
+      if (booking.getVerifiedAt() == null) booking.setVerifiedAt(Instant.now());
+      return bookingRepo.save(booking);
     }
 
     if (booking.getMetodePembayaran() == null || booking.getMetodePembayaran().isBlank()) {
@@ -235,7 +238,8 @@ public class BookingService {
     BigDecimal adminFee = booking.getAdminFee() == null ? BigDecimal.ZERO : booking.getAdminFee();
     BigDecimal totalHarga = booking.getTotalHarga() == null ? BigDecimal.ZERO : booking.getTotalHarga();
     booking.setPaidAmount(totalHarga.add(adminFee));
-    booking.setStatus(BookingStatus.MENUNGGU_VERIFIKASI);
+    booking.setStatus(BookingStatus.LUNAS);
+    booking.setVerifiedAt(Instant.now());
     return bookingRepo.save(booking);
   }
 
