@@ -67,6 +67,12 @@ public class Booking {
   @Column(name = "verified_at")
   private Instant verifiedAt;
 
+  @Column(name = "invoice_number")
+  private String invoiceNumber;
+
+  @Column(name = "invoice_issued_at")
+  private Instant invoiceIssuedAt;
+
   @CreationTimestamp
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
@@ -181,6 +187,22 @@ public class Booking {
 
   public void setVerifiedAt(Instant verifiedAt) {
     this.verifiedAt = verifiedAt;
+  }
+
+  public String getInvoiceNumber() {
+    return invoiceNumber;
+  }
+
+  public void setInvoiceNumber(String invoiceNumber) {
+    this.invoiceNumber = invoiceNumber;
+  }
+
+  public Instant getInvoiceIssuedAt() {
+    return invoiceIssuedAt;
+  }
+
+  public void setInvoiceIssuedAt(Instant invoiceIssuedAt) {
+    this.invoiceIssuedAt = invoiceIssuedAt;
   }
 
   public Instant getCreatedAt() {

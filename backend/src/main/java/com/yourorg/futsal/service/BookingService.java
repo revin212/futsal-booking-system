@@ -20,6 +20,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
@@ -33,6 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class BookingService {
   private static final Logger log = LoggerFactory.getLogger(BookingService.class);
   private static final ZoneId DEFAULT_ZONE = ZoneId.of("Asia/Jakarta");
+  private static final DateTimeFormatter INVOICE_DATE = DateTimeFormatter.ofPattern("yyyyMMdd");
   private static final long MAX_UPLOAD_BYTES = 10L * 1024 * 1024; // 10 MB
   private static final long PAYMENT_HOLD_MINUTES = 10;
 
@@ -244,6 +247,7 @@ public class BookingService {
       // legacy/manual flow; mock payment finalizes immediately.
       booking.setStatus(BookingStatus.LUNAS);
       if (booking.getVerifiedAt() == null) booking.setVerifiedAt(Instant.now());
+      ensureInvoice(booking);
       willBecomeLunas = true;
       Booking saved = bookingRepo.save(booking);
       if (willBecomeLunas) {
@@ -265,6 +269,7 @@ public class BookingService {
     booking.setPaidAmount(totalHarga.add(adminFee));
     booking.setStatus(BookingStatus.LUNAS);
     booking.setVerifiedAt(Instant.now());
+    ensureInvoice(booking);
     willBecomeLunas = true;
     Booking saved = bookingRepo.save(booking);
     if (willBecomeLunas) {
@@ -288,11 +293,20 @@ public class BookingService {
     if (approve) {
       booking.setStatus(BookingStatus.LUNAS);
       booking.setVerifiedAt(Instant.now());
+      ensureInvoice(booking);
     } else {
       booking.setStatus(BookingStatus.DITOLAK);
       booking.setVerifiedAt(Instant.now());
     }
     return bookingRepo.save(booking);
+  }
+
+  private void ensureInvoice(Booking booking) {
+    if (booking.getInvoiceNumber() != null && !booking.getInvoiceNumber().isBlank()) return;
+    String date = ZonedDateTime.now(DEFAULT_ZONE).format(INVOICE_DATE);
+    String inv = "INV-" + date + "-" + booking.getId();
+    booking.setInvoiceNumber(inv);
+    if (booking.getInvoiceIssuedAt() == null) booking.setInvoiceIssuedAt(Instant.now());
   }
 
   public Booking cancelBooking(UUID userId, Long bookingId) {

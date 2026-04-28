@@ -24,6 +24,8 @@ public record BookingResponse(
     BigDecimal paidAmount,
     String buktiBayarPath,
     Instant verifiedAt,
+    String invoiceNumber,
+    Instant invoiceIssuedAt,
     Instant createdAt
 ) {
   public static BookingResponse from(Booking b) {
@@ -47,6 +49,8 @@ public record BookingResponse(
         b.getPaidAmount(),
         b.getBuktiBayarPath(),
         b.getVerifiedAt(),
+        b.getInvoiceNumber(),
+        b.getInvoiceIssuedAt(),
         b.getCreatedAt()
     );
   }
