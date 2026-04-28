@@ -27,7 +27,7 @@ export function AdminBookingPage() {
   useEffect(() => {
     if (user) return;
     clearAccessToken();
-    navigate(`/masuk?returnTo=${encodeURIComponent("/admin/booking")}`, { replace: true });
+    navigate(`/admin/login?returnTo=${encodeURIComponent("/admin/booking")}`, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 

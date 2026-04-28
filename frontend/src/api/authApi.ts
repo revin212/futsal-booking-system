@@ -24,3 +24,12 @@ export async function postGoogleAuth(idToken: string) {
   });
 }
 
+export type AdminLoginResponse = GoogleAuthResponse;
+
+export async function postAdminLogin(email: string, password: string) {
+  return apiFetch<AdminLoginResponse>("/auth/admin-login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+}
+

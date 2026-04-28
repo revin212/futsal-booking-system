@@ -10,6 +10,7 @@ import { BookingSayaPage } from "@/pages/BookingSayaPage";
 import { BookingDetailPage } from "@/pages/BookingDetailPage";
 import { AdminBookingPage } from "@/pages/AdminBookingPage";
 import { AdminDashboardPage } from "@/pages/AdminDashboardPage";
+import { AdminLoginPage } from "@/pages/AdminLoginPage";
 
 export const router = createBrowserRouter([
   {
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
       { path: "/booking-saya", element: <BookingSayaPage /> },
       { path: "/admin/booking", element: <AdminBookingPage /> },
       { path: "/admin/dashboard", element: <AdminDashboardPage /> },
+      { path: "/admin/login", element: <AdminLoginPage /> },
       { path: "/masuk", element: <MasukPage /> }
     ],
   },

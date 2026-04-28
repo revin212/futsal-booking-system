@@ -29,7 +29,7 @@ export function AdminDashboardPage() {
   useEffect(() => {
     if (user) return;
     clearAccessToken();
-    navigate(`/masuk?returnTo=${encodeURIComponent("/admin/dashboard")}`, { replace: true });
+    navigate(`/admin/login?returnTo=${encodeURIComponent("/admin/dashboard")}`, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
