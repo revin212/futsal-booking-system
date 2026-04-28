@@ -25,6 +25,8 @@ export type Booking = {
   paidAmount: number | null;
   buktiBayarPath: string | null;
   verifiedAt: string | null;
+  invoiceNumber: string | null;
+  invoiceIssuedAt: string | null;
   createdAt: string;
 };
 

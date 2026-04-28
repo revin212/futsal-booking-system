@@ -134,7 +134,20 @@ export function BookingDetailPage() {
                   <span className="font-mono text-xs">{b.verifiedAt}</span>
                 </div>
               ) : null}
+              {b.invoiceNumber ? (
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Invoice</span>
+                  <span className="font-mono text-xs">{b.invoiceNumber}</span>
+                </div>
+              ) : null}
             </CardContent>
+            {(b.status === "LUNAS" || b.status === "SELESAI") ? (
+              <CardFooter>
+                <Button asChild variant="outline" className="rounded-lg">
+                  <Link to={`/invoice/${b.id}`}>Lihat Invoice</Link>
+                </Button>
+              </CardFooter>
+            ) : null}
           </Card>
 
           <Card>

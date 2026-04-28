@@ -12,6 +12,7 @@ import { AdminBookingPage } from "@/pages/AdminBookingPage";
 import { AdminDashboardPage } from "@/pages/AdminDashboardPage";
 import { AdminLoginPage } from "@/pages/AdminLoginPage";
 import { PaymentGatewayMockPage } from "@/pages/PaymentGatewayMockPage";
+import { InvoicePage } from "@/pages/InvoicePage";
 
 export const router = createBrowserRouter([
   {
@@ -28,6 +29,7 @@ export const router = createBrowserRouter([
       { path: "/admin/dashboard", element: <AdminDashboardPage /> },
       { path: "/admin/login", element: <AdminLoginPage /> },
       { path: "/payment-gateway/:intentId", element: <PaymentGatewayMockPage /> },
+      { path: "/invoice/:bookingId", element: <InvoicePage /> },
       { path: "/masuk", element: <MasukPage /> }
     ],
   },
