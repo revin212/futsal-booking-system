@@ -10,9 +10,13 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +32,7 @@ public class WhatsappNotificationService {
   private final PengaturanSistemRepository settingsRepo;
   private final AppUserRepository userRepo;
   private final NotificationLogRepository logRepo;
+  private final RestClient restClient;
 
   public WhatsappNotificationService(
       PengaturanSistemRepository settingsRepo,
@@ -37,6 +42,7 @@ public class WhatsappNotificationService {
     this.settingsRepo = settingsRepo;
     this.userRepo = userRepo;
     this.logRepo = logRepo;
+    this.restClient = RestClient.create();
   }
 
   @Transactional
@@ -84,8 +90,58 @@ public class WhatsappNotificationService {
     row.setRecipientType(recipientType);
     row.setRecipientValue(recipientValue);
     row.setMessage(msg);
+    trySend(row);
     logRepo.save(row);
-    log.info("[WA_MOCK] type={} to={} message={}", type, recipientValue, msg);
+    log.info("[WA] provider={} status={} type={} to={} message={}",
+        currentProvider(), row.getDeliveryStatus(), type, recipientValue, msg);
+  }
+
+  private void trySend(NotificationLog row) {
+    String provider = currentProvider();
+    if (!"CALLMEBOT".equalsIgnoreCase(provider)) {
+      row.setDeliveryStatus("LOGGED");
+      return;
+    }
+
+    // CallMeBot requires phone + apikey (per-recipient). We'll use:
+    // - recipientValue for admin: settings NoWhatsApp or fallback "ADMIN" -> skip
+    // - recipientValue for user: normalized phone or "USER:<uuid>" -> skip
+    String phone = row.getRecipientValue();
+    if (phone == null || phone.isBlank() || phone.startsWith("USER:") || "ADMIN".equals(phone)) {
+      row.setDeliveryStatus("SKIPPED");
+      row.setErrorMessage("Recipient phone not available.");
+      return;
+    }
+
+    String apiKey = settingsRepo.findByKey("CallMeBotApiKey").map(s -> s.getValue()).orElse("");
+    if (apiKey.isBlank() || apiKey.contains("-")) {
+      row.setDeliveryStatus("SKIPPED");
+      row.setErrorMessage("CallMeBotApiKey not set.");
+      return;
+    }
+
+    // Send via GET: https://api.callmebot.com/whatsapp.php?phone=...&text=...&apikey=...
+    String text = URLEncoder.encode(row.getMessage(), StandardCharsets.UTF_8);
+    String url = "https://api.callmebot.com/whatsapp.php?phone="
+        + URLEncoder.encode(phone, StandardCharsets.UTF_8)
+        + "&text=" + text
+        + "&apikey=" + URLEncoder.encode(apiKey, StandardCharsets.UTF_8);
+
+    try {
+      ResponseEntity<String> res = restClient.get().uri(url).retrieve().toEntity(String.class);
+      row.setDeliveryStatus(res.getStatusCode().is2xxSuccessful() ? "SENT" : "FAILED");
+      row.setProviderResponse(res.getBody());
+      if (!res.getStatusCode().is2xxSuccessful()) {
+        row.setErrorMessage("HTTP " + res.getStatusCode().value());
+      }
+    } catch (Exception e) {
+      row.setDeliveryStatus("FAILED");
+      row.setErrorMessage(e.getMessage());
+    }
+  }
+
+  private String currentProvider() {
+    return settingsRepo.findByKey("WaProvider").map(s -> s.getValue().trim().toUpperCase()).orElse("MOCK");
   }
 
   private String render(String templateKey, Booking booking, AppUser user) {

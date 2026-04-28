@@ -12,6 +12,9 @@ public record NotificationLogResponse(
     String recipientType,
     String recipientValue,
     String message,
+    String deliveryStatus,
+    String errorMessage,
+    String providerResponse,
     Instant createdAt
 ) {
   public static NotificationLogResponse from(NotificationLog n) {
@@ -24,6 +27,9 @@ public record NotificationLogResponse(
         n.getRecipientType(),
         n.getRecipientValue(),
         n.getMessage(),
+        n.getDeliveryStatus(),
+        n.getErrorMessage(),
+        n.getProviderResponse(),
         n.getCreatedAt()
     );
   }

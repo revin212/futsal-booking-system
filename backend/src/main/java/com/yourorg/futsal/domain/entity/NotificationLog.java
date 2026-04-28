@@ -37,6 +37,15 @@ public class NotificationLog {
   @Column(nullable = false, columnDefinition = "TEXT")
   private String message;
 
+  @Column(name = "delivery_status", nullable = false)
+  private String deliveryStatus = "LOGGED";
+
+  @Column(name = "error_message")
+  private String errorMessage;
+
+  @Column(name = "provider_response", columnDefinition = "TEXT")
+  private String providerResponse;
+
   @CreationTimestamp
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
@@ -99,6 +108,30 @@ public class NotificationLog {
 
   public void setMessage(String message) {
     this.message = message;
+  }
+
+  public String getDeliveryStatus() {
+    return deliveryStatus;
+  }
+
+  public void setDeliveryStatus(String deliveryStatus) {
+    this.deliveryStatus = deliveryStatus;
+  }
+
+  public String getErrorMessage() {
+    return errorMessage;
+  }
+
+  public void setErrorMessage(String errorMessage) {
+    this.errorMessage = errorMessage;
+  }
+
+  public String getProviderResponse() {
+    return providerResponse;
+  }
+
+  public void setProviderResponse(String providerResponse) {
+    this.providerResponse = providerResponse;
   }
 
   public Instant getCreatedAt() {
