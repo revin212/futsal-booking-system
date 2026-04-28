@@ -23,12 +23,15 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class BookingService {
+  private static final Logger log = LoggerFactory.getLogger(BookingService.class);
   private static final ZoneId DEFAULT_ZONE = ZoneId.of("Asia/Jakarta");
   private static final long MAX_UPLOAD_BYTES = 10L * 1024 * 1024; // 10 MB
   private static final long PAYMENT_HOLD_MINUTES = 10;
@@ -38,19 +41,22 @@ public class BookingService {
   private final BookingRepository bookingRepo;
   private final PengaturanSistemRepository settingsRepo;
   private final PricingService pricingService;
+  private final WhatsappNotificationService waService;
 
   public BookingService(
       LapanganRepository lapanganRepo,
       JamOperasionalRepository jamRepo,
       BookingRepository bookingRepo,
       PengaturanSistemRepository settingsRepo,
-      PricingService pricingService
+      PricingService pricingService,
+      WhatsappNotificationService waService
   ) {
     this.lapanganRepo = lapanganRepo;
     this.jamRepo = jamRepo;
     this.bookingRepo = bookingRepo;
     this.settingsRepo = settingsRepo;
     this.pricingService = pricingService;
+    this.waService = waService;
   }
 
   public Booking createBooking(
@@ -127,7 +133,13 @@ public class BookingService {
     b.setTotalHarga(total);
     b.setMetodePembayaran(metodePembayaran);
     b.setAdminFee(adminFee);
-    return bookingRepo.save(b);
+    Booking saved = bookingRepo.save(b);
+    try {
+      waService.notifyBookingCreated(saved);
+    } catch (Exception e) {
+      log.warn("Failed to send WA mock for booking created id={}", saved.getId(), e);
+    }
+    return saved;
   }
 
   public List<Booking> listByUser(UUID userId) {
@@ -227,11 +239,21 @@ public class BookingService {
     if (booking.getStatus() == BookingStatus.LUNAS) {
       return booking;
     }
+    boolean willBecomeLunas = false;
     if (booking.getStatus() == BookingStatus.MENUNGGU_VERIFIKASI) {
       // legacy/manual flow; mock payment finalizes immediately.
       booking.setStatus(BookingStatus.LUNAS);
       if (booking.getVerifiedAt() == null) booking.setVerifiedAt(Instant.now());
-      return bookingRepo.save(booking);
+      willBecomeLunas = true;
+      Booking saved = bookingRepo.save(booking);
+      if (willBecomeLunas) {
+        try {
+          waService.notifyPaymentSuccess(saved);
+        } catch (Exception e) {
+          log.warn("Failed to send WA mock for payment success id={}", saved.getId(), e);
+        }
+      }
+      return saved;
     }
 
     if (booking.getMetodePembayaran() == null || booking.getMetodePembayaran().isBlank()) {
@@ -243,7 +265,16 @@ public class BookingService {
     booking.setPaidAmount(totalHarga.add(adminFee));
     booking.setStatus(BookingStatus.LUNAS);
     booking.setVerifiedAt(Instant.now());
-    return bookingRepo.save(booking);
+    willBecomeLunas = true;
+    Booking saved = bookingRepo.save(booking);
+    if (willBecomeLunas) {
+      try {
+        waService.notifyPaymentSuccess(saved);
+      } catch (Exception e) {
+        log.warn("Failed to send WA mock for payment success id={}", saved.getId(), e);
+      }
+    }
+    return saved;
   }
 
   public Booking adminVerifikasi(Long bookingId, boolean approve) {

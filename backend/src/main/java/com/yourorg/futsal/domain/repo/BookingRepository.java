@@ -66,6 +66,29 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
   @Query("""
       select b from Booking b
       join fetch b.lapangan l
+      where b.status = :status
+        and b.tanggalMain = :tanggal
+      order by b.jamMulai asc
+      """)
+  List<Booking> findByStatusAndTanggalMainWithLapangan(
+      @Param("status") BookingStatus status,
+      @Param("tanggal") LocalDate tanggal
+  );
+
+  @Query("""
+      select b from Booking b
+      join fetch b.lapangan l
+      where b.tanggalMain between :start and :end
+      order by b.tanggalMain asc, b.jamMulai asc
+      """)
+  List<Booking> findByTanggalMainBetweenWithLapangan(
+      @Param("start") LocalDate start,
+      @Param("end") LocalDate end
+  );
+
+  @Query("""
+      select b from Booking b
+      join fetch b.lapangan l
       where b.id = :id
       """)
   Optional<Booking> findByIdWithLapangan(@Param("id") Long id);
@@ -102,5 +125,36 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
       @Param("statusBatal") BookingStatus statusBatal,
       @Param("cutoff") Instant cutoff
   );
+
+  @Modifying
+  @Query("""
+      update Booking b
+      set b.status = :statusSelesai
+      where b.status = :statusLunas
+        and (
+          b.tanggalMain < :today
+          or (b.tanggalMain = :today and b.jamSelesai <= :nowTime)
+        )
+      """)
+  int markCompletedAfterEndTime(
+      @Param("statusLunas") BookingStatus statusLunas,
+      @Param("statusSelesai") BookingStatus statusSelesai,
+      @Param("today") LocalDate today,
+      @Param("nowTime") LocalTime nowTime
+  );
+
+  @Query("""
+      select count(b) from Booking b
+      where b.status = :statusPending
+        and b.createdAt >= :cutoff
+      """)
+  long countActivePending(@Param("statusPending") BookingStatus statusPending, @Param("cutoff") Instant cutoff);
+
+  @Query("""
+      select count(b) from Booking b
+      where b.status = :status
+        and b.tanggalMain = :tanggal
+      """)
+  long countByStatusAndTanggalMain(@Param("status") BookingStatus status, @Param("tanggal") LocalDate tanggal);
 }
 
