@@ -51,11 +51,16 @@ Alur pembayaran sekarang memakai **payment intent** + halaman gateway mock.
   - `http://localhost/payment-gateway/:intentId`
 - Klik **Pay Success** → backend set booking jadi `LUNAS` + trigger notifikasi.
 
+### Invoice
+Jika booking sudah **LUNAS/SELESAI**, invoice bisa dilihat di:
+- `http://localhost/invoice/:bookingId`
+
 Backend endpoints:
 - `POST /api/payment-intent` `{ "bookingId": <id> }` (auth)
 - `GET /api/payment-intent/{intentId}` (auth)
 - `POST /api/mock-gateway/{intentId}/pay` (auth)
 - `POST /api/mock-gateway/{intentId}/fail` (auth)
+- `GET /api/invoice/{bookingId}` (auth)
 
 ## Phase 7: WhatsApp Notification Provider (CallMeBot optional)
 Default notifikasi tetap **WA mock** (log + simpan ke DB `notification_log`).
