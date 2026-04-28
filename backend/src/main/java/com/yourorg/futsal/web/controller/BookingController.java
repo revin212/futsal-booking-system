@@ -39,7 +39,8 @@ public class BookingController {
         req.tanggalMain(),
         req.jamMulai(),
         req.durasiJam(),
-        req.metodePembayaran()
+        req.metodePembayaran(),
+        req.noHp()
     );
     return BookingResponse.from(booking);
   }

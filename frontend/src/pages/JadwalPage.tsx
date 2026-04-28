@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getStoredUser } from "@/api/authStorage";
+import { AdminWaButton } from "@/components/AdminWaButton";
 
 function formatRupiah(n: number) {
   return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(n);
@@ -199,6 +200,7 @@ export function JadwalPage() {
           )}
         </div>
       </div>
+      <AdminWaButton />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { useSlotHariIniQuery } from "@/features/slot/queries";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AdminWaButton } from "@/components/AdminWaButton";
 
 function formatRupiah(n: number) {
   return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(n);
@@ -168,17 +169,7 @@ export function HomePage() {
           </Button>
         </div>
       </section>
-
-      <a
-        href="https://wa.me/6280000000000"
-        target="_blank"
-        rel="noreferrer"
-        className="fixed bottom-6 right-6 z-50"
-      >
-        <div className="rounded-full bg-primary text-primary-foreground shadow-lg px-4 py-3 text-sm font-semibold">
-          WhatsApp
-        </div>
-      </a>
+      <AdminWaButton />
     </div>
   );
 }

@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AdminWaButton } from "@/components/AdminWaButton";
+import { setStoredUser } from "@/api/authStorage";
 
 function formatRupiah(n: number) {
   return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(n);
@@ -46,6 +48,7 @@ export function BookingNewPage() {
   const [jamMulai, setJamMulai] = useState<string>(initial.jamMulai);
   const [durasiJam, setDurasiJam] = useState<number>(1);
   const [metodePembayaran, setMetodePembayaran] = useState<"QRIS" | "TRANSFER" | "EMONEY">("QRIS");
+  const [noHp, setNoHp] = useState<string>(user?.noHp ?? "");
 
   useEffect(() => {
     if (user) return;
@@ -119,7 +122,8 @@ export function BookingNewPage() {
 
   const createMutation = useCreateBookingMutation();
 
-  const canSubmit = Boolean(lapanganId && tanggal && jamMulai && durasiJam >= 1) && !createMutation.isPending;
+  const canSubmit =
+    Boolean(lapanganId && tanggal && jamMulai && durasiJam >= 1 && noHp.trim()) && !createMutation.isPending;
 
   return (
     <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10">
@@ -130,6 +134,19 @@ export function BookingNewPage() {
       </p>
 
       <div className="mt-6 space-y-4 rounded-2xl border bg-card p-4">
+        <div className="space-y-2">
+          <div className="text-sm font-semibold">Nomor WhatsApp</div>
+          <Input
+            value={noHp}
+            onChange={(e) => setNoHp(e.target.value)}
+            placeholder="+62xxxx atau 08xxxx"
+            disabled={createMutation.isPending}
+          />
+          <div className="text-xs text-muted-foreground">
+            Wajib diisi untuk notifikasi booking. Akan disimpan untuk booking berikutnya.
+          </div>
+        </div>
+
         <div className="space-y-2">
           <div className="text-sm font-semibold">Lapangan</div>
           {lapanganQ.isLoading ? (
@@ -253,6 +270,10 @@ export function BookingNewPage() {
             onClick={async () => {
               if (!lapanganId) return;
               if (!tanggal || !jamMulai) return;
+              if (!noHp.trim()) {
+                toast.error("Nomor WhatsApp wajib diisi");
+                return;
+              }
               try {
                 const res = await createMutation.mutateAsync({
                   lapanganId,
@@ -260,7 +281,11 @@ export function BookingNewPage() {
                   jamMulai,
                   durasiJam,
                   metodePembayaran,
+                  noHp: noHp.trim(),
                 });
+                if (user) {
+                  setStoredUser({ ...user, noHp: noHp.trim() });
+                }
                 navigate(`/booking/${res.id}`, { replace: true });
                 toast.success(`Booking dibuat. Lanjutkan pembayaran untuk konfirmasi.`);
               } catch {
@@ -284,6 +309,7 @@ export function BookingNewPage() {
           <Link to="/jadwal">Kembali ke Jadwal</Link>
         </Button>
       </div>
+      <AdminWaButton />
     </div>
   );
 }

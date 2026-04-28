@@ -7,6 +7,7 @@ export type StoredUser = {
   email: string;
   namaLengkap: string;
   fotoProfil: string | null;
+  noHp: string | null;
   role: "ADMIN" | "USER";
 };
 

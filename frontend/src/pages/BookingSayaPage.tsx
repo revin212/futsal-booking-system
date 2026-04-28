@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AdminWaButton } from "@/components/AdminWaButton";
 
 function formatRupiah(n: number) {
   return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(n);
@@ -349,6 +350,7 @@ export function BookingSayaPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <AdminWaButton />
     </div>
   );
 }

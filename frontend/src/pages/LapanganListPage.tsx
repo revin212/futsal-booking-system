@@ -6,6 +6,7 @@ import { useLapanganListQuery } from "@/features/lapangan/queries";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AdminWaButton } from "@/components/AdminWaButton";
 
 function formatRupiah(n: number) {
   return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(n);
@@ -76,6 +77,7 @@ export function LapanganListPage() {
               </Card>
             ))}
       </div>
+      <AdminWaButton />
     </div>
   );
 }

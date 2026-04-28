@@ -36,6 +36,7 @@ export function AdminLoginPage() {
         email: res.user.email,
         namaLengkap: res.user.namaLengkap,
         fotoProfil: res.user.fotoProfil,
+        noHp: res.user.noHp,
         role: res.user.role,
       });
       toast.success(`Admin login sukses: ${res.user.namaLengkap}`);

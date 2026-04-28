@@ -2,7 +2,9 @@ package com.yourorg.futsal.service;
 
 import com.yourorg.futsal.domain.entity.Booking;
 import com.yourorg.futsal.domain.entity.JamOperasional;
+import com.yourorg.futsal.domain.entity.AppUser;
 import com.yourorg.futsal.domain.enums.BookingStatus;
+import com.yourorg.futsal.domain.repo.AppUserRepository;
 import com.yourorg.futsal.domain.repo.BookingRepository;
 import com.yourorg.futsal.domain.repo.JamOperasionalRepository;
 import com.yourorg.futsal.domain.repo.LapanganRepository;
@@ -42,6 +44,7 @@ public class BookingService {
   private final LapanganRepository lapanganRepo;
   private final JamOperasionalRepository jamRepo;
   private final BookingRepository bookingRepo;
+  private final AppUserRepository userRepo;
   private final PengaturanSistemRepository settingsRepo;
   private final PricingService pricingService;
   private final WhatsappNotificationService waService;
@@ -51,6 +54,7 @@ public class BookingService {
       LapanganRepository lapanganRepo,
       JamOperasionalRepository jamRepo,
       BookingRepository bookingRepo,
+      AppUserRepository userRepo,
       PengaturanSistemRepository settingsRepo,
       PricingService pricingService,
       WhatsappNotificationService waService,
@@ -59,6 +63,7 @@ public class BookingService {
     this.lapanganRepo = lapanganRepo;
     this.jamRepo = jamRepo;
     this.bookingRepo = bookingRepo;
+    this.userRepo = userRepo;
     this.settingsRepo = settingsRepo;
     this.pricingService = pricingService;
     this.waService = waService;
@@ -71,8 +76,20 @@ public class BookingService {
       LocalDate tanggalMain,
       LocalTime jamMulai,
       int durasiJam,
-      String metodePembayaranRaw
+      String metodePembayaranRaw,
+      String noHpRaw
   ) {
+    AppUser u = userRepo.findById(userId)
+        .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Unauthorized", "User tidak ditemukan."));
+    String normalizedNoHp = normalizeNoHp(noHpRaw);
+    if (normalizedNoHp == null) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Nomor WhatsApp tidak valid.");
+    }
+    if (u.getNoHp() == null || u.getNoHp().isBlank() || !u.getNoHp().trim().equals(normalizedNoHp)) {
+      u.setNoHp(normalizedNoHp);
+      userRepo.save(u);
+    }
+
     var lapangan = lapanganRepo.findById(lapanganId)
         .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Lapangan tidak ditemukan."));
 
@@ -462,6 +479,16 @@ public class BookingService {
       }
     }
     return out.toString();
+  }
+
+  private static String normalizeNoHp(String raw) {
+    if (raw == null) return null;
+    String s = raw.trim().replaceAll("[\\s-]", "");
+    if (s.isBlank()) return null;
+    if (s.startsWith("+62")) return s;
+    if (s.startsWith("62")) return "+" + s;
+    if (s.startsWith("0")) return "+62" + s.substring(1);
+    return null;
   }
 
   private int getMinJamBatalkan() {

@@ -25,6 +25,7 @@ export function MasukPage() {
         email: res.user.email,
         namaLengkap: res.user.namaLengkap,
         fotoProfil: res.user.fotoProfil,
+        noHp: res.user.noHp,
         role: res.user.role,
       });
       toast.success(`Selamat datang, ${res.user.namaLengkap}`);
