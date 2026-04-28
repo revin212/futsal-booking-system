@@ -190,6 +190,34 @@ public class BookingService {
     return bookingRepo.save(booking);
   }
 
+  public Booking mockPay(UUID userId, Long bookingId, String methodRaw) {
+    Booking booking = bookingRepo.findByIdWithLapangan(bookingId)
+        .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Booking tidak ditemukan."));
+
+    if (!booking.getUserId().equals(userId)) {
+      throw new ApiException(HttpStatus.FORBIDDEN, "Forbidden", "Akses ditolak.");
+    }
+    if (booking.getStatus() == BookingStatus.DIBATALKAN) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Booking sudah dibatalkan.");
+    }
+    if (booking.getStatus() == BookingStatus.LUNAS) {
+      return booking;
+    }
+    if (booking.getStatus() == BookingStatus.MENUNGGU_VERIFIKASI) {
+      return booking;
+    }
+
+    String method = methodRaw == null ? "" : methodRaw.trim().toUpperCase();
+    if (!method.equals("QRIS") && !method.equals("TRANSFER") && !method.equals("EMONEY")) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Metode pembayaran tidak valid.");
+    }
+
+    booking.setMetodePembayaran(method);
+    booking.setPaidAmount(booking.getTotalHarga());
+    booking.setStatus(BookingStatus.MENUNGGU_VERIFIKASI);
+    return bookingRepo.save(booking);
+  }
+
   public Booking adminVerifikasi(Long bookingId, boolean approve) {
     Booking booking = bookingRepo.findByIdWithLapangan(bookingId)
         .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Booking tidak ditemukan."));
