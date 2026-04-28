@@ -145,15 +145,17 @@ export function BookingSayaPage() {
                 <Button asChild variant="outline" className="rounded-lg" size="sm">
                   <Link to={`/jadwal?lapanganId=${b.lapanganId}`}>Lihat di Jadwal</Link>
                 </Button>
-                <Button
-                  className="rounded-lg"
-                  size="sm"
-                  variant="destructive"
-                  disabled={b.status === "DIBATALKAN" || batalMutation.isPending}
-                  onClick={() => setConfirmId(b.id)}
-                >
-                  {b.status === "DIBATALKAN" ? "Dibatalkan" : "Batalkan"}
-                </Button>
+                {b.status !== "LUNAS" && b.status !== "SELESAI" ? (
+                  <Button
+                    className="rounded-lg"
+                    size="sm"
+                    variant="destructive"
+                    disabled={b.status === "DIBATALKAN" || batalMutation.isPending}
+                    onClick={() => setConfirmId(b.id)}
+                  >
+                    {b.status === "DIBATALKAN" ? "Dibatalkan" : "Batalkan"}
+                  </Button>
+                ) : null}
               </CardFooter>
             </Card>
           ))}
