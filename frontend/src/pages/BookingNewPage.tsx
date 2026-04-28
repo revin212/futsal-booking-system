@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
-import { getStoredUser } from "@/api/authStorage";
+import { clearAccessToken, getAuthSession } from "@/api/authStorage";
 import { useLapanganListQuery } from "@/features/lapangan/queries";
 import { useSlotQuery } from "@/features/slot/queries";
 import { useCreateBookingMutation } from "@/features/booking/mutations";
@@ -25,7 +25,8 @@ const ADMIN_FEE: Record<"QRIS" | "TRANSFER" | "EMONEY", number> = {
 export function BookingNewPage() {
   const navigate = useNavigate();
   const [sp, setSp] = useSearchParams();
-  const user = getStoredUser();
+  const session = getAuthSession();
+  const user = session?.user ?? null;
 
   const lapanganQ = useLapanganListQuery();
 
@@ -48,6 +49,7 @@ export function BookingNewPage() {
 
   useEffect(() => {
     if (user) return;
+    clearAccessToken();
     const returnTo = `/booking/new?${sp.toString()}`;
     navigate(`/masuk?returnTo=${encodeURIComponent(returnTo)}`, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps

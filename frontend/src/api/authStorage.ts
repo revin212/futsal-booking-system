@@ -14,6 +14,17 @@ export function getAccessToken(): string | null {
   return localStorage.getItem(ACCESS_TOKEN_KEY);
 }
 
+export function getAuthSession(): { user: StoredUser; token: string } | null {
+  const user = getStoredUser();
+  const token = getAccessToken();
+  if (!user || !token) return null;
+  return { user, token };
+}
+
+export function getAuthedUser(): StoredUser | null {
+  return getAuthSession()?.user ?? null;
+}
+
 function notifyAuthChanged() {
   window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
 }

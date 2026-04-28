@@ -1,7 +1,7 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { clearAccessToken, getStoredUser, onAuthChanged, type StoredUser } from "@/api/authStorage";
+import { clearAccessToken, getAuthedUser, onAuthChanged, type StoredUser } from "@/api/authStorage";
 
 const navLinkClass =
   "text-sm font-lexend text-muted-foreground hover:text-primary transition-colors";
@@ -11,7 +11,7 @@ export function TopNav() {
   const [user, setUser] = useState<StoredUser | null>(null);
 
   useEffect(() => {
-    const sync = () => setUser(getStoredUser());
+    const sync = () => setUser(getAuthedUser());
     sync();
     return onAuthChanged(sync);
   }, []);

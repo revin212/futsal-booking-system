@@ -2,7 +2,7 @@ import { useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-import { getStoredUser } from "@/api/authStorage";
+import { clearAccessToken, getAuthSession } from "@/api/authStorage";
 import { useAdminMenungguVerifikasiQuery } from "@/features/booking/queries";
 import { useAdminVerifikasiBookingMutation } from "@/features/booking/mutations";
 
@@ -19,12 +19,14 @@ function hhmm(v: string) {
 }
 
 export function AdminBookingPage() {
-  const user = getStoredUser();
+  const session = getAuthSession();
+  const user = session?.user ?? null;
   const navigate = useNavigate();
   const isAdmin = user?.role === "ADMIN";
 
   useEffect(() => {
     if (user) return;
+    clearAccessToken();
     navigate(`/masuk?returnTo=${encodeURIComponent("/admin/booking")}`, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);

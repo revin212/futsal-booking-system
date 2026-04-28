@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
-import { getStoredUser } from "@/api/authStorage";
+import { clearAccessToken, getAuthSession } from "@/api/authStorage";
 import { useBookingSayaQuery } from "@/features/booking/queries";
 import { useBatalkanBookingMutation } from "@/features/booking/mutations";
 
@@ -47,13 +47,17 @@ function formatCreatedAt(iso: string) {
 }
 
 export function BookingSayaPage() {
-  const user = getStoredUser();
-  const q = useBookingSayaQuery(Boolean(user));
+  const session = getAuthSession();
+  const user = session?.user ?? null;
+  const q = useBookingSayaQuery(Boolean(session));
   const batalMutation = useBatalkanBookingMutation();
   const [confirmId, setConfirmId] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!user) toast.error("Silakan login dulu");
+    if (user) return;
+    // If user/token missing, treat as logged out
+    clearAccessToken();
+    toast.error("Sesi login habis. Silakan login ulang.");
   }, [user]);
 
   useEffect(() => {

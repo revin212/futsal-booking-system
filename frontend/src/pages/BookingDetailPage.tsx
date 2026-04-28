@@ -2,7 +2,7 @@ import { useEffect, useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
-import { getStoredUser } from "@/api/authStorage";
+import { clearAccessToken, getAuthSession } from "@/api/authStorage";
 import { useBookingDetailQuery } from "@/features/booking/queries";
 import { useMockPayBookingMutation } from "@/features/booking/mutations";
 
@@ -33,7 +33,8 @@ function formatCreatedAt(iso: string) {
 export function BookingDetailPage() {
   const params = useParams();
   const navigate = useNavigate();
-  const user = getStoredUser();
+  const session = getAuthSession();
+  const user = session?.user ?? null;
 
   const bookingId = useMemo(() => Number(params.id), [params.id]);
   const q = useBookingDetailQuery(bookingId);
@@ -42,6 +43,7 @@ export function BookingDetailPage() {
 
   useEffect(() => {
     if (user) return;
+    clearAccessToken();
     const returnTo = `/booking/${params.id ?? ""}`;
     navigate(`/masuk?returnTo=${encodeURIComponent(returnTo)}`, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
