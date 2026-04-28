@@ -10,6 +10,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -34,6 +36,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .requestMatchers(HttpMethod.POST, "/api/auth/google").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/auth/admin-login").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/lapangan/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/slot**").permitAll()
@@ -43,6 +46,11 @@ public class SecurityConfig {
         )
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
         .build();
+  }
+
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
   }
 }
 

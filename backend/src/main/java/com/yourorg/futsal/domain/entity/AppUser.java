@@ -31,6 +31,9 @@ public class AppUser {
   @Column(name = "foto_profil")
   private String fotoProfil;
 
+  @Column(name = "password_hash")
+  private String passwordHash;
+
   @CreationTimestamp
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
@@ -80,6 +83,14 @@ public class AppUser {
 
   public void setFotoProfil(String fotoProfil) {
     this.fotoProfil = fotoProfil;
+  }
+
+  public String getPasswordHash() {
+    return passwordHash;
+  }
+
+  public void setPasswordHash(String passwordHash) {
+    this.passwordHash = passwordHash;
   }
 
   public Instant getCreatedAt() {
