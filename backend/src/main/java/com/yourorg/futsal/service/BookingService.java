@@ -51,7 +51,14 @@ public class BookingService {
     this.pricingService = pricingService;
   }
 
-  public Booking createBooking(UUID userId, Long lapanganId, LocalDate tanggalMain, LocalTime jamMulai, int durasiJam) {
+  public Booking createBooking(
+      UUID userId,
+      Long lapanganId,
+      LocalDate tanggalMain,
+      LocalTime jamMulai,
+      int durasiJam,
+      String metodePembayaranRaw
+  ) {
     var lapangan = lapanganRepo.findById(lapanganId)
         .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Lapangan tidak ditemukan."));
 
@@ -95,6 +102,18 @@ public class BookingService {
       t = t.plusHours(1);
     }
 
+    String metodePembayaran = metodePembayaranRaw == null ? "" : metodePembayaranRaw.trim().toUpperCase();
+    if (!metodePembayaran.equals("QRIS") && !metodePembayaran.equals("TRANSFER") && !metodePembayaran.equals("EMONEY")) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Metode pembayaran tidak valid.");
+    }
+
+    BigDecimal adminFee = switch (metodePembayaran) {
+      case "QRIS" -> BigDecimal.valueOf(1500);
+      case "TRANSFER" -> BigDecimal.valueOf(2500);
+      case "EMONEY" -> BigDecimal.valueOf(2000);
+      default -> BigDecimal.ZERO;
+    };
+
     Booking b = new Booking();
     b.setUserId(userId);
     b.setLapangan(lapangan);
@@ -103,6 +122,8 @@ public class BookingService {
     b.setJamSelesai(jamSelesai);
     b.setStatus(BookingStatus.MENUNGGU_PEMBAYARAN);
     b.setTotalHarga(total);
+    b.setMetodePembayaran(metodePembayaran);
+    b.setAdminFee(adminFee);
     return bookingRepo.save(b);
   }
 
@@ -190,7 +211,7 @@ public class BookingService {
     return bookingRepo.save(booking);
   }
 
-  public Booking mockPay(UUID userId, Long bookingId, String methodRaw) {
+  public Booking mockPay(UUID userId, Long bookingId) {
     Booking booking = bookingRepo.findByIdWithLapangan(bookingId)
         .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Booking tidak ditemukan."));
 
@@ -207,13 +228,13 @@ public class BookingService {
       return booking;
     }
 
-    String method = methodRaw == null ? "" : methodRaw.trim().toUpperCase();
-    if (!method.equals("QRIS") && !method.equals("TRANSFER") && !method.equals("EMONEY")) {
-      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Metode pembayaran tidak valid.");
+    if (booking.getMetodePembayaran() == null || booking.getMetodePembayaran().isBlank()) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Metode pembayaran belum dipilih.");
     }
 
-    booking.setMetodePembayaran(method);
-    booking.setPaidAmount(booking.getTotalHarga());
+    BigDecimal adminFee = booking.getAdminFee() == null ? BigDecimal.ZERO : booking.getAdminFee();
+    BigDecimal totalHarga = booking.getTotalHarga() == null ? BigDecimal.ZERO : booking.getTotalHarga();
+    booking.setPaidAmount(totalHarga.add(adminFee));
     booking.setStatus(BookingStatus.MENUNGGU_VERIFIKASI);
     return bookingRepo.save(booking);
   }

@@ -18,6 +18,8 @@ public record BookingResponse(
     String status,
     BigDecimal totalHarga,
     String metodePembayaran,
+    BigDecimal adminFee,
+    BigDecimal grandTotal,
     BigDecimal dpNominal,
     BigDecimal paidAmount,
     String buktiBayarPath,
@@ -25,6 +27,9 @@ public record BookingResponse(
     Instant createdAt
 ) {
   public static BookingResponse from(Booking b) {
+    BigDecimal adminFee = b.getAdminFee() == null ? BigDecimal.ZERO : b.getAdminFee();
+    BigDecimal totalHarga = b.getTotalHarga() == null ? BigDecimal.ZERO : b.getTotalHarga();
+    BigDecimal grandTotal = totalHarga.add(adminFee);
     return new BookingResponse(
         b.getId(),
         b.getUserId(),
@@ -36,6 +41,8 @@ public record BookingResponse(
         b.getStatus().name(),
         b.getTotalHarga(),
         b.getMetodePembayaran(),
+        b.getAdminFee(),
+        grandTotal,
         b.getDpNominal(),
         b.getPaidAmount(),
         b.getBuktiBayarPath(),

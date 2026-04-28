@@ -52,6 +52,9 @@ public class Booking {
   @Column(name = "metode_pembayaran")
   private String metodePembayaran;
 
+  @Column(name = "admin_fee", precision = 12, scale = 2)
+  private BigDecimal adminFee;
+
   @Column(name = "dp_nominal", precision = 12, scale = 2)
   private BigDecimal dpNominal;
 
@@ -138,6 +141,14 @@ public class Booking {
 
   public void setMetodePembayaran(String metodePembayaran) {
     this.metodePembayaran = metodePembayaran;
+  }
+
+  public BigDecimal getAdminFee() {
+    return adminFee;
+  }
+
+  public void setAdminFee(BigDecimal adminFee) {
+    this.adminFee = adminFee;
   }
 
   public BigDecimal getDpNominal() {

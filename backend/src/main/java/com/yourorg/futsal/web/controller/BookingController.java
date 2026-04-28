@@ -37,7 +37,8 @@ public class BookingController {
         req.lapanganId(),
         req.tanggalMain(),
         req.jamMulai(),
-        req.durasiJam()
+        req.durasiJam(),
+        req.metodePembayaran()
     );
     return BookingResponse.from(booking);
   }
@@ -69,7 +70,14 @@ public class BookingController {
   @PostMapping("/{id}/mock-pay")
   public BookingResponse mockPay(@PathVariable Long id, @Valid @RequestBody MockPayBookingRequest req, Authentication auth) {
     UUID userId = getUserId(auth);
-    return BookingResponse.from(bookingService.mockPay(userId, id, req.method()));
+    // Backward-compatible: ignore request method, use metodePembayaran stored in booking.
+    return BookingResponse.from(bookingService.mockPay(userId, id));
+  }
+
+  @PostMapping("/{id}/bayar-mock")
+  public BookingResponse bayarMock(@PathVariable Long id, Authentication auth) {
+    UUID userId = getUserId(auth);
+    return BookingResponse.from(bookingService.mockPay(userId, id));
   }
 
   private UUID getUserId(Authentication auth) {
