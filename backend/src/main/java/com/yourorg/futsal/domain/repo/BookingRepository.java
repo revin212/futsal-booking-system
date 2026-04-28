@@ -2,6 +2,7 @@ package com.yourorg.futsal.domain.repo;
 
 import com.yourorg.futsal.domain.entity.Booking;
 import com.yourorg.futsal.domain.enums.BookingStatus;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -9,23 +10,41 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.query.Param;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-  List<Booking> findByLapanganIdAndTanggalMainBetweenOrderByTanggalMainAscJamMulaiAsc(
-      Long lapanganId, LocalDate start, LocalDate end);
+  @Query("""
+      select b from Booking b
+      where b.lapangan.id = :lapanganId
+        and b.tanggalMain between :start and :end
+        and b.status <> :statusBatal
+        and not (b.status = :statusPending and b.createdAt < :cutoff)
+      order by b.tanggalMain asc, b.jamMulai asc
+      """)
+  List<Booking> findByLapanganIdBetweenNonCancelledNonExpiredPending(
+      @Param("lapanganId") Long lapanganId,
+      @Param("start") LocalDate start,
+      @Param("end") LocalDate end,
+      @Param("statusBatal") BookingStatus statusBatal,
+      @Param("statusPending") BookingStatus statusPending,
+      @Param("cutoff") Instant cutoff
+  );
 
   @Query("""
       select b from Booking b
       where b.lapangan.id = :lapanganId
         and b.tanggalMain = :tanggal
         and b.status <> :statusBatal
+        and not (b.status = :statusPending and b.createdAt < :cutoff)
       order by b.jamMulai asc
       """)
-  List<Booking> findByLapanganIdAndTanggalMainNonCancelled(
+  List<Booking> findByLapanganIdAndTanggalMainNonCancelledNonExpiredPending(
       @Param("lapanganId") Long lapanganId,
       @Param("tanggal") LocalDate tanggal,
-      @Param("statusBatal") BookingStatus statusBatal
+      @Param("statusBatal") BookingStatus statusBatal,
+      @Param("statusPending") BookingStatus statusPending,
+      @Param("cutoff") Instant cutoff
   );
 
   @Query("""
@@ -56,16 +75,32 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
       where b.lapangan.id = :lapanganId
         and b.tanggalMain = :tanggal
         and b.status <> :statusBatal
+        and not (b.status = :statusPending and b.createdAt < :cutoff)
         and b.jamMulai < :jamSelesai
         and b.jamSelesai > :jamMulai
       order by b.jamMulai asc
       """)
-  List<Booking> findOverlappingNonCancelled(
+  List<Booking> findOverlappingNonCancelledNonExpiredPending(
       @Param("lapanganId") Long lapanganId,
       @Param("tanggal") LocalDate tanggal,
       @Param("jamMulai") LocalTime jamMulai,
       @Param("jamSelesai") LocalTime jamSelesai,
-      @Param("statusBatal") BookingStatus statusBatal
+      @Param("statusBatal") BookingStatus statusBatal,
+      @Param("statusPending") BookingStatus statusPending,
+      @Param("cutoff") Instant cutoff
+  );
+
+  @Modifying
+  @Query("""
+      update Booking b
+      set b.status = :statusBatal
+      where b.status = :statusPending
+        and b.createdAt < :cutoff
+      """)
+  int expirePendingPayments(
+      @Param("statusPending") BookingStatus statusPending,
+      @Param("statusBatal") BookingStatus statusBatal,
+      @Param("cutoff") Instant cutoff
   );
 }
 

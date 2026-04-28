@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class BookingService {
   private static final ZoneId DEFAULT_ZONE = ZoneId.of("Asia/Jakarta");
   private static final long MAX_UPLOAD_BYTES = 10L * 1024 * 1024; // 10 MB
+  private static final long PAYMENT_HOLD_MINUTES = 10;
 
   private final LapanganRepository lapanganRepo;
   private final JamOperasionalRepository jamRepo;
@@ -85,8 +87,9 @@ public class BookingService {
     }
 
     // Conflict check: any overlap with non-cancelled booking blocks immediately.
-    List<Booking> existing = bookingRepo.findByLapanganIdAndTanggalMainNonCancelled(
-        lapanganId, tanggalMain, BookingStatus.DIBATALKAN
+    Instant cutoff = Instant.now().minus(PAYMENT_HOLD_MINUTES, ChronoUnit.MINUTES);
+    List<Booking> existing = bookingRepo.findByLapanganIdAndTanggalMainNonCancelledNonExpiredPending(
+        lapanganId, tanggalMain, BookingStatus.DIBATALKAN, BookingStatus.MENUNGGU_PEMBAYARAN, cutoff
     );
     boolean conflict = existing.stream().anyMatch(b ->
         b.getJamMulai().isBefore(jamSelesai) && b.getJamSelesai().isAfter(jamMulai)

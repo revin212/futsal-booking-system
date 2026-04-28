@@ -10,7 +10,9 @@ import com.yourorg.futsal.web.dto.SlotResponse;
 import com.yourorg.futsal.web.exception.ApiException;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.Instant;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 public class SlotService {
   private static final DateTimeFormatter HHMM = DateTimeFormatter.ofPattern("HH:mm");
   private static final ZoneId DEFAULT_ZONE = ZoneId.of("Asia/Jakarta");
+  private static final long PAYMENT_HOLD_MINUTES = 10;
 
   private final LapanganRepository lapanganRepo;
   private final JamOperasionalRepository jamRepo;
@@ -56,8 +59,9 @@ public class SlotService {
     }
 
     // Phase 2 perf: load bookings once per tanggal (instead of per slot).
-    var bookings = bookingRepo.findByLapanganIdAndTanggalMainNonCancelled(
-        lapanganId, tanggal, BookingStatus.DIBATALKAN
+    Instant cutoff = Instant.now().minus(PAYMENT_HOLD_MINUTES, ChronoUnit.MINUTES);
+    var bookings = bookingRepo.findByLapanganIdAndTanggalMainNonCancelledNonExpiredPending(
+        lapanganId, tanggal, BookingStatus.DIBATALKAN, BookingStatus.MENUNGGU_PEMBAYARAN, cutoff
     );
 
     List<SlotResponse> out = new ArrayList<>();
