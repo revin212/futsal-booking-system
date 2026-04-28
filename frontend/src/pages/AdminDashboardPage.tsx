@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { clearAccessToken, getAuthSession } from "@/api/authStorage";
-import { useAdminBookingRangeQuery, useAdminMetricsQuery, useAdminNotificationLogQuery, useAdminRefundQuery } from "@/features/admin/queries";
+import { useAdminAuditLogQuery, useAdminBookingRangeQuery, useAdminMetricsQuery, useAdminNotificationLogQuery, useAdminRefundQuery } from "@/features/admin/queries";
 import { useAdminRefundActionMutation } from "@/features/admin/mutations";
 
 import { Button } from "@/components/ui/button";
@@ -47,6 +47,7 @@ export function AdminDashboardPage() {
   const bookingQ = useAdminBookingRangeQuery({ start, end, enabled: Boolean(isAdmin) });
   const notifQ = useAdminNotificationLogQuery({ limit: 10, enabled: Boolean(isAdmin) });
   const refundQ = useAdminRefundQuery({ status: "PENDING", enabled: Boolean(isAdmin) });
+  const auditQ = useAdminAuditLogQuery({ limit: 20, enabled: Boolean(isAdmin) });
   const refundMut = useAdminRefundActionMutation();
 
   useEffect(() => {
@@ -64,6 +65,10 @@ export function AdminDashboardPage() {
   useEffect(() => {
     if (refundQ.isError) toast.error((refundQ.error as any)?.message ?? "Gagal memuat refund");
   }, [refundQ.isError, refundQ.error]);
+
+  useEffect(() => {
+    if (auditQ.isError) toast.error((auditQ.error as any)?.message ?? "Gagal memuat audit log");
+  }, [auditQ.isError, auditQ.error]);
 
   if (!user) return null;
 
@@ -84,6 +89,7 @@ export function AdminDashboardPage() {
   const bookings = bookingQ.data ?? [];
   const notif = notifQ.data ?? [];
   const refunds = refundQ.data ?? [];
+  const audits = auditQ.data ?? [];
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10 space-y-6">
@@ -305,6 +311,47 @@ export function AdminDashboardPage() {
                   </Button>
                 </div>
               </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      <div className="pt-6">
+        <h2 className="font-lexend text-lg font-semibold">Audit Log (terbaru)</h2>
+        <p className="text-sm text-muted-foreground mt-1">Mencatat aksi penting (refund request/approve/reject, dll).</p>
+      </div>
+
+      {auditQ.isLoading ? (
+        <Card>
+          <CardHeader className="space-y-2">
+            <Skeleton className="h-5 w-56" />
+            <Skeleton className="h-4 w-80" />
+          </CardHeader>
+        </Card>
+      ) : audits.length === 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Belum ada audit log</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-muted-foreground">Coba buat refund untuk memunculkan log.</CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-2">
+          {audits.map((a) => (
+            <Card key={a.id}>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">
+                  {a.action} • {a.actorRole ?? "-"}
+                </CardTitle>
+                <div className="text-xs text-muted-foreground">
+                  #{a.id} • {a.entityType}:{a.entityId} • {a.createdAt}
+                </div>
+              </CardHeader>
+              {a.metadata ? (
+                <CardContent className="pt-0 text-sm text-muted-foreground">
+                  {a.metadata}
+                </CardContent>
+              ) : null}
             </Card>
           ))}
         </div>

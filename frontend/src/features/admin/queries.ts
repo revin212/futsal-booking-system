@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAdminBookingRange, getAdminMetrics, getAdminNotificationLog, getAdminRefund } from "@/api/adminApi";
+import { getAdminAuditLog, getAdminBookingRange, getAdminMetrics, getAdminNotificationLog, getAdminRefund } from "@/api/adminApi";
 
 export function useAdminMetricsQuery(enabled: boolean) {
   return useQuery({
@@ -33,6 +33,15 @@ export function useAdminRefundQuery(params: { status?: string; enabled: boolean 
   return useQuery({
     queryKey: ["admin", "refund", status],
     queryFn: () => getAdminRefund(status),
+    enabled,
+  });
+}
+
+export function useAdminAuditLogQuery(params: { limit?: number; enabled: boolean }) {
+  const { limit = 20, enabled } = params;
+  return useQuery({
+    queryKey: ["admin", "audit-log", limit],
+    queryFn: () => getAdminAuditLog(limit),
     enabled,
   });
 }

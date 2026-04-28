@@ -19,6 +19,17 @@ export type NotificationLog = {
   createdAt: string;
 };
 
+export type AuditLog = {
+  id: number;
+  actorUserId: string | null;
+  actorRole: string | null;
+  action: string;
+  entityType: string;
+  entityId: string;
+  metadata: string | null;
+  createdAt: string;
+};
+
 export async function getAdminMetrics() {
   return apiFetch<AdminMetrics>("/admin/metrics", { auth: true });
 }
@@ -44,5 +55,10 @@ export async function patchAdminRefundAction(bookingId: number, body: { action: 
     auth: true,
     body: JSON.stringify(body),
   });
+}
+
+export async function getAdminAuditLog(limit = 50) {
+  const qs = new URLSearchParams({ limit: String(limit) }).toString();
+  return apiFetch<AuditLog[]>(`/admin/audit-log?${qs}`, { auth: true });
 }
 
