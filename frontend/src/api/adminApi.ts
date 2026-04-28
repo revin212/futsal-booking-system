@@ -33,3 +33,16 @@ export async function getAdminNotificationLog(limit = 50) {
   return apiFetch<NotificationLog[]>(`/admin/notification-log?${qs}`, { auth: true });
 }
 
+export async function getAdminRefund(status = "PENDING") {
+  const qs = new URLSearchParams({ status }).toString();
+  return apiFetch<Booking[]>(`/admin/refund?${qs}`, { auth: true });
+}
+
+export async function patchAdminRefundAction(bookingId: number, body: { action: "APPROVE" | "REJECT"; note?: string }) {
+  return apiFetch<Booking>(`/admin/refund/${bookingId}`, {
+    method: "PATCH",
+    auth: true,
+    body: JSON.stringify(body),
+  });
+}
+

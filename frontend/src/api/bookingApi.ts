@@ -27,6 +27,11 @@ export type Booking = {
   verifiedAt: string | null;
   invoiceNumber: string | null;
   invoiceIssuedAt: string | null;
+  refundStatus: string | null;
+  refundRequestedAt: string | null;
+  refundProcessedAt: string | null;
+  refundReason: string | null;
+  refundAmount: number | null;
   createdAt: string;
 };
 
@@ -54,6 +59,14 @@ export async function patchBatalkanBooking(id: number) {
   return apiFetch<Booking>(`/booking/${id}/batalkan`, {
     method: "PATCH",
     auth: true,
+  });
+}
+
+export async function postRefundBooking(id: number, body?: { reason?: string }) {
+  return apiFetch<Booking>(`/booking/${id}/refund`, {
+    method: "POST",
+    auth: true,
+    body: JSON.stringify(body ?? {}),
   });
 }
 

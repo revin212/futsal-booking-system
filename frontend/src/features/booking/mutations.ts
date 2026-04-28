@@ -7,6 +7,7 @@ import {
   patchKonfirmasiBayar,
   postBayarMockBooking,
   postBooking,
+  postRefundBooking,
   postUploadBuktiBooking,
   type AdminVerifyAction,
   type CreateBookingRequest,
@@ -39,6 +40,23 @@ export function useBatalkanBookingMutation() {
     },
     onError: (err: any) => {
       toast.error(err?.message ?? "Gagal membatalkan booking");
+    },
+  });
+}
+
+export function useRefundBookingMutation() {
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: number; reason?: string }) => postRefundBooking(id, { reason }),
+    onSuccess: (res) => {
+      toast.success("Refund diajukan. Menunggu proses admin (mock).");
+      queryClient.invalidateQueries({ queryKey: ["booking", "detail", res.id] });
+      queryClient.invalidateQueries({ queryKey: ["booking", "saya"] });
+      queryClient.invalidateQueries({ queryKey: ["slot"] });
+      queryClient.invalidateQueries({ queryKey: ["kalender"] });
+      queryClient.invalidateQueries({ queryKey: ["admin"] });
+    },
+    onError: (err: any) => {
+      toast.error(err?.message ?? "Gagal mengajukan refund");
     },
   });
 }

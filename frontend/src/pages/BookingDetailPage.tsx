@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { clearAccessToken, getAuthSession } from "@/api/authStorage";
 import { useBookingDetailQuery } from "@/features/booking/queries";
 import { useCreatePaymentIntentMutation } from "@/features/payment/mutations";
+import { useRefundBookingMutation } from "@/features/booking/mutations";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,6 +41,7 @@ export function BookingDetailPage() {
   const q = useBookingDetailQuery(bookingId);
 
   const createIntentMut = useCreatePaymentIntentMutation();
+  const refundMut = useRefundBookingMutation();
 
   useEffect(() => {
     if (user) return;
@@ -56,6 +58,7 @@ export function BookingDetailPage() {
   const b = q.data;
   const canPay =
     (b?.status === "MENUNGGU_PEMBAYARAN" || b?.status === "DIBUAT") && !createIntentMut.isPending;
+  const canRefund = b?.status === "LUNAS" && (b?.refundStatus == null || b.refundStatus === "NONE" || b.refundStatus === "REJECTED");
 
   return (
     <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10 space-y-6">
@@ -146,6 +149,22 @@ export function BookingDetailPage() {
                 <Button asChild variant="outline" className="rounded-lg">
                   <Link to={`/invoice/${b.id}`}>Lihat Invoice</Link>
                 </Button>
+                {b.status === "LUNAS" ? (
+                  <Button
+                    variant="destructive"
+                    className="rounded-lg ml-auto"
+                    disabled={!canRefund || refundMut.isPending}
+                    onClick={async () => {
+                      try {
+                        await refundMut.mutateAsync({ id: b.id });
+                      } catch {
+                        // handled
+                      }
+                    }}
+                  >
+                    {refundMut.isPending ? "Memproses..." : "Ajukan Refund"}
+                  </Button>
+                ) : null}
               </CardFooter>
             ) : null}
           </Card>
