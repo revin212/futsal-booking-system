@@ -5,8 +5,10 @@ import {
   patchAdminVerifikasiBooking,
   patchBatalkanBooking,
   patchKonfirmasiBayar,
+  postMockPayBooking,
   postBooking,
   postUploadBuktiBooking,
+  type MockPayMethod,
   type AdminVerifyAction,
   type CreateBookingRequest,
 } from "@/api/bookingApi";
@@ -67,6 +69,21 @@ export function useKonfirmasiBayarMutation() {
     },
     onError: (err: any) => {
       toast.error(err?.message ?? "Gagal konfirmasi bayar");
+    },
+  });
+}
+
+export function useMockPayBookingMutation() {
+  return useMutation({
+    mutationFn: ({ id, method }: { id: number; method: MockPayMethod }) => postMockPayBooking(id, method),
+    onSuccess: (res) => {
+      toast.success("Pembayaran berhasil (mock). Menunggu verifikasi admin.");
+      queryClient.invalidateQueries({ queryKey: ["booking", "detail", res.id] });
+      queryClient.invalidateQueries({ queryKey: ["booking", "saya"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "booking", "menunggu_verifikasi"] });
+    },
+    onError: (err: any) => {
+      toast.error(err?.message ?? "Gagal memproses pembayaran");
     },
   });
 }

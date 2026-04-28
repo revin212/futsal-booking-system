@@ -215,8 +215,8 @@ export function BookingNewPage() {
                   jamMulai,
                   durasiJam,
                 });
-                navigate(`/jadwal?lapanganId=${lapanganId}`, { replace: true });
-                toast.success(`Booking dibuat (${res.jamMulai}-${res.jamSelesai})`);
+                navigate(`/booking/${res.id}`, { replace: true });
+                toast.success(`Booking dibuat. Lanjutkan pembayaran untuk konfirmasi.`);
               } catch {
                 // handled by mutation onError
               }

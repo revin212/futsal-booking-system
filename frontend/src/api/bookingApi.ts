@@ -69,6 +69,16 @@ export async function patchKonfirmasiBayar(id: number) {
   });
 }
 
+export type MockPayMethod = "QRIS" | "TRANSFER" | "EMONEY";
+
+export async function postMockPayBooking(id: number, method: MockPayMethod) {
+  return apiFetch<Booking>(`/booking/${id}/mock-pay`, {
+    method: "POST",
+    auth: true,
+    body: JSON.stringify({ method }),
+  });
+}
+
 export async function getAdminBookingMenungguVerifikasi() {
   return apiFetch<Booking[]>("/admin/booking", {
     auth: true,

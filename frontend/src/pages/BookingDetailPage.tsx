@@ -5,11 +5,12 @@ import { toast } from "sonner";
 import { getStoredUser } from "@/api/authStorage";
 import { env } from "@/env";
 import { useBookingDetailQuery } from "@/features/booking/queries";
-import { useKonfirmasiBayarMutation, useUploadBuktiBookingMutation } from "@/features/booking/mutations";
+import { useKonfirmasiBayarMutation, useMockPayBookingMutation, useUploadBuktiBookingMutation } from "@/features/booking/mutations";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function formatRupiah(n: number) {
@@ -36,7 +37,9 @@ export function BookingDetailPage() {
 
   const uploadMut = useUploadBuktiBookingMutation();
   const konfirmasiMut = useKonfirmasiBayarMutation();
+  const mockPayMut = useMockPayBookingMutation();
   const [file, setFile] = useState<File | null>(null);
+  const [method, setMethod] = useState<"QRIS" | "TRANSFER" | "EMONEY">("QRIS");
 
   useEffect(() => {
     if (user) return;
@@ -55,6 +58,8 @@ export function BookingDetailPage() {
     (b?.status === "MENUNGGU_PEMBAYARAN" || b?.status === "DIBUAT") &&
     Boolean(b?.buktiBayarPath) &&
     !konfirmasiMut.isPending;
+  const canMockPay =
+    (b?.status === "MENUNGGU_PEMBAYARAN" || b?.status === "DIBUAT") && !mockPayMut.isPending;
 
   return (
     <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10 space-y-6">
@@ -133,6 +138,23 @@ export function BookingDetailPage() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="space-y-2">
+                <div className="text-sm font-semibold">Mock Payment Gateway</div>
+                <Select value={method} onValueChange={(v) => setMethod(v as any)} disabled={!canMockPay}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih metode" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="QRIS">QRIS</SelectItem>
+                    <SelectItem value="TRANSFER">Transfer Bank</SelectItem>
+                    <SelectItem value="EMONEY">E-Money</SelectItem>
+                  </SelectContent>
+                </Select>
+                <div className="text-xs text-muted-foreground">
+                  Ini simulasi seperti payment gateway (mis. Xendit). Klik “Bayar (Mock)” untuk menandai sudah bayar.
+                </div>
+              </div>
+
+              <div className="space-y-2">
                 <div className="text-sm font-semibold">Upload bukti bayar</div>
                 <Input
                   type="file"
@@ -146,6 +168,21 @@ export function BookingDetailPage() {
               </div>
             </CardContent>
             <CardFooter className="gap-2">
+              <Button
+                className="rounded-lg"
+                disabled={!canMockPay}
+                onClick={async () => {
+                  if (!b) return;
+                  try {
+                    await mockPayMut.mutateAsync({ id: b.id, method });
+                  } catch {
+                    // handled by mutation
+                  }
+                }}
+              >
+                {mockPayMut.isPending ? "Memproses..." : "Bayar (Mock)"}
+              </Button>
+
               <Button
                 className="rounded-lg"
                 disabled={!canUpload}
