@@ -3,12 +3,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { clearAccessToken, getAuthSession } from "@/api/authStorage";
+import { downloadAdminBookingCsv, downloadAdminRefundCsv } from "@/api/adminApi";
 import { useAdminAuditLogQuery, useAdminBookingRangeQuery, useAdminMetricsQuery, useAdminNotificationLogQuery, useAdminRefundQuery } from "@/features/admin/queries";
 import { useAdminRefundActionMutation } from "@/features/admin/mutations";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { downloadBlob } from "@/lib/download";
 
 function yyyyMmDd(d: Date) {
   const y = d.getFullYear();
@@ -35,6 +37,8 @@ export function AdminDashboardPage() {
   }, [user]);
 
   const [rangeMode, setRangeMode] = useState<"TODAY" | "WEEK">("TODAY");
+  const [downloadingBookingCsv, setDownloadingBookingCsv] = useState(false);
+  const [downloadingRefundCsv, setDownloadingRefundCsv] = useState(false);
   const { start, end } = useMemo(() => {
     const now = new Date();
     const s = new Date(now);
@@ -157,6 +161,25 @@ export function AdminDashboardPage() {
         </div>
         <div className="flex items-center gap-2">
           <Button
+            variant="outline"
+            className="rounded-lg"
+            disabled={downloadingBookingCsv}
+            onClick={async () => {
+              try {
+                setDownloadingBookingCsv(true);
+                const res = await downloadAdminBookingCsv(start, end);
+                downloadBlob(res.blob, res.filename ?? `booking-${start}-to-${end}.csv`);
+                toast.success("CSV booking berhasil diunduh");
+              } catch (e: any) {
+                toast.error(e?.message ?? "Gagal download CSV booking");
+              } finally {
+                setDownloadingBookingCsv(false);
+              }
+            }}
+          >
+            {downloadingBookingCsv ? "Mengunduh..." : "Download CSV"}
+          </Button>
+          <Button
             variant={rangeMode === "TODAY" ? "default" : "outline"}
             className="rounded-lg"
             onClick={() => setRangeMode("TODAY")}
@@ -255,8 +278,31 @@ export function AdminDashboardPage() {
       )}
 
       <div className="pt-6">
-        <h2 className="font-lexend text-lg font-semibold">Refund (pending)</h2>
-        <p className="text-sm text-muted-foreground mt-1">Pengajuan refund dari booking LUNAS (mock).</p>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="font-lexend text-lg font-semibold">Refund (pending)</h2>
+            <p className="text-sm text-muted-foreground mt-1">Pengajuan refund dari booking LUNAS (mock).</p>
+          </div>
+          <Button
+            variant="outline"
+            className="rounded-lg"
+            disabled={downloadingRefundCsv}
+            onClick={async () => {
+              try {
+                setDownloadingRefundCsv(true);
+                const res = await downloadAdminRefundCsv("PENDING");
+                downloadBlob(res.blob, res.filename ?? "refund-pending.csv");
+                toast.success("CSV refund berhasil diunduh");
+              } catch (e: any) {
+                toast.error(e?.message ?? "Gagal download CSV refund");
+              } finally {
+                setDownloadingRefundCsv(false);
+              }
+            }}
+          >
+            {downloadingRefundCsv ? "Mengunduh..." : "Download CSV"}
+          </Button>
+        </div>
       </div>
 
       {refundQ.isLoading ? (

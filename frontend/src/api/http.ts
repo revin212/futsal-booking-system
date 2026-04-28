@@ -57,3 +57,38 @@ export async function apiFetch<T>(
   return data as T;
 }
 
+export async function apiFetchBlob(
+  path: string,
+  init?: RequestInit & { auth?: boolean; accept?: string }
+): Promise<{ blob: Blob; filename?: string }> {
+  const headers = new Headers(init?.headers);
+  headers.set("Accept", init?.accept ?? "application/octet-stream");
+
+  if (init?.auth) {
+    const token = getAccessToken();
+    if (token) headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  const res = await fetch(resolveUrl(path), {
+    ...init,
+    headers,
+  });
+
+  if (!res.ok) {
+    const contentType = res.headers.get("content-type") ?? "";
+    const isJson = contentType.includes("application/json") || contentType.includes("problem+json");
+    const data = isJson ? await res.json().catch(() => null) : await res.text().catch(() => null);
+    const detail =
+      typeof data === "object" && data && "detail" in (data as any)
+        ? String((data as any).detail)
+        : `Request gagal (${res.status})`;
+    throw new ApiError(detail, res.status, data);
+  }
+
+  const cd = res.headers.get("content-disposition") ?? "";
+  const m = /filename="([^"]+)"/i.exec(cd);
+  const filename = m?.[1];
+  const blob = await res.blob();
+  return { blob, filename };
+}
+

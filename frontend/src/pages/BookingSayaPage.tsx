@@ -4,9 +4,11 @@ import { toast } from "sonner";
 
 import { clearAccessToken, getAuthSession } from "@/api/authStorage";
 import { useBookingSayaQuery } from "@/features/booking/queries";
-import { useBatalkanBookingMutation } from "@/features/booking/mutations";
+import { useBatalkanBookingMutation, useRefundBookingMutation } from "@/features/booking/mutations";
+import { refundLabel, refundTimestampText, refundVariant } from "@/features/booking/refundUi";
 
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,7 +53,11 @@ export function BookingSayaPage() {
   const user = session?.user ?? null;
   const q = useBookingSayaQuery(Boolean(session));
   const batalMutation = useBatalkanBookingMutation();
+  const refundMut = useRefundBookingMutation();
   const [confirmId, setConfirmId] = useState<number | null>(null);
+  const [refundId, setRefundId] = useState<number | null>(null);
+  const [refundConfirmOpen, setRefundConfirmOpen] = useState(false);
+  const [refundReason, setRefundReason] = useState("");
 
   useEffect(() => {
     if (user) return;
@@ -67,6 +73,7 @@ export function BookingSayaPage() {
 
   const items = useMemo(() => q.data ?? [], [q.data]);
   const confirmBooking = useMemo(() => items.find((x) => x.id === confirmId) ?? null, [confirmId, items]);
+  const refundBooking = useMemo(() => items.find((x) => x.id === refundId) ?? null, [refundId, items]);
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10 space-y-6">
@@ -158,6 +165,15 @@ export function BookingSayaPage() {
                   <span className="font-semibold">{b.status}</span>
                 </div>
                 <div className="flex items-center justify-between mt-1">
+                  <span className="text-muted-foreground">Refund</span>
+                  <Badge variant={refundVariant(b.refundStatus)} className="rounded-full">
+                    {refundLabel(b.refundStatus)}
+                  </Badge>
+                </div>
+                {refundTimestampText(b) ? (
+                  <div className="mt-1 text-xs text-muted-foreground">{refundTimestampText(b)}</div>
+                ) : null}
+                <div className="flex items-center justify-between mt-1">
                   <span className="text-muted-foreground">Total</span>
                   <span className="font-lexend font-semibold">{formatRupiah(b.totalHarga)}</span>
                 </div>
@@ -180,6 +196,21 @@ export function BookingSayaPage() {
                 <Button asChild variant="outline" className="rounded-lg" size="sm">
                   <Link to={`/jadwal?lapanganId=${b.lapanganId}`}>Lihat di Jadwal</Link>
                 </Button>
+                {b.status === "LUNAS" &&
+                (b.refundStatus == null || b.refundStatus === "NONE" || b.refundStatus === "REJECTED") ? (
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    className="rounded-lg"
+                    disabled={refundMut.isPending}
+                    onClick={() => {
+                      setRefundReason("");
+                      setRefundId(b.id);
+                    }}
+                  >
+                    {refundMut.isPending ? "Memproses..." : "Ajukan Refund"}
+                  </Button>
+                ) : null}
                 {b.status !== "LUNAS" && b.status !== "SELESAI" ? (
                   <Button
                     className="rounded-lg"
@@ -226,6 +257,94 @@ export function BookingSayaPage() {
               }}
             >
               {batalMutation.isPending ? "Memproses..." : "Ya, batalkan"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={refundId != null} onOpenChange={(open) => (!open ? setRefundId(null) : null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Ajukan refund?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {refundBooking ? (
+                <>
+                  Booking #{refundBooking.id} akan dibatalkan dan refund diproses admin (mock). Estimasi refund:{" "}
+                  <span className="font-lexend font-semibold">{formatRupiah(refundBooking.paidAmount ?? 0)}</span>
+                </>
+              ) : (
+                "Isi alasan refund (minimal 10 karakter)."
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-2">
+            <div className="text-sm font-medium">Reason</div>
+            <textarea
+              className="w-full min-h-24 rounded-lg border bg-background px-3 py-2 text-sm"
+              placeholder="Contoh: Jadwal bentrok, mohon refund."
+              value={refundReason}
+              onChange={(e) => setRefundReason(e.target.value)}
+            />
+            <div className="text-xs text-muted-foreground">
+              Panjang: <span className="font-medium">{refundReason.trim().length}</span>/10
+            </div>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-lg" disabled={refundMut.isPending}>
+              Batal
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="rounded-lg"
+              disabled={refundMut.isPending || refundId == null}
+              onClick={(e) => {
+                e.preventDefault();
+                if (refundReason.trim().length < 10) {
+                  toast.error("Reason minimal 10 karakter");
+                  return;
+                }
+                setRefundConfirmOpen(true);
+              }}
+            >
+              Lanjut
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={refundConfirmOpen} onOpenChange={(open) => (!open ? setRefundConfirmOpen(false) : null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Konfirmasi pengajuan refund</AlertDialogTitle>
+            <AlertDialogDescription>
+              {refundBooking ? (
+                <>
+                  Estimasi refund: <span className="font-lexend font-semibold">{formatRupiah(refundBooking.paidAmount ?? 0)}</span>
+                </>
+              ) : (
+                "Refund akan diajukan."
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-lg" disabled={refundMut.isPending}>
+              Kembali
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="rounded-lg"
+              disabled={refundMut.isPending || refundBooking == null}
+              onClick={async (e) => {
+                e.preventDefault();
+                if (!refundBooking) return;
+                try {
+                  await refundMut.mutateAsync({ id: refundBooking.id, reason: refundReason.trim() });
+                  setRefundConfirmOpen(false);
+                  setRefundId(null);
+                } catch {
+                  // handled
+                }
+              }}
+            >
+              {refundMut.isPending ? "Memproses..." : "Ya, ajukan"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

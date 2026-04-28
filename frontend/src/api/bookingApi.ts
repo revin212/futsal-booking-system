@@ -62,11 +62,11 @@ export async function patchBatalkanBooking(id: number) {
   });
 }
 
-export async function postRefundBooking(id: number, body?: { reason?: string }) {
+export async function postRefundBooking(id: number, body: { reason: string }) {
   return apiFetch<Booking>(`/booking/${id}/refund`, {
     method: "POST",
     auth: true,
-    body: JSON.stringify(body ?? {}),
+    body: JSON.stringify(body),
   });
 }
 

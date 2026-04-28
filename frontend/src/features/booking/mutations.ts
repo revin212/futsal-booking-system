@@ -46,7 +46,7 @@ export function useBatalkanBookingMutation() {
 
 export function useRefundBookingMutation() {
   return useMutation({
-    mutationFn: ({ id, reason }: { id: number; reason?: string }) => postRefundBooking(id, { reason }),
+    mutationFn: ({ id, reason }: { id: number; reason: string }) => postRefundBooking(id, { reason }),
     onSuccess: (res) => {
       toast.success("Refund diajukan. Menunggu proses admin (mock).");
       queryClient.invalidateQueries({ queryKey: ["booking", "detail", res.id] });

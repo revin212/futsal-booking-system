@@ -1,4 +1,4 @@
-import { apiFetch } from "@/api/http";
+import { apiFetch, apiFetchBlob } from "@/api/http";
 import type { Booking } from "@/api/bookingApi";
 
 export type AdminMetrics = {
@@ -60,5 +60,15 @@ export async function patchAdminRefundAction(bookingId: number, body: { action: 
 export async function getAdminAuditLog(limit = 50) {
   const qs = new URLSearchParams({ limit: String(limit) }).toString();
   return apiFetch<AuditLog[]>(`/admin/audit-log?${qs}`, { auth: true });
+}
+
+export async function downloadAdminBookingCsv(start: string, end: string) {
+  const qs = new URLSearchParams({ start, end }).toString();
+  return apiFetchBlob(`/admin/export/booking.csv?${qs}`, { auth: true, accept: "text/csv" });
+}
+
+export async function downloadAdminRefundCsv(status = "PENDING") {
+  const qs = new URLSearchParams({ status }).toString();
+  return apiFetchBlob(`/admin/export/refund.csv?${qs}`, { auth: true, accept: "text/csv" });
 }
 
