@@ -11,6 +11,7 @@ import { BookingDetailPage } from "@/pages/BookingDetailPage";
 import { AdminBookingPage } from "@/pages/AdminBookingPage";
 import { AdminDashboardPage } from "@/pages/AdminDashboardPage";
 import { AdminLoginPage } from "@/pages/AdminLoginPage";
+import { PaymentGatewayMockPage } from "@/pages/PaymentGatewayMockPage";
 
 export const router = createBrowserRouter([
   {
@@ -26,6 +27,7 @@ export const router = createBrowserRouter([
       { path: "/admin/booking", element: <AdminBookingPage /> },
       { path: "/admin/dashboard", element: <AdminDashboardPage /> },
       { path: "/admin/login", element: <AdminLoginPage /> },
+      { path: "/payment-gateway/:intentId", element: <PaymentGatewayMockPage /> },
       { path: "/masuk", element: <MasukPage /> }
     ],
   },

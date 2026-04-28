@@ -4,7 +4,7 @@ import { toast } from "sonner";
 
 import { clearAccessToken, getAuthSession } from "@/api/authStorage";
 import { useBookingDetailQuery } from "@/features/booking/queries";
-import { useMockPayBookingMutation } from "@/features/booking/mutations";
+import { useCreatePaymentIntentMutation } from "@/features/payment/mutations";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,7 +39,7 @@ export function BookingDetailPage() {
   const bookingId = useMemo(() => Number(params.id), [params.id]);
   const q = useBookingDetailQuery(bookingId);
 
-  const mockPayMut = useMockPayBookingMutation();
+  const createIntentMut = useCreatePaymentIntentMutation();
 
   useEffect(() => {
     if (user) return;
@@ -54,8 +54,8 @@ export function BookingDetailPage() {
   }, [q.isError, q.error]);
 
   const b = q.data;
-  const canMockPay =
-    (b?.status === "MENUNGGU_PEMBAYARAN" || b?.status === "DIBUAT") && !mockPayMut.isPending;
+  const canPay =
+    (b?.status === "MENUNGGU_PEMBAYARAN" || b?.status === "DIBUAT") && !createIntentMut.isPending;
 
   return (
     <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10 space-y-6">
@@ -156,17 +156,18 @@ export function BookingDetailPage() {
             <CardFooter className="gap-2">
               <Button
                 className="rounded-lg"
-                disabled={!canMockPay}
+                disabled={!canPay}
                 onClick={async () => {
                   if (!b) return;
                   try {
-                    await mockPayMut.mutateAsync({ id: b.id });
+                    const intent = await createIntentMut.mutateAsync(b.id);
+                    navigate(`/payment-gateway/${intent.id}`);
                   } catch {
                     // handled by mutation
                   }
                 }}
               >
-                {mockPayMut.isPending ? "Memproses..." : "Bayar (Mock)"}
+                {createIntentMut.isPending ? "Memproses..." : "Bayar via Gateway (Mock)"}
               </Button>
             </CardFooter>
           </Card>
