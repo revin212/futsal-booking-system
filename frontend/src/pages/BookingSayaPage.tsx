@@ -34,6 +34,18 @@ function hhmm(v: string) {
   return v?.length >= 5 ? v.slice(0, 5) : v;
 }
 
+function formatCreatedAt(iso: string) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return new Intl.DateTimeFormat("id-ID", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(d);
+}
+
 export function BookingSayaPage() {
   const user = getStoredUser();
   const q = useBookingSayaQuery();
@@ -58,6 +70,10 @@ export function BookingSayaPage() {
           <h1 className="font-lexend text-2xl font-semibold">Booking Saya</h1>
           <p className="text-sm text-muted-foreground mt-2">
             Daftar booking yang kamu buat. Booking yang dibatalkan tidak akan mengunci slot.
+          </p>
+          <p className="text-xs text-muted-foreground mt-2">
+            Batas waktu pembayaran untuk booking status <span className="font-semibold">MENUNGGU_PEMBAYARAN</span> adalah{" "}
+            <span className="font-semibold">10 menit</span> sejak booking dibuat.
           </p>
         </div>
         <Button asChild variant="outline" className="rounded-lg">
@@ -124,6 +140,9 @@ export function BookingSayaPage() {
                 <div className="text-sm text-muted-foreground">
                   {formatTanggal(b.tanggalMain)} • {hhmm(b.jamMulai)} - {hhmm(b.jamSelesai)}
                 </div>
+                <div className="text-xs text-muted-foreground">
+                  Dibuat: <span className="font-medium">{formatCreatedAt(b.createdAt)}</span>
+                </div>
               </CardHeader>
               <CardContent className="pt-0 text-sm">
                 <div className="flex items-center justify-between">
@@ -134,9 +153,17 @@ export function BookingSayaPage() {
                   <span className="text-muted-foreground">Total</span>
                   <span className="font-lexend font-semibold">{formatRupiah(b.totalHarga)}</span>
                 </div>
-                <div className="mt-2 text-xs text-muted-foreground">
-                  Pembatalan mengikuti aturan sistem (MinJamBatalkan). Jika sudah terlalu dekat dengan jam main, pembatalan ditolak.
-                </div>
+                {b.status === "MENUNGGU_PEMBAYARAN" ? (
+                  <div className="mt-2 text-xs text-muted-foreground">
+                    Batas waktu pembayaran <span className="font-semibold">10 menit</span> sejak booking dibuat. Jika
+                    lewat, booking akan otomatis dibatalkan dan slot kembali tersedia.
+                  </div>
+                ) : (
+                  <div className="mt-2 text-xs text-muted-foreground">
+                    Pembatalan mengikuti aturan sistem (MinJamBatalkan). Jika sudah terlalu dekat dengan jam main,
+                    pembatalan ditolak.
+                  </div>
+                )}
               </CardContent>
               <CardFooter className="gap-2">
                 <Button asChild variant="outline" className="rounded-lg" size="sm">
