@@ -5,10 +5,9 @@ import {
   patchAdminVerifikasiBooking,
   patchBatalkanBooking,
   patchKonfirmasiBayar,
-  postMockPayBooking,
+  postBayarMockBooking,
   postBooking,
   postUploadBuktiBooking,
-  type MockPayMethod,
   type AdminVerifyAction,
   type CreateBookingRequest,
 } from "@/api/bookingApi";
@@ -75,7 +74,7 @@ export function useKonfirmasiBayarMutation() {
 
 export function useMockPayBookingMutation() {
   return useMutation({
-    mutationFn: ({ id, method }: { id: number; method: MockPayMethod }) => postMockPayBooking(id, method),
+    mutationFn: ({ id }: { id: number }) => postBayarMockBooking(id),
     onSuccess: (res) => {
       toast.success("Pembayaran berhasil (mock). Menunggu verifikasi admin.");
       queryClient.invalidateQueries({ queryKey: ["booking", "detail", res.id] });

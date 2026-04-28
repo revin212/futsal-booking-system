@@ -1,16 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
 import { getStoredUser } from "@/api/authStorage";
-import { env } from "@/env";
 import { useBookingDetailQuery } from "@/features/booking/queries";
-import { useKonfirmasiBayarMutation, useMockPayBookingMutation, useUploadBuktiBookingMutation } from "@/features/booking/mutations";
+import { useMockPayBookingMutation } from "@/features/booking/mutations";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function formatRupiah(n: number) {
@@ -21,12 +18,6 @@ function hhmm(v: string) {
   return v?.length >= 5 ? v.slice(0, 5) : v;
 }
 
-function buktiUrl(path: string | null) {
-  if (!path) return null;
-  const base = env.apiBaseUrl ?? "/api";
-  return `${base}/../backend/storage/${path}`;
-}
-
 export function BookingDetailPage() {
   const params = useParams();
   const navigate = useNavigate();
@@ -35,11 +26,7 @@ export function BookingDetailPage() {
   const bookingId = useMemo(() => Number(params.id), [params.id]);
   const q = useBookingDetailQuery(bookingId);
 
-  const uploadMut = useUploadBuktiBookingMutation();
-  const konfirmasiMut = useKonfirmasiBayarMutation();
   const mockPayMut = useMockPayBookingMutation();
-  const [file, setFile] = useState<File | null>(null);
-  const [method, setMethod] = useState<"QRIS" | "TRANSFER" | "EMONEY">("QRIS");
 
   useEffect(() => {
     if (user) return;
@@ -53,11 +40,6 @@ export function BookingDetailPage() {
   }, [q.isError, q.error]);
 
   const b = q.data;
-  const canUpload = Boolean(file) && !uploadMut.isPending && user != null;
-  const canKonfirmasi =
-    (b?.status === "MENUNGGU_PEMBAYARAN" || b?.status === "DIBUAT") &&
-    Boolean(b?.buktiBayarPath) &&
-    !konfirmasiMut.isPending;
   const canMockPay =
     (b?.status === "MENUNGGU_PEMBAYARAN" || b?.status === "DIBUAT") && !mockPayMut.isPending;
 
@@ -115,18 +97,21 @@ export function BookingDetailPage() {
                 <span className="font-lexend font-semibold">{formatRupiah(b.totalHarga)}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Bukti bayar</span>
-                <span className="font-mono text-xs">{b.buktiBayarPath ?? "-"}</span>
+                <span className="text-muted-foreground">Metode</span>
+                <span className="font-semibold">{b.metodePembayaran ?? "-"}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Biaya admin</span>
+                <span className="font-lexend font-semibold">{formatRupiah(b.adminFee ?? 0)}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Grand total</span>
+                <span className="font-lexend font-semibold">{formatRupiah(b.grandTotal ?? b.totalHarga)}</span>
               </div>
               {b.verifiedAt ? (
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Verified at</span>
                   <span className="font-mono text-xs">{b.verifiedAt}</span>
-                </div>
-              ) : null}
-              {buktiUrl(b.buktiBayarPath) ? (
-                <div className="text-xs text-muted-foreground">
-                  Catatan: URL preview bukti belum diekspos; path disimpan untuk kebutuhan internal.
                 </div>
               ) : null}
             </CardContent>
@@ -137,34 +122,8 @@ export function BookingDetailPage() {
               <CardTitle>Pembayaran</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="space-y-2">
-                <div className="text-sm font-semibold">Mock Payment Gateway</div>
-                <Select value={method} onValueChange={(v) => setMethod(v as any)} disabled={!canMockPay}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih metode" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="QRIS">QRIS</SelectItem>
-                    <SelectItem value="TRANSFER">Transfer Bank</SelectItem>
-                    <SelectItem value="EMONEY">E-Money</SelectItem>
-                  </SelectContent>
-                </Select>
-                <div className="text-xs text-muted-foreground">
-                  Ini simulasi seperti payment gateway (mis. Xendit). Klik “Bayar (Mock)” untuk menandai sudah bayar.
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="text-sm font-semibold">Upload bukti bayar</div>
-                <Input
-                  type="file"
-                  accept="image/*,.pdf"
-                  disabled={uploadMut.isPending}
-                  onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                />
-                <div className="text-xs text-muted-foreground">
-                  Format gambar/PDF. Setelah upload, tekan “Konfirmasi bayar”.
-                </div>
+              <div className="text-sm text-muted-foreground">
+                Ini simulasi seperti payment gateway (mis. Xendit). Klik “Bayar (Mock)” untuk menandai pembayaran berhasil.
               </div>
             </CardContent>
             <CardFooter className="gap-2">
@@ -174,45 +133,13 @@ export function BookingDetailPage() {
                 onClick={async () => {
                   if (!b) return;
                   try {
-                    await mockPayMut.mutateAsync({ id: b.id, method });
+                    await mockPayMut.mutateAsync({ id: b.id });
                   } catch {
                     // handled by mutation
                   }
                 }}
               >
                 {mockPayMut.isPending ? "Memproses..." : "Bayar (Mock)"}
-              </Button>
-
-              <Button
-                className="rounded-lg"
-                disabled={!canUpload}
-                onClick={async () => {
-                  if (!b) return;
-                  if (!file) return;
-                  try {
-                    await uploadMut.mutateAsync({ id: b.id, file });
-                    setFile(null);
-                  } catch {
-                    // handled by mutation
-                  }
-                }}
-              >
-                {uploadMut.isPending ? "Mengunggah..." : "Kirim Bukti"}
-              </Button>
-              <Button
-                className="rounded-lg"
-                variant="outline"
-                disabled={!canKonfirmasi}
-                onClick={async () => {
-                  if (!b) return;
-                  try {
-                    await konfirmasiMut.mutateAsync(b.id);
-                  } catch {
-                    // handled by mutation
-                  }
-                }}
-              >
-                {konfirmasiMut.isPending ? "Memproses..." : "Konfirmasi bayar"}
               </Button>
             </CardFooter>
           </Card>

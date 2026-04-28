@@ -16,6 +16,12 @@ function formatRupiah(n: number) {
   return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(n);
 }
 
+const ADMIN_FEE: Record<"QRIS" | "TRANSFER" | "EMONEY", number> = {
+  QRIS: 1500,
+  TRANSFER: 2500,
+  EMONEY: 2000,
+};
+
 export function BookingNewPage() {
   const navigate = useNavigate();
   const [sp, setSp] = useSearchParams();
@@ -38,6 +44,7 @@ export function BookingNewPage() {
   const [tanggal, setTanggal] = useState<string>(initial.tanggal);
   const [jamMulai, setJamMulai] = useState<string>(initial.jamMulai);
   const [durasiJam, setDurasiJam] = useState<number>(1);
+  const [metodePembayaran, setMetodePembayaran] = useState<"QRIS" | "TRANSFER" | "EMONEY">("QRIS");
 
   useEffect(() => {
     if (user) return;
@@ -101,6 +108,12 @@ export function BookingNewPage() {
     if (idx < 0) return null;
     return availableSlots.slice(idx, idx + durasiJam).reduce((sum, s) => sum + s.harga, 0);
   }, [availableSlots, durasiJam, jamMulai]);
+
+  const estimasiBiayaAdmin = useMemo(() => ADMIN_FEE[metodePembayaran], [metodePembayaran]);
+  const estimasiGrandTotal = useMemo(() => (estimasiTotal == null ? null : estimasiTotal + estimasiBiayaAdmin), [
+    estimasiTotal,
+    estimasiBiayaAdmin,
+  ]);
 
   const createMutation = useCreateBookingMutation();
 
@@ -201,6 +214,36 @@ export function BookingNewPage() {
           <div className="font-lexend font-semibold">{estimasiTotal == null ? "-" : formatRupiah(estimasiTotal)}</div>
         </div>
 
+        <div className="space-y-2">
+          <div className="text-sm font-semibold">Metode pembayaran</div>
+          <Select
+            value={metodePembayaran}
+            onValueChange={(v) => setMetodePembayaran(v as any)}
+            disabled={createMutation.isPending}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Pilih metode" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="QRIS">QRIS</SelectItem>
+              <SelectItem value="TRANSFER">Transfer Bank</SelectItem>
+              <SelectItem value="EMONEY">E-Money</SelectItem>
+            </SelectContent>
+          </Select>
+          <div className="rounded-xl border bg-muted/10 p-3 text-sm space-y-1">
+            <div className="flex items-center justify-between">
+              <div className="text-muted-foreground">Biaya admin</div>
+              <div className="font-lexend font-semibold">{formatRupiah(estimasiBiayaAdmin)}</div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="text-muted-foreground">Grand total</div>
+              <div className="font-lexend font-semibold">
+                {estimasiGrandTotal == null ? "-" : formatRupiah(estimasiGrandTotal)}
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="flex gap-2">
           <Button
             className="rounded-lg flex-1"
@@ -214,6 +257,7 @@ export function BookingNewPage() {
                   tanggalMain: tanggal,
                   jamMulai,
                   durasiJam,
+                  metodePembayaran,
                 });
                 navigate(`/booking/${res.id}`, { replace: true });
                 toast.success(`Booking dibuat. Lanjutkan pembayaran untuk konfirmasi.`);

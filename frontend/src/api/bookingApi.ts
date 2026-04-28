@@ -5,6 +5,7 @@ export type CreateBookingRequest = {
   tanggalMain: string; // YYYY-MM-DD
   jamMulai: string; // HH:mm
   durasiJam: number;
+  metodePembayaran: "QRIS" | "TRANSFER" | "EMONEY";
 };
 
 export type Booking = {
@@ -18,6 +19,8 @@ export type Booking = {
   status: string;
   totalHarga: number;
   metodePembayaran: string | null;
+  adminFee: number | null;
+  grandTotal: number | null;
   dpNominal: number | null;
   paidAmount: number | null;
   buktiBayarPath: string | null;
@@ -76,6 +79,13 @@ export async function postMockPayBooking(id: number, method: MockPayMethod) {
     method: "POST",
     auth: true,
     body: JSON.stringify({ method }),
+  });
+}
+
+export async function postBayarMockBooking(id: number) {
+  return apiFetch<Booking>(`/booking/${id}/bayar-mock`, {
+    method: "POST",
+    auth: true,
   });
 }
 
