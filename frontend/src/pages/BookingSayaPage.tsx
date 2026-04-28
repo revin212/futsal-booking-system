@@ -48,7 +48,7 @@ function formatCreatedAt(iso: string) {
 
 export function BookingSayaPage() {
   const user = getStoredUser();
-  const q = useBookingSayaQuery();
+  const q = useBookingSayaQuery(Boolean(user));
   const batalMutation = useBatalkanBookingMutation();
   const [confirmId, setConfirmId] = useState<number | null>(null);
 
@@ -57,6 +57,7 @@ export function BookingSayaPage() {
   }, [user]);
 
   useEffect(() => {
+    if (!user) return;
     if (q.isError) toast.error((q.error as any)?.message ?? "Gagal memuat booking");
   }, [q.isError, q.error]);
 

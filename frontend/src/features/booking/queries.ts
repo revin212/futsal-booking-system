@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { getAdminBookingMenungguVerifikasi, getBookingDetail, getBookingSaya } from "@/api/bookingApi";
 
-export function useBookingSayaQuery() {
+export function useBookingSayaQuery(enabled: boolean) {
   return useQuery({
     queryKey: ["booking", "saya"],
     queryFn: getBookingSaya,
+    enabled,
   });
 }
 
