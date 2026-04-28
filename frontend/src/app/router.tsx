@@ -9,6 +9,7 @@ import { BookingNewPage } from "@/pages/BookingNewPage";
 import { BookingSayaPage } from "@/pages/BookingSayaPage";
 import { BookingDetailPage } from "@/pages/BookingDetailPage";
 import { AdminBookingPage } from "@/pages/AdminBookingPage";
+import { AdminDashboardPage } from "@/pages/AdminDashboardPage";
 
 export const router = createBrowserRouter([
   {
@@ -22,6 +23,7 @@ export const router = createBrowserRouter([
       { path: "/booking/:id", element: <BookingDetailPage /> },
       { path: "/booking-saya", element: <BookingSayaPage /> },
       { path: "/admin/booking", element: <AdminBookingPage /> },
+      { path: "/admin/dashboard", element: <AdminDashboardPage /> },
       { path: "/masuk", element: <MasukPage /> }
     ],
   },

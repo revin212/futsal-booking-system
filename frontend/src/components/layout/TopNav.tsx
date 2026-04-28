@@ -38,6 +38,11 @@ export function TopNav() {
                 Booking Saya
               </NavLink>
             )}
+            {user?.role === "ADMIN" ? (
+              <NavLink to="/admin/dashboard" className={navLinkClass}>
+                Admin
+              </NavLink>
+            ) : null}
           </nav>
         </div>
 
