@@ -152,6 +152,91 @@ export function AdminDashboardPage() {
         </Card>
       </div>
 
+      <div className="pt-6">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="font-lexend text-lg font-semibold">Refund (pending)</h2>
+            <p className="text-sm text-muted-foreground mt-1">Pengajuan refund dari booking LUNAS (mock).</p>
+          </div>
+          <Button
+            variant="outline"
+            className="rounded-lg"
+            disabled={downloadingRefundCsv}
+            onClick={async () => {
+              try {
+                setDownloadingRefundCsv(true);
+                const res = await downloadAdminRefundCsv("PENDING");
+                downloadBlob(res.blob, res.filename ?? "refund-pending.csv");
+                toast.success("CSV refund berhasil diunduh");
+              } catch (e: any) {
+                toast.error(e?.message ?? "Gagal download CSV refund");
+              } finally {
+                setDownloadingRefundCsv(false);
+              }
+            }}
+          >
+            {downloadingRefundCsv ? "Mengunduh..." : "Download CSV"}
+          </Button>
+        </div>
+      </div>
+
+      {refundQ.isLoading ? (
+        <Card>
+          <CardHeader className="space-y-2">
+            <Skeleton className="h-5 w-52" />
+            <Skeleton className="h-4 w-72" />
+          </CardHeader>
+        </Card>
+      ) : refunds.length === 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Tidak ada refund</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-muted-foreground">Belum ada refund pending.</CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-2">
+          {refunds.map((b) => (
+            <Card key={b.id}>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">
+                  Refund • Booking #{b.id} • <span className="font-semibold">{b.refundStatus ?? "-"}</span>
+                </CardTitle>
+                <div className="text-sm text-muted-foreground">
+                  {b.lapanganNama} • {b.tanggalMain} • {hhmm(b.jamMulai)}-{hhmm(b.jamSelesai)}
+                </div>
+                {b.refundReason ? <div className="text-xs text-muted-foreground">Reason: {b.refundReason}</div> : null}
+              </CardHeader>
+              <CardContent className="pt-0 flex items-center justify-between gap-2">
+                <div className="text-sm text-muted-foreground">User: {b.userId}</div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    className="rounded-lg"
+                    disabled={refundMut.isPending}
+                    onClick={() => refundMut.mutate({ bookingId: b.id, action: "APPROVE" })}
+                  >
+                    Approve
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    className="rounded-lg"
+                    disabled={refundMut.isPending}
+                    onClick={() => refundMut.mutate({ bookingId: b.id, action: "REJECT" })}
+                  >
+                    Reject
+                  </Button>
+                  <Button asChild size="sm" variant="outline" className="rounded-lg">
+                    <Link to={`/admin/booking/${b.id}`}>Detail</Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="font-lexend text-lg font-semibold">Booking</h2>
@@ -271,91 +356,6 @@ export function AdminDashboardPage() {
               <CardContent className="pt-0 text-sm">
                 <div className="text-muted-foreground">{n.templateKey ?? "-"}</div>
                 <div className="mt-1">{n.message}</div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-
-      <div className="pt-6">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h2 className="font-lexend text-lg font-semibold">Refund (pending)</h2>
-            <p className="text-sm text-muted-foreground mt-1">Pengajuan refund dari booking LUNAS (mock).</p>
-          </div>
-          <Button
-            variant="outline"
-            className="rounded-lg"
-            disabled={downloadingRefundCsv}
-            onClick={async () => {
-              try {
-                setDownloadingRefundCsv(true);
-                const res = await downloadAdminRefundCsv("PENDING");
-                downloadBlob(res.blob, res.filename ?? "refund-pending.csv");
-                toast.success("CSV refund berhasil diunduh");
-              } catch (e: any) {
-                toast.error(e?.message ?? "Gagal download CSV refund");
-              } finally {
-                setDownloadingRefundCsv(false);
-              }
-            }}
-          >
-            {downloadingRefundCsv ? "Mengunduh..." : "Download CSV"}
-          </Button>
-        </div>
-      </div>
-
-      {refundQ.isLoading ? (
-        <Card>
-          <CardHeader className="space-y-2">
-            <Skeleton className="h-5 w-52" />
-            <Skeleton className="h-4 w-72" />
-          </CardHeader>
-        </Card>
-      ) : refunds.length === 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Tidak ada refund</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">Belum ada refund pending.</CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-2">
-          {refunds.map((b) => (
-            <Card key={b.id}>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base">
-                  Refund • Booking #{b.id} • <span className="font-semibold">{b.refundStatus ?? "-"}</span>
-                </CardTitle>
-                <div className="text-sm text-muted-foreground">
-                  {b.lapanganNama} • {b.tanggalMain} • {hhmm(b.jamMulai)}-{hhmm(b.jamSelesai)}
-                </div>
-                {b.refundReason ? <div className="text-xs text-muted-foreground">Reason: {b.refundReason}</div> : null}
-              </CardHeader>
-              <CardContent className="pt-0 flex items-center justify-between gap-2">
-                <div className="text-sm text-muted-foreground">User: {b.userId}</div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    className="rounded-lg"
-                    disabled={refundMut.isPending}
-                    onClick={() => refundMut.mutate({ bookingId: b.id, action: "APPROVE" })}
-                  >
-                    Approve
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    className="rounded-lg"
-                    disabled={refundMut.isPending}
-                    onClick={() => refundMut.mutate({ bookingId: b.id, action: "REJECT" })}
-                  >
-                    Reject
-                  </Button>
-                  <Button asChild size="sm" variant="outline" className="rounded-lg">
-                    <Link to={`/booking/${b.id}`}>Detail</Link>
-                  </Button>
-                </div>
               </CardContent>
             </Card>
           ))}
