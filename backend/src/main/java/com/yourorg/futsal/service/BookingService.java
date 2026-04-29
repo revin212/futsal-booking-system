@@ -191,12 +191,14 @@ public class BookingService {
       ensureInvoice(saved);
       saved = bookingRepo.save(saved);
     }
+    Long bookingId = saved.getId();
     try {
       waService.notifyBookingCreated(saved);
     } catch (Exception e) {
       log.warn("Failed to send WA mock for booking created id={}", saved.getId(), e);
     }
-    return saved;
+    // Hardening: make sure lapangan is join-fetched before controller serializes BookingResponse.
+    return reloadWithLapangan(bookingId);
   }
 
   public List<Booking> listByUser(UUID userId) {
@@ -255,7 +257,9 @@ public class BookingService {
       }
       String relative = Paths.get("uploads", "booking-" + booking.getId(), filename).toString().replace("\\", "/");
       booking.setBuktiBayarPath(relative);
-      return bookingRepo.save(booking);
+      Booking saved = bookingRepo.save(booking);
+      // Hardening: avoid LazyInitialization on b.lapangan during response mapping.
+      return reloadWithLapangan(saved.getId());
     } catch (ApiException e) {
       throw e;
     } catch (Exception e) {
@@ -280,7 +284,8 @@ public class BookingService {
     }
 
     booking.setStatus(BookingStatus.MENUNGGU_VERIFIKASI);
-    return bookingRepo.save(booking);
+    Booking saved = bookingRepo.save(booking);
+    return reloadWithLapangan(saved.getId());
   }
 
   public Booking mockPay(UUID userId, Long bookingId) {
@@ -294,7 +299,7 @@ public class BookingService {
       throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Booking sudah dibatalkan.");
     }
     if (booking.getStatus() == BookingStatus.LUNAS) {
-      return booking;
+      return reloadWithLapangan(booking.getId());
     }
     boolean willBecomeLunas = false;
     if (booking.getStatus() == BookingStatus.MENUNGGU_VERIFIKASI) {
@@ -311,7 +316,7 @@ public class BookingService {
           log.warn("Failed to send WA mock for payment success id={}", saved.getId(), e);
         }
       }
-      return saved;
+      return reloadWithLapangan(saved.getId());
     }
 
     if (booking.getMetodePembayaran() == null || booking.getMetodePembayaran().isBlank()) {
@@ -333,7 +338,7 @@ public class BookingService {
         log.warn("Failed to send WA mock for payment success id={}", saved.getId(), e);
       }
     }
-    return saved;
+    return reloadWithLapangan(saved.getId());
   }
 
   public Booking adminVerifikasi(Long bookingId, boolean approve) {
@@ -358,7 +363,8 @@ public class BookingService {
       booking.setStatus(BookingStatus.DITOLAK);
       booking.setVerifiedAt(Instant.now());
     }
-    return bookingRepo.save(booking);
+    Booking saved = bookingRepo.save(booking);
+    return reloadWithLapangan(saved.getId());
   }
 
   private void ensureInvoice(Booking booking) {
@@ -370,7 +376,7 @@ public class BookingService {
   }
 
   public Booking cancelBooking(UUID userId, Long bookingId) {
-    Booking booking = bookingRepo.findById(bookingId)
+    Booking booking = bookingRepo.findByIdWithLapangan(bookingId)
         .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Booking tidak ditemukan."));
 
     if (!booking.getUserId().equals(userId)) {
@@ -402,7 +408,8 @@ public class BookingService {
     }
 
     booking.setStatus(BookingStatus.DIBATALKAN);
-    return bookingRepo.save(booking);
+    Booking saved = bookingRepo.save(booking);
+    return reloadWithLapangan(saved.getId());
   }
 
   public Booking requestRefund(UUID userId, Long bookingId, String reason) {
@@ -441,22 +448,27 @@ public class BookingService {
     booking.setRefundReason(reason == null ? null : reason.trim());
     booking.setRefundAmount(booking.getPaidAmount());
     Booking saved = bookingRepo.save(booking);
-    auditLogService.log(
-        userId,
-        "USER",
-        "REFUND_REQUESTED",
-        "BOOKING",
-        String.valueOf(saved.getId()),
-        json("""
+    try {
+      auditLogService.log(
+          userId,
+          "USER",
+          "REFUND_REQUESTED",
+          "BOOKING",
+          String.valueOf(saved.getId()),
+          json("""
             {"reason":"%s","refundAmount":%s,"refundStatus":"%s","bookingStatus":"%s"}
             """.trim(),
-            saved.getRefundReason(),
-            saved.getRefundAmount(),
-            saved.getRefundStatus(),
-            saved.getStatus().name()
-        )
-    );
-    return saved;
+              saved.getRefundReason(),
+              saved.getRefundAmount(),
+              saved.getRefundStatus(),
+              saved.getStatus().name()
+          )
+      );
+    } catch (Exception e) {
+      // Audit log should not break UX flow; booking state is already persisted.
+      log.warn("Failed to write audit log for refund request bookingId={}", saved.getId(), e);
+    }
+    return reloadWithLapangan(saved.getId());
   }
 
   public Booking adminProcessRefund(Long bookingId, boolean approve, String note) {
@@ -472,22 +484,32 @@ public class BookingService {
       booking.setRefundStatus("REJECTED");
     }
     Booking saved = bookingRepo.save(booking);
-    auditLogService.log(
-        null,
-        "ADMIN",
-        approve ? "REFUND_APPROVED" : "REFUND_REJECTED",
-        "BOOKING",
-        String.valueOf(saved.getId()),
-        json("""
+    try {
+      auditLogService.log(
+          null,
+          "ADMIN",
+          approve ? "REFUND_APPROVED" : "REFUND_REJECTED",
+          "BOOKING",
+          String.valueOf(saved.getId()),
+          json("""
             {"note":"%s","refundAmount":%s,"refundStatus":"%s","bookingStatus":"%s"}
             """.trim(),
-            note,
-            saved.getRefundAmount(),
-            saved.getRefundStatus(),
-            saved.getStatus().name()
-        )
-    );
-    return saved;
+              note,
+              saved.getRefundAmount(),
+              saved.getRefundStatus(),
+              saved.getStatus().name()
+          )
+      );
+    } catch (Exception e) {
+      // Audit log should never break admin approve/reject refund.
+      log.warn("Failed to write audit log for refund action bookingId={}", saved.getId(), e);
+    }
+    return reloadWithLapangan(saved.getId());
+  }
+
+  private Booking reloadWithLapangan(Long bookingId) {
+    return bookingRepo.findByIdWithLapangan(bookingId)
+        .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Booking tidak ditemukan."));
   }
 
   private static String json(String template, Object... args) {
