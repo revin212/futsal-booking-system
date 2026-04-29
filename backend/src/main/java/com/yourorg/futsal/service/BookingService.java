@@ -430,19 +430,22 @@ public class BookingService {
       throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Refund sudah diproses.");
     }
 
-    int minJam = getMinJamBatalkan();
     LocalDateTime now = LocalDateTime.now(DEFAULT_ZONE);
     LocalDateTime waktuMain = LocalDateTime.of(booking.getTanggalMain(), booking.getJamMulai());
     long diffMinutes = Duration.between(now, waktuMain).toMinutes();
-    if (diffMinutes < (long) minJam * 60) {
+
+    // UX rule: allow refund only up to 1 hour before start.
+    if (diffMinutes < 0) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Booking sudah dimulai. Refund tidak bisa diajukan.");
+    }
+    if (diffMinutes > 60) {
       throw new ApiException(
           HttpStatus.BAD_REQUEST,
           "Bad Request",
-          "Refund tidak bisa diajukan (melebihi batas waktu pembatalan)."
+          "Refund hanya bisa diajukan maksimal 1 jam sebelum jam bermain."
       );
     }
 
-    booking.setStatus(BookingStatus.DIBATALKAN); // release slot for rebooking
     booking.setRefundStatus("PENDING");
     booking.setRefundRequestedAt(Instant.now());
     booking.setRefundReason(reason == null ? null : reason.trim());
@@ -458,10 +461,10 @@ public class BookingService {
           json("""
             {"reason":"%s","refundAmount":%s,"refundStatus":"%s","bookingStatus":"%s"}
             """.trim(),
-              saved.getRefundReason(),
-              saved.getRefundAmount(),
-              saved.getRefundStatus(),
-              saved.getStatus().name()
+            saved.getRefundReason(),
+            saved.getRefundAmount(),
+            saved.getRefundStatus(),
+            saved.getStatus().name()
           )
       );
     } catch (Exception e) {
@@ -480,8 +483,14 @@ public class BookingService {
     booking.setRefundProcessedAt(Instant.now());
     if (approve) {
       booking.setRefundStatus("REFUNDED");
+      // Only when refund is accepted we cancel the booking to free the slot.
+      booking.setStatus(BookingStatus.DIBATALKAN);
     } else {
       booking.setRefundStatus("REJECTED");
+      // Refund rejected: keep booking as LUNAS.
+      if (booking.getStatus() != BookingStatus.LUNAS) {
+        booking.setStatus(BookingStatus.LUNAS);
+      }
     }
     Booking saved = bookingRepo.save(booking);
     try {
@@ -494,10 +503,10 @@ public class BookingService {
           json("""
             {"note":"%s","refundAmount":%s,"refundStatus":"%s","bookingStatus":"%s"}
             """.trim(),
-              note,
-              saved.getRefundAmount(),
-              saved.getRefundStatus(),
-              saved.getStatus().name()
+            note,
+            saved.getRefundAmount(),
+            saved.getRefundStatus(),
+            saved.getStatus().name()
           )
       );
     } catch (Exception e) {
