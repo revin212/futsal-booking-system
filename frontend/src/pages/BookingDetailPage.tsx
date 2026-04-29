@@ -150,6 +150,12 @@ export function BookingDetailPage() {
                 <span className="font-semibold">{b.metodePembayaran ?? "-"}</span>
               </div>
               <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">No. WhatsApp</span>
+                <span className="font-mono text-xs">
+                  {b.noHp && b.noHp.trim().length > 0 ? b.noHp : "-"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Biaya admin</span>
                 <span className="font-lexend font-semibold">{formatRupiah(b.adminFee ?? 0)}</span>
               </div>

@@ -20,6 +20,7 @@ export type Booking = {
   status: string;
   totalHarga: number;
   metodePembayaran: string | null;
+  noHp: string | null;
   adminFee: number | null;
   grandTotal: number | null;
   dpNominal: number | null;
