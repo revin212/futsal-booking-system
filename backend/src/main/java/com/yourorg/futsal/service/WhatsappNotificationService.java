@@ -69,7 +69,9 @@ public class WhatsappNotificationService {
   }
 
   private void sendToUser(String templateKey, String type, Booking booking, AppUser user) {
-    String noHp = user == null ? null : normalizePhone(user.getNoHp());
+    String bookingNoHp = normalizePhone(booking.getNoHp());
+    String userNoHp = user == null ? null : normalizePhone(user.getNoHp());
+    String noHp = bookingNoHp != null && !bookingNoHp.isBlank() ? bookingNoHp : userNoHp;
     String recipientValue = (noHp == null || noHp.isBlank()) ? ("USER:" + booking.getUserId()) : noHp;
     String msg = render(templateKey, booking, user);
     persistAndLog(booking.getId(), templateKey, type, "USER", recipientValue, msg);

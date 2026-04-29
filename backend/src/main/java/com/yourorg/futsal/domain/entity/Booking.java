@@ -58,6 +58,9 @@ public class Booking {
   @Column(name = "dp_nominal", precision = 12, scale = 2)
   private BigDecimal dpNominal;
 
+  @Column(name = "no_hp")
+  private String noHp;
+
   @Column(name = "paid_amount", precision = 12, scale = 2)
   private BigDecimal paidAmount;
 
@@ -178,6 +181,14 @@ public class Booking {
 
   public void setDpNominal(BigDecimal dpNominal) {
     this.dpNominal = dpNominal;
+  }
+
+  public String getNoHp() {
+    return noHp;
+  }
+
+  public void setNoHp(String noHp) {
+    this.noHp = noHp;
   }
 
   public BigDecimal getPaidAmount() {

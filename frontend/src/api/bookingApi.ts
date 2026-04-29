@@ -6,7 +6,7 @@ export type CreateBookingRequest = {
   jamMulai: string; // HH:mm
   durasiJam: number;
   metodePembayaran: "QRIS" | "TRANSFER" | "EMONEY" | "CASH";
-  noHp: string;
+  noHp?: string;
 };
 
 export type Booking = {

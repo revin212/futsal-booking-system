@@ -31,6 +31,7 @@ export function BookingNewPage() {
   const user = session?.user ?? null;
 
   const lapanganQ = useLapanganListQuery();
+  const isAdmin = user?.role === "ADMIN";
 
   const initial = useMemo(() => {
     const lapanganId = Number(sp.get("lapanganId"));
@@ -128,7 +129,7 @@ export function BookingNewPage() {
   const createMutation = useCreateBookingMutation();
 
   const canSubmit =
-    Boolean(lapanganId && tanggal && jamMulai && durasiJam >= 1 && noHp.trim()) && !createMutation.isPending;
+    Boolean(lapanganId && tanggal && jamMulai && durasiJam >= 1 && (isAdmin || noHp.trim())) && !createMutation.isPending;
 
   return (
     <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10">
@@ -140,7 +141,9 @@ export function BookingNewPage() {
 
       <div className="mt-6 space-y-4 rounded-2xl border bg-card p-4">
         <div className="space-y-2">
-          <div className="text-sm font-semibold">Nomor WhatsApp</div>
+          <div className="text-sm font-semibold">
+            Nomor WhatsApp {isAdmin ? <span className="text-xs text-muted-foreground">(opsional)</span> : null}
+          </div>
           <Input
             value={noHp}
             onChange={(e) => setNoHp(e.target.value)}
@@ -148,7 +151,9 @@ export function BookingNewPage() {
             disabled={createMutation.isPending}
           />
           <div className="text-xs text-muted-foreground">
-            Wajib diisi untuk notifikasi booking. Akan disimpan untuk booking berikutnya.
+            {isAdmin
+              ? "Jika diisi, nomor WA akan disimpan di data booking (tanpa update profile admin)."
+              : "Wajib diisi untuk notifikasi booking. Akan disimpan untuk booking berikutnya."}
           </div>
         </div>
 
@@ -281,20 +286,18 @@ export function BookingNewPage() {
             onClick={async () => {
               if (!lapanganId) return;
               if (!tanggal || !jamMulai) return;
-              if (!noHp.trim()) {
-                toast.error("Nomor WhatsApp wajib diisi");
-                return;
-              }
               try {
-                const res = await createMutation.mutateAsync({
+                const payload = {
                   lapanganId,
                   tanggalMain: tanggal,
                   jamMulai,
                   durasiJam,
                   metodePembayaran,
-                  noHp: noHp.trim(),
-                });
-                if (user) {
+                  ...(isAdmin ? {} : { noHp: noHp.trim() }),
+                  ...(isAdmin && noHp.trim() ? { noHp: noHp.trim() } : {}),
+                };
+                const res = await createMutation.mutateAsync(payload);
+                if (user && !isAdmin) {
                   setStoredUser({ ...user, noHp: noHp.trim() });
                 }
                 navigate(`/booking/${res.id}`, { replace: true });

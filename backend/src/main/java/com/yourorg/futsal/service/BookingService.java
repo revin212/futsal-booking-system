@@ -82,13 +82,11 @@ public class BookingService {
   ) {
     AppUser u = userRepo.findById(userId)
         .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Unauthorized", "User tidak ditemukan."));
+    boolean actorIsAdmin = u.getRole() == UserRole.ADMIN;
+
     String normalizedNoHp = normalizeNoHp(noHpRaw);
-    if (normalizedNoHp == null) {
-      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Nomor WhatsApp tidak valid.");
-    }
-    if (u.getNoHp() == null || u.getNoHp().isBlank() || !u.getNoHp().trim().equals(normalizedNoHp)) {
-      u.setNoHp(normalizedNoHp);
-      userRepo.save(u);
+    if (!actorIsAdmin && normalizedNoHp == null) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Nomor WhatsApp wajib diisi.");
     }
 
     var lapangan = lapanganRepo.findById(lapanganId)
@@ -143,8 +141,6 @@ public class BookingService {
       throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Metode pembayaran tidak valid.");
     }
 
-    boolean actorIsAdmin = u.getRole() == UserRole.ADMIN;
-
     BigDecimal adminFee = switch (metodePembayaran) {
       case "QRIS" -> BigDecimal.valueOf(1500);
       case "TRANSFER" -> BigDecimal.valueOf(2500);
@@ -176,6 +172,17 @@ public class BookingService {
       }
     } else {
       b.setStatus(BookingStatus.MENUNGGU_PEMBAYARAN);
+    }
+
+    // persist WA number to booking only
+    if (actorIsAdmin) {
+      // ADMIN: nomor opsional, dan tidak mengubah app_user.no_hp
+      b.setNoHp(normalizedNoHp != null ? normalizedNoHp : normalizeNoHp(u.getNoHp()));
+    } else {
+      // USER: wajib diisi, dan disimpan ke profile + booking agar ter-prefill
+      u.setNoHp(normalizedNoHp);
+      userRepo.save(u);
+      b.setNoHp(normalizedNoHp);
     }
 
     Booking saved = bookingRepo.save(b);

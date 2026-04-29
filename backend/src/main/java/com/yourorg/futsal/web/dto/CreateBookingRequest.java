@@ -18,7 +18,6 @@ public record CreateBookingRequest(
         message = "metode pembayaran harus QRIS, TRANSFER, EMONEY, atau CASH"
     )
     String metodePembayaran,
-    @NotBlank(message = "noHp wajib diisi")
     @Pattern(
         regexp = "^(\\+62|62|0)\\d{9,13}$",
         message = "Format noHp tidak valid. Gunakan +62..., 62..., atau 0..."
