@@ -49,6 +49,14 @@ function formatCreatedAt(iso: string) {
   }).format(d);
 }
 
+function bookingStartAtJakarta(tanggalMain?: string, jamMulai?: string) {
+  if (!tanggalMain || !jamMulai) return null;
+  const hm = jamMulai?.length >= 5 ? jamMulai.slice(0, 5) : jamMulai;
+  const iso = `${tanggalMain}T${hm}:00+07:00`;
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
 export function BookingSayaPage() {
   const session = getAuthSession();
   const user = session?.user ?? null;
@@ -75,6 +83,17 @@ export function BookingSayaPage() {
   const items = useMemo(() => q.data ?? [], [q.data]);
   const confirmBooking = useMemo(() => items.find((x) => x.id === confirmId) ?? null, [confirmId, items]);
   const refundBooking = useMemo(() => items.find((x) => x.id === refundId) ?? null, [refundId, items]);
+
+  const canRefund = (b: (typeof items)[number]) => {
+    if (b.status !== "LUNAS") return false;
+    if (!(b.refundStatus == null || b.refundStatus === "NONE" || b.refundStatus === "REJECTED")) return false;
+
+    const startAt = bookingStartAtJakarta(b.tanggalMain, b.jamMulai);
+    // If parsing fails, let backend decide.
+    if (!startAt) return true;
+    const diffMinutes = (startAt.getTime() - Date.now()) / 60000;
+    return diffMinutes >= 0 && diffMinutes <= 60;
+  };
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10 space-y-6">
@@ -197,8 +216,7 @@ export function BookingSayaPage() {
                 <Button asChild variant="outline" className="rounded-lg" size="sm">
                   <Link to={`/jadwal?lapanganId=${b.lapanganId}`}>Lihat di Jadwal</Link>
                 </Button>
-                {b.status === "LUNAS" &&
-                (b.refundStatus == null || b.refundStatus === "NONE" || b.refundStatus === "REJECTED") ? (
+                {canRefund(b) ? (
                   <Button
                     size="sm"
                     variant="destructive"
@@ -270,7 +288,7 @@ export function BookingSayaPage() {
             <AlertDialogDescription>
               {refundBooking ? (
                 <>
-                  Booking #{refundBooking.id} akan dibatalkan dan refund diproses admin (mock). Estimasi refund:{" "}
+                  Booking #{refundBooking.id} akan tetap aktif saat refund menunggu keputusan admin (mock). Estimasi refund:{" "}
                   <span className="font-lexend font-semibold">{formatRupiah(refundBooking.paidAmount ?? 0)}</span>
                 </>
               ) : (

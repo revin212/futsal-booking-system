@@ -43,6 +43,14 @@ function formatCreatedAt(iso: string) {
   }).format(d);
 }
 
+function bookingStartAtJakarta(tanggalMain?: string, jamMulai?: string) {
+  if (!tanggalMain || !jamMulai) return null;
+  const hm = jamMulai?.length >= 5 ? jamMulai.slice(0, 5) : jamMulai;
+  const iso = `${tanggalMain}T${hm}:00+07:00`;
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
 export function BookingDetailPage() {
   const params = useParams();
   const navigate = useNavigate();
@@ -73,7 +81,16 @@ export function BookingDetailPage() {
   const b = q.data;
   const canPay =
     (b?.status === "MENUNGGU_PEMBAYARAN" || b?.status === "DIBUAT") && !createIntentMut.isPending;
-  const canRefund = b?.status === "LUNAS" && (b?.refundStatus == null || b.refundStatus === "NONE" || b.refundStatus === "REJECTED");
+  const canRefund =
+    b?.status === "LUNAS" &&
+    (b?.refundStatus == null || b.refundStatus === "NONE" || b.refundStatus === "REJECTED") &&
+    (() => {
+      const startAt = bookingStartAtJakarta(b?.tanggalMain, b?.jamMulai);
+      // If parsing fails, let backend validate.
+      if (!startAt) return true;
+      const diffMinutes = (startAt.getTime() - Date.now()) / 60000;
+      return diffMinutes >= 0 && diffMinutes <= 60;
+    })();
 
   return (
     <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10 space-y-6">
