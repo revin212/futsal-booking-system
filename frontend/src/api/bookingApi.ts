@@ -57,6 +57,12 @@ export async function getBookingDetail(id: number) {
   });
 }
 
+export async function getAdminBookingDetail(id: number) {
+  return apiFetch<Booking>(`/admin/booking/${id}`, {
+    auth: true,
+  });
+}
+
 export async function patchBatalkanBooking(id: number) {
   return apiFetch<Booking>(`/booking/${id}/batalkan`, {
     method: "PATCH",

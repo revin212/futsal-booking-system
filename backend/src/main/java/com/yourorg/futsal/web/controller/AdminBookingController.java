@@ -64,5 +64,12 @@ public class AdminBookingController {
     }
     return BookingResponse.from(bookingService.adminVerifikasi(id, approve));
   }
+
+  @GetMapping("/{id}")
+  public BookingResponse detail(@PathVariable Long id) {
+    return bookingRepo.findByIdWithLapangan(id)
+        .map(BookingResponse::from)
+        .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Booking tidak ditemukan."));
+  }
 }
 

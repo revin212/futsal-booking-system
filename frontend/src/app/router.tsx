@@ -9,6 +9,7 @@ import { BookingNewPage } from "@/pages/BookingNewPage";
 import { BookingSayaPage } from "@/pages/BookingSayaPage";
 import { BookingDetailPage } from "@/pages/BookingDetailPage";
 import { AdminBookingPage } from "@/pages/AdminBookingPage";
+import { AdminBookingDetailPage } from "@/pages/AdminBookingDetailPage";
 import { AdminDashboardPage } from "@/pages/AdminDashboardPage";
 import { AdminLoginPage } from "@/pages/AdminLoginPage";
 import { PaymentGatewayMockPage } from "@/pages/PaymentGatewayMockPage";
@@ -26,6 +27,7 @@ export const router = createBrowserRouter([
       { path: "/booking/:id", element: <BookingDetailPage /> },
       { path: "/booking-saya", element: <BookingSayaPage /> },
       { path: "/admin/booking", element: <AdminBookingPage /> },
+      { path: "/admin/booking/:id", element: <AdminBookingDetailPage /> },
       { path: "/admin/dashboard", element: <AdminDashboardPage /> },
       { path: "/admin/login", element: <AdminLoginPage /> },
       { path: "/payment-gateway/:intentId", element: <PaymentGatewayMockPage /> },

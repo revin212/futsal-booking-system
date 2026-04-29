@@ -141,7 +141,7 @@ export function AdminBookingPage() {
                   Reject
                 </Button>
                 <Button asChild variant="outline" className="rounded-lg ml-auto" size="sm">
-                  <Link to={`/booking/${b.id}`}>Lihat Detail</Link>
+                  <Link to={`/admin/booking/${b.id}`}>Lihat Detail</Link>
                 </Button>
               </CardFooter>
             </Card>
