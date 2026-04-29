@@ -114,6 +114,8 @@ export function useAdminVerifikasiBookingMutation() {
     onSuccess: (res) => {
       toast.success(`Booking #${res.id} diverifikasi (${res.status})`);
       queryClient.invalidateQueries({ queryKey: ["admin", "booking", "menunggu_verifikasi"] });
+      // Ensure the currently opened AdminBookingDetailPage refetches
+      queryClient.invalidateQueries({ queryKey: ["admin", "booking", "detail", res.id] });
       queryClient.invalidateQueries({ queryKey: ["booking", "detail", res.id] });
       queryClient.invalidateQueries({ queryKey: ["booking", "saya"] });
       queryClient.invalidateQueries({ queryKey: ["slot"] });
