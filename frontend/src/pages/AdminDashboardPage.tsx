@@ -229,7 +229,7 @@ export function AdminDashboardPage() {
               <CardContent className="pt-0 flex items-center justify-between gap-3">
                 <div className="text-sm text-muted-foreground">User: {b.userId}</div>
                 <Button asChild size="sm" variant="outline" className="rounded-lg">
-                  <Link to={`/booking/${b.id}`}>Lihat Detail</Link>
+                  <Link to={`/admin/booking/${b.id}`}>Lihat Detail</Link>
                 </Button>
               </CardContent>
             </Card>
