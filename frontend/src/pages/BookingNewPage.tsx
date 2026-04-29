@@ -47,7 +47,9 @@ export function BookingNewPage() {
   const [tanggal, setTanggal] = useState<string>(initial.tanggal);
   const [jamMulai, setJamMulai] = useState<string>(initial.jamMulai);
   const [durasiJam, setDurasiJam] = useState<number>(1);
-  const [metodePembayaran, setMetodePembayaran] = useState<"QRIS" | "TRANSFER" | "EMONEY">("QRIS");
+  const [metodePembayaran, setMetodePembayaran] = useState<"QRIS" | "TRANSFER" | "EMONEY" | "CASH">(
+    user?.role === "ADMIN" ? "CASH" : "QRIS"
+  );
   const [noHp, setNoHp] = useState<string>(user?.noHp ?? "");
 
   useEffect(() => {
@@ -114,7 +116,10 @@ export function BookingNewPage() {
     return availableSlots.slice(idx, idx + durasiJam).reduce((sum, s) => sum + s.harga, 0);
   }, [availableSlots, durasiJam, jamMulai]);
 
-  const estimasiBiayaAdmin = useMemo(() => ADMIN_FEE[metodePembayaran], [metodePembayaran]);
+  const estimasiBiayaAdmin = useMemo(() => {
+    if (metodePembayaran === "CASH") return 0;
+    return ADMIN_FEE[metodePembayaran as "QRIS" | "TRANSFER" | "EMONEY"];
+  }, [metodePembayaran]);
   const estimasiGrandTotal = useMemo(() => (estimasiTotal == null ? null : estimasiTotal + estimasiBiayaAdmin), [
     estimasiTotal,
     estimasiBiayaAdmin,
@@ -247,6 +252,7 @@ export function BookingNewPage() {
               <SelectItem value="QRIS">QRIS</SelectItem>
               <SelectItem value="TRANSFER">Transfer Bank</SelectItem>
               <SelectItem value="EMONEY">E-Money</SelectItem>
+              <SelectItem value="CASH">Bayar Cash</SelectItem>
             </SelectContent>
           </Select>
           <div className="rounded-xl border bg-muted/10 p-3 text-sm space-y-1">
@@ -260,6 +266,11 @@ export function BookingNewPage() {
                 {estimasiGrandTotal == null ? "-" : formatRupiah(estimasiGrandTotal)}
               </div>
             </div>
+            {metodePembayaran === "CASH" ? (
+              <div className="text-xs text-muted-foreground">
+                Pembayaran cash tanpa payment gateway. Booking akan diproses sesuai status verifikasi admin.
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -287,7 +298,11 @@ export function BookingNewPage() {
                   setStoredUser({ ...user, noHp: noHp.trim() });
                 }
                 navigate(`/booking/${res.id}`, { replace: true });
-                toast.success(`Booking dibuat. Lanjutkan pembayaran untuk konfirmasi.`);
+                if (metodePembayaran === "CASH") {
+                  toast.success(res.status === "LUNAS" ? "Booking cash berhasil (LUNAS)." : "Booking cash dibuat. Menunggu verifikasi admin.");
+                } else {
+                  toast.success(`Booking dibuat. Lanjutkan pembayaran untuk konfirmasi.`);
+                }
               } catch {
                 // handled by mutation onError
               }

@@ -202,28 +202,38 @@ export function BookingDetailPage() {
                   Batas waktu pembayaran <span className="font-semibold">10 menit</span> sejak booking dibuat. Jika lewat,
                   booking akan otomatis dibatalkan dan slot kembali tersedia.
                 </div>
+              ) : b.status === "MENUNGGU_VERIFIKASI" ? (
+                <div className="text-sm text-muted-foreground">
+                  Pembayaran sudah dicatat, menunggu verifikasi admin.{" "}
+                  {b.metodePembayaran === "CASH" ? (
+                    <span className="font-semibold">Metode: cash</span>
+                  ) : null}
+                </div>
               ) : (
                 <div className="text-sm text-muted-foreground">
-                  Ini simulasi seperti payment gateway (mis. Xendit). Klik “Bayar (Mock)” untuk menandai pembayaran berhasil.
+                  Pembayaran tercatat dengan metode <span className="font-semibold">{b.metodePembayaran ?? "-"}</span>.
+                  {b.verifiedAt ? <div className="mt-1">Terverifikasi pada {b.verifiedAt}.</div> : null}
                 </div>
               )}
             </CardContent>
             <CardFooter className="gap-2">
-              <Button
-                className="rounded-lg"
-                disabled={!canPay}
-                onClick={async () => {
-                  if (!b) return;
-                  try {
-                    const intent = await createIntentMut.mutateAsync(b.id);
-                    navigate(`/payment-gateway/${intent.id}`);
-                  } catch {
-                    // handled by mutation
-                  }
-                }}
-              >
-                {createIntentMut.isPending ? "Memproses..." : "Bayar via Gateway (Mock)"}
-              </Button>
+              {canPay ? (
+                <Button
+                  className="rounded-lg"
+                  disabled={!canPay}
+                  onClick={async () => {
+                    if (!b) return;
+                    try {
+                      const intent = await createIntentMut.mutateAsync(b.id);
+                      navigate(`/payment-gateway/${intent.id}`);
+                    } catch {
+                      // handled by mutation
+                    }
+                  }}
+                >
+                  {createIntentMut.isPending ? "Memproses..." : "Bayar via Gateway (Mock)"}
+                </Button>
+              ) : null}
             </CardFooter>
           </Card>
         </>

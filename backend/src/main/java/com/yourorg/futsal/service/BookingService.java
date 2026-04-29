@@ -4,6 +4,7 @@ import com.yourorg.futsal.domain.entity.Booking;
 import com.yourorg.futsal.domain.entity.JamOperasional;
 import com.yourorg.futsal.domain.entity.AppUser;
 import com.yourorg.futsal.domain.enums.BookingStatus;
+import com.yourorg.futsal.domain.enums.UserRole;
 import com.yourorg.futsal.domain.repo.AppUserRepository;
 import com.yourorg.futsal.domain.repo.BookingRepository;
 import com.yourorg.futsal.domain.repo.JamOperasionalRepository;
@@ -135,15 +136,20 @@ public class BookingService {
     }
 
     String metodePembayaran = metodePembayaranRaw == null ? "" : metodePembayaranRaw.trim().toUpperCase();
-    if (!metodePembayaran.equals("QRIS") && !metodePembayaran.equals("TRANSFER") && !metodePembayaran.equals("EMONEY")) {
+    if (!metodePembayaran.equals("QRIS")
+        && !metodePembayaran.equals("TRANSFER")
+        && !metodePembayaran.equals("EMONEY")
+        && !metodePembayaran.equals("CASH")) {
       throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Metode pembayaran tidak valid.");
     }
+
+    boolean actorIsAdmin = u.getRole() == UserRole.ADMIN;
 
     BigDecimal adminFee = switch (metodePembayaran) {
       case "QRIS" -> BigDecimal.valueOf(1500);
       case "TRANSFER" -> BigDecimal.valueOf(2500);
       case "EMONEY" -> BigDecimal.valueOf(2000);
-      default -> BigDecimal.ZERO;
+      default -> BigDecimal.ZERO; // CASH
     };
 
     Booking b = new Booking();
@@ -152,11 +158,32 @@ public class BookingService {
     b.setTanggalMain(tanggalMain);
     b.setJamMulai(jamMulai);
     b.setJamSelesai(jamSelesai);
-    b.setStatus(BookingStatus.MENUNGGU_PEMBAYARAN);
     b.setTotalHarga(total);
     b.setMetodePembayaran(metodePembayaran);
     b.setAdminFee(adminFee);
+
+    // CASH flow:
+    // - ADMIN: booking langsung LUNAS (tanpa payment gateway).
+    // - USER: booking MENUNGGU_VERIFIKASI (admin verifikasi di halaman admin).
+    if ("CASH".equals(metodePembayaran)) {
+      BigDecimal grandTotal = total.add(adminFee);
+      b.setPaidAmount(grandTotal);
+      if (actorIsAdmin) {
+        b.setStatus(BookingStatus.LUNAS);
+        b.setVerifiedAt(Instant.now());
+      } else {
+        b.setStatus(BookingStatus.MENUNGGU_VERIFIKASI);
+      }
+    } else {
+      b.setStatus(BookingStatus.MENUNGGU_PEMBAYARAN);
+    }
+
     Booking saved = bookingRepo.save(b);
+    // Invoice number needs booking id; generate after first save.
+    if (saved.getStatus() == BookingStatus.LUNAS || saved.getStatus() == BookingStatus.SELESAI) {
+      ensureInvoice(saved);
+      saved = bookingRepo.save(saved);
+    }
     try {
       waService.notifyBookingCreated(saved);
     } catch (Exception e) {
@@ -313,6 +340,12 @@ public class BookingService {
     if (approve) {
       booking.setStatus(BookingStatus.LUNAS);
       booking.setVerifiedAt(Instant.now());
+      // Hardening: pastikan paidAmount tersedia untuk refund.
+      if (booking.getPaidAmount() == null) {
+        BigDecimal adminFee = booking.getAdminFee() == null ? BigDecimal.ZERO : booking.getAdminFee();
+        BigDecimal totalHarga = booking.getTotalHarga() == null ? BigDecimal.ZERO : booking.getTotalHarga();
+        booking.setPaidAmount(totalHarga.add(adminFee));
+      }
       ensureInvoice(booking);
     } else {
       booking.setStatus(BookingStatus.DITOLAK);
