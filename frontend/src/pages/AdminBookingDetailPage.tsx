@@ -4,9 +4,10 @@ import { toast } from "sonner";
 
 import { clearAccessToken, getAuthSession } from "@/api/authStorage";
 import { useAdminBookingDetailQuery } from "@/features/booking/queries";
+import { useAdminVerifikasiBookingMutation } from "@/features/booking/mutations";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 
@@ -24,6 +25,7 @@ export function AdminBookingDetailPage() {
   const bookingId = useMemo(() => Number(params.id), [params.id]);
 
   const q = useAdminBookingDetailQuery(bookingId);
+  const verifyMut = useAdminVerifikasiBookingMutation();
 
   useEffect(() => {
     if (user) return;
@@ -45,7 +47,9 @@ export function AdminBookingDetailPage() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="font-lexend text-2xl font-semibold">Admin • Detail Booking</h1>
-          <p className="text-sm text-muted-foreground mt-2">Read-only untuk verifikasi dan referensi.</p>
+          <p className="text-sm text-muted-foreground mt-2">
+            Detail booking dan verifikasi jika status masih <span className="font-semibold">MENUNGGU_VERIFIKASI</span>.
+          </p>
         </div>
         <Button asChild variant="outline" className="rounded-lg">
           <Link to="/admin/booking">Kembali</Link>
@@ -116,6 +120,26 @@ export function AdminBookingDetailPage() {
               <div className="text-xs text-muted-foreground">{refundTimestampText(b)}</div>
             ) : null}
           </CardContent>
+
+          {b.status === "MENUNGGU_VERIFIKASI" ? (
+            <CardFooter className="gap-2">
+              <Button
+                className="rounded-lg"
+                disabled={verifyMut.isPending}
+                onClick={() => verifyMut.mutate({ id: b.id, action: "APPROVE" })}
+              >
+                {verifyMut.isPending ? "Memproses..." : "Approve"}
+              </Button>
+              <Button
+                className="rounded-lg"
+                variant="destructive"
+                disabled={verifyMut.isPending}
+                onClick={() => verifyMut.mutate({ id: b.id, action: "REJECT" })}
+              >
+                {verifyMut.isPending ? "Memproses..." : "Reject"}
+              </Button>
+            </CardFooter>
+          ) : null}
         </Card>
       )}
     </div>
