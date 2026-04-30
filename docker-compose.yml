@@ -2,13 +2,17 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: futsal
-      POSTGRES_USER: futsal
-      POSTGRES_PASSWORD: futsal
+      POSTGRES_DB: ${POSTGRES_DB:-futsal}
+      POSTGRES_USER: ${POSTGRES_USER:-futsal}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-futsal}
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U futsal -d futsal"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-futsal} -d ${POSTGRES_DB:-futsal}",
+        ]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -21,9 +25,9 @@ services:
       SPRING_PROFILES_ACTIVE: docker
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: futsal
-      DB_USERNAME: futsal
-      DB_PASSWORD: futsal
+      DB_NAME: ${POSTGRES_DB:-futsal}
+      DB_USERNAME: ${POSTGRES_USER:-futsal}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-futsal}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-CHANGE_ME_GOOGLE_CLIENT_ID}
       JWT_SECRET: ${JWT_SECRET:-CHANGE_ME_SUPER_SECRET_DEV_32_BYTES_MIN_0123456789abcdef}
       JWT_ISSUER: ${JWT_ISSUER:-futsalkita}

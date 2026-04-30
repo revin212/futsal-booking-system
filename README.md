@@ -94,3 +94,8 @@ Catatan:
 - `backend/`: Spring Boot 3.x + Flyway + Security + Auth Google→JWT
 - `frontend/`: Vite React TS + Tailwind + shadcn/ui + TanStack Query + React Router
 
+## Deploy ke VPS
+
+- **Docker Compose (rekomendasi)**: baca `deploy/vps/README.docker.md`
+- **Tanpa Docker (systemd + Nginx + Postgres)**: baca `deploy/vps/README.md`
+
