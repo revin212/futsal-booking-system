@@ -1,4 +1,8 @@
+import { env } from "@/env";
+
 export function Footer() {
+  const adminWa = env.adminWaNumber?.trim();
+
   return (
     <footer className="border-t bg-muted/20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -21,6 +25,11 @@ export function Footer() {
           <a className="text-muted-foreground hover:text-primary underline" href="#">
             Kebijakan Privasi
           </a>
+          {adminWa ? (
+            <div className="pt-2 text-xs text-muted-foreground">
+              WhatsApp Admin: <span className="font-mono text-foreground">{adminWa}</span>
+            </div>
+          ) : null}
         </div>
       </div>
     </footer>
