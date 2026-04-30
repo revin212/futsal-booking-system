@@ -1,4 +1,4 @@
-import { getAccessToken } from "@/api/authStorage";
+import { clearAccessToken, getAccessToken } from "@/api/authStorage";
 import { env } from "@/env";
 
 export class ApiError extends Error {
@@ -47,6 +47,10 @@ export async function apiFetch<T>(
   const data = isJson ? await res.json().catch(() => null) : await res.text().catch(() => null);
 
   if (!res.ok) {
+    // If auth token is invalid/expired, clear stored session to avoid UI inconsistency.
+    if (init?.auth && (res.status === 401 || res.status === 403)) {
+      clearAccessToken();
+    }
     const detail =
       typeof data === "object" && data && "detail" in (data as any)
         ? String((data as any).detail)
@@ -75,6 +79,10 @@ export async function apiFetchBlob(
   });
 
   if (!res.ok) {
+    // If auth token is invalid/expired, clear stored session to avoid UI inconsistency.
+    if (init?.auth && (res.status === 401 || res.status === 403)) {
+      clearAccessToken();
+    }
     const contentType = res.headers.get("content-type") ?? "";
     const isJson = contentType.includes("application/json") || contentType.includes("problem+json");
     const data = isJson ? await res.json().catch(() => null) : await res.text().catch(() => null);
