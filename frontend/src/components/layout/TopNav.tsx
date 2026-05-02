@@ -24,9 +24,6 @@ export function TopNav() {
             FutsalKita
           </Link>
           <nav className="hidden md:flex items-center gap-6">
-            <NavLink to="/" className={navLinkClass}>
-              Beranda
-            </NavLink>
             <NavLink to="/lapangan" className={navLinkClass}>
               Katalog
             </NavLink>
@@ -38,13 +35,9 @@ export function TopNav() {
                 Booking Saya
               </NavLink>
             )}
-            {user?.role === "ADMIN" ? (
+            {user?.role === "ADMIN" && (
               <NavLink to="/admin/dashboard" className={navLinkClass}>
                 Admin
-              </NavLink>
-            ) : (
-              <NavLink to="/admin/login" className={navLinkClass}>
-                Admin Login
               </NavLink>
             )}
           </nav>
@@ -82,9 +75,14 @@ export function TopNav() {
               </Button>
             </>
           ) : (
-            <Button asChild size="sm" className="rounded-lg">
-              <Link to="/masuk">Masuk</Link>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button asChild size="sm" className="rounded-lg">
+                <Link to="/masuk">Masuk</Link>
+              </Button>
+              <Button asChild size="sm" variant="outline" className="rounded-lg">
+                <Link to="/admin/login">Login Admin</Link>
+              </Button>
+            </div>
           )}
         </div>
       </div>
