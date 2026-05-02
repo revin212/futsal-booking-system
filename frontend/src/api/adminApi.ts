@@ -44,19 +44,6 @@ export async function getAdminNotificationLog(limit = 50) {
   return apiFetch<NotificationLog[]>(`/admin/notification-log?${qs}`, { auth: true });
 }
 
-export async function getAdminRefund(status = "PENDING") {
-  const qs = new URLSearchParams({ status }).toString();
-  return apiFetch<Booking[]>(`/admin/refund?${qs}`, { auth: true });
-}
-
-export async function patchAdminRefundAction(bookingId: number, body: { action: "APPROVE" | "REJECT"; note?: string }) {
-  return apiFetch<Booking>(`/admin/refund/${bookingId}`, {
-    method: "PATCH",
-    auth: true,
-    body: JSON.stringify(body),
-  });
-}
-
 export async function getAdminAuditLog(limit = 50) {
   const qs = new URLSearchParams({ limit: String(limit) }).toString();
   return apiFetch<AuditLog[]>(`/admin/audit-log?${qs}`, { auth: true });
@@ -65,10 +52,5 @@ export async function getAdminAuditLog(limit = 50) {
 export async function downloadAdminBookingCsv(start: string, end: string) {
   const qs = new URLSearchParams({ start, end }).toString();
   return apiFetchBlob(`/admin/export/booking.csv?${qs}`, { auth: true, accept: "text/csv" });
-}
-
-export async function downloadAdminRefundCsv(status = "PENDING") {
-  const qs = new URLSearchParams({ status }).toString();
-  return apiFetchBlob(`/admin/export/refund.csv?${qs}`, { auth: true, accept: "text/csv" });
 }
 

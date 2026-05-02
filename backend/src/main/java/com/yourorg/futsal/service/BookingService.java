@@ -352,7 +352,7 @@ public class BookingService {
     if (approve) {
       booking.setStatus(BookingStatus.LUNAS);
       booking.setVerifiedAt(Instant.now());
-      // Hardening: pastikan paidAmount tersedia untuk refund.
+      // Hardening: pastikan paidAmount tersedia untuk invoice/rekonsiliasi.
       if (booking.getPaidAmount() == null) {
         BigDecimal adminFee = booking.getAdminFee() == null ? BigDecimal.ZERO : booking.getAdminFee();
         BigDecimal totalHarga = booking.getTotalHarga() == null ? BigDecimal.ZERO : booking.getTotalHarga();
@@ -390,7 +390,7 @@ public class BookingService {
       throw new ApiException(
           HttpStatus.BAD_REQUEST,
           "Bad Request",
-          "Booking sudah lunas. Gunakan fitur refund untuk pembatalan."
+          "Booking sudah lunas dan tidak bisa dibatalkan dari aplikasi."
       );
     }
 
@@ -409,110 +409,6 @@ public class BookingService {
 
     booking.setStatus(BookingStatus.DIBATALKAN);
     Booking saved = bookingRepo.save(booking);
-    return reloadWithLapangan(saved.getId());
-  }
-
-  public Booking requestRefund(UUID userId, Long bookingId, String reason) {
-    Booking booking = bookingRepo.findByIdWithLapangan(bookingId)
-        .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Booking tidak ditemukan."));
-    if (!booking.getUserId().equals(userId)) {
-      throw new ApiException(HttpStatus.FORBIDDEN, "Forbidden", "Akses ditolak.");
-    }
-    if (booking.getStatus() != BookingStatus.LUNAS) {
-      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Refund hanya untuk booking status LUNAS.");
-    }
-    String rs = booking.getRefundStatus() == null ? "NONE" : booking.getRefundStatus().trim().toUpperCase();
-    if ("PENDING".equals(rs)) {
-      // idempotent: refund request hanya sekali selama masih PENDING
-      return booking;
-    }
-    if (!"NONE".equals(rs) && !"REJECTED".equals(rs)) {
-      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Refund sudah diproses.");
-    }
-
-    LocalDateTime now = LocalDateTime.now(DEFAULT_ZONE);
-    LocalDateTime waktuMain = LocalDateTime.of(booking.getTanggalMain(), booking.getJamMulai());
-    long diffMinutes = Duration.between(now, waktuMain).toMinutes();
-
-    // UX rule: allow refund only up to 1 hour before start.
-    if (diffMinutes < 0) {
-      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Booking sudah dimulai. Refund tidak bisa diajukan.");
-    }
-    if (diffMinutes > 60) {
-      throw new ApiException(
-          HttpStatus.BAD_REQUEST,
-          "Bad Request",
-          "Refund hanya bisa diajukan maksimal 1 jam sebelum jam bermain."
-      );
-    }
-
-    booking.setRefundStatus("PENDING");
-    booking.setRefundRequestedAt(Instant.now());
-    booking.setRefundReason(reason == null ? null : reason.trim());
-    booking.setRefundAmount(booking.getPaidAmount());
-    Booking saved = bookingRepo.save(booking);
-    try {
-      auditLogService.log(
-          userId,
-          "USER",
-          "REFUND_REQUESTED",
-          "BOOKING",
-          String.valueOf(saved.getId()),
-          json("""
-            {"reason":"%s","refundAmount":%s,"refundStatus":"%s","bookingStatus":"%s"}
-            """.trim(),
-            saved.getRefundReason(),
-            saved.getRefundAmount(),
-            saved.getRefundStatus(),
-            saved.getStatus().name()
-          )
-      );
-    } catch (Exception e) {
-      // Audit log should not break UX flow; booking state is already persisted.
-      log.warn("Failed to write audit log for refund request bookingId={}", saved.getId(), e);
-    }
-    return reloadWithLapangan(saved.getId());
-  }
-
-  public Booking adminProcessRefund(Long bookingId, boolean approve, String note) {
-    Booking booking = bookingRepo.findByIdWithLapangan(bookingId)
-        .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Booking tidak ditemukan."));
-    if (!"PENDING".equalsIgnoreCase(booking.getRefundStatus())) {
-      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Refund tidak dalam status PENDING.");
-    }
-    booking.setRefundProcessedAt(Instant.now());
-    if (approve) {
-      booking.setRefundStatus("REFUNDED");
-      // Only when refund is accepted we cancel the booking to free the slot.
-      booking.setStatus(BookingStatus.DIBATALKAN);
-    } else {
-      booking.setRefundStatus("REJECTED");
-      // Refund rejected: keep booking as LUNAS.
-      if (booking.getStatus() != BookingStatus.LUNAS) {
-        booking.setStatus(BookingStatus.LUNAS);
-      }
-    }
-    Booking saved = bookingRepo.save(booking);
-    try {
-      auditLogService.log(
-          null,
-          "ADMIN",
-          approve ? "REFUND_APPROVED" : "REFUND_REJECTED",
-          "BOOKING",
-          String.valueOf(saved.getId()),
-          json("""
-            {"note":"%s","refundAmount":%s,"refundStatus":"%s","bookingStatus":"%s"}
-            """.trim(),
-            note,
-            saved.getRefundAmount(),
-            saved.getRefundStatus(),
-            saved.getStatus().name()
-          )
-      );
-    } catch (Exception e) {
-      // Audit log should never break admin approve/reject refund.
-      log.warn("Failed to write audit log for refund action bookingId={}", saved.getId(), e);
-    }
     return reloadWithLapangan(saved.getId());
   }
 

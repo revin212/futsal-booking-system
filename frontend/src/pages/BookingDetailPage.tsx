@@ -1,28 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
 import { clearAccessToken, getAuthSession } from "@/api/authStorage";
 import { useBookingDetailQuery } from "@/features/booking/queries";
 import { useCreatePaymentIntentMutation } from "@/features/payment/mutations";
-import { useRefundBookingMutation } from "@/features/booking/mutations";
-import { refundLabel, refundTimestampText, refundVariant } from "@/features/booking/refundUi";
 
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-
 function formatRupiah(n: number) {
   return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(n);
 }
@@ -43,14 +29,6 @@ function formatCreatedAt(iso: string) {
   }).format(d);
 }
 
-function bookingStartAtJakarta(tanggalMain?: string, jamMulai?: string) {
-  if (!tanggalMain || !jamMulai) return null;
-  const hm = jamMulai?.length >= 5 ? jamMulai.slice(0, 5) : jamMulai;
-  const iso = `${tanggalMain}T${hm}:00+07:00`;
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? null : d;
-}
-
 export function BookingDetailPage() {
   const params = useParams();
   const navigate = useNavigate();
@@ -61,10 +39,6 @@ export function BookingDetailPage() {
   const q = useBookingDetailQuery(bookingId);
 
   const createIntentMut = useCreatePaymentIntentMutation();
-  const refundMut = useRefundBookingMutation();
-  const [refundOpen, setRefundOpen] = useState(false);
-  const [refundConfirmOpen, setRefundConfirmOpen] = useState(false);
-  const [refundReason, setRefundReason] = useState("");
 
   useEffect(() => {
     if (user) return;
@@ -81,16 +55,6 @@ export function BookingDetailPage() {
   const b = q.data;
   const canPay =
     (b?.status === "MENUNGGU_PEMBAYARAN" || b?.status === "DIBUAT") && !createIntentMut.isPending;
-  const canRefund =
-    b?.status === "LUNAS" &&
-    (b?.refundStatus == null || b.refundStatus === "NONE" || b.refundStatus === "REJECTED") &&
-    (() => {
-      const startAt = bookingStartAtJakarta(b?.tanggalMain, b?.jamMulai);
-      // If parsing fails, let backend validate.
-      if (!startAt) return true;
-      const diffMinutes = (startAt.getTime() - Date.now()) / 60000;
-      return diffMinutes >= 0 && diffMinutes <= 60;
-    })();
 
   return (
     <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10 space-y-6">
@@ -148,17 +112,6 @@ export function BookingDetailPage() {
                 <span className="font-semibold">{b.status}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Refund</span>
-                <div className="flex items-center gap-2">
-                  <Badge variant={refundVariant(b.refundStatus)} className="rounded-full">
-                    {refundLabel(b.refundStatus)}
-                  </Badge>
-                </div>
-              </div>
-              {refundTimestampText(b) ? (
-                <div className="text-xs text-muted-foreground">{refundTimestampText(b)}</div>
-              ) : null}
-              <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Total</span>
                 <span className="font-lexend font-semibold">{formatRupiah(b.totalHarga)}</span>
               </div>
@@ -198,19 +151,6 @@ export function BookingDetailPage() {
                 <Button asChild variant="outline" className="rounded-lg">
                   <Link to={`/invoice/${b.id}`}>Lihat Invoice</Link>
                 </Button>
-                {b.status === "LUNAS" ? (
-                  <Button
-                    variant="destructive"
-                    className="rounded-lg ml-auto"
-                    disabled={!canRefund || refundMut.isPending}
-                    onClick={async () => {
-                      setRefundReason("");
-                      setRefundOpen(true);
-                    }}
-                  >
-                    {refundMut.isPending ? "Memproses..." : "Ajukan Refund"}
-                  </Button>
-                ) : null}
               </CardFooter>
             ) : null}
           </Card>
@@ -261,83 +201,6 @@ export function BookingDetailPage() {
           </Card>
         </>
       )}
-
-      <AlertDialog open={refundOpen} onOpenChange={(open) => (!open ? setRefundOpen(false) : null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Ajukan refund?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Isi alasan refund (minimal 10 karakter). Estimasi refund:{" "}
-              <span className="font-lexend font-semibold">{formatRupiah(b?.paidAmount ?? 0)}</span>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="space-y-2">
-            <div className="text-sm font-medium">Reason</div>
-            <textarea
-              className="w-full min-h-24 rounded-lg border bg-background px-3 py-2 text-sm"
-              placeholder="Contoh: Jadwal bentrok, mohon refund."
-              value={refundReason}
-              onChange={(e) => setRefundReason(e.target.value)}
-            />
-            <div className="text-xs text-muted-foreground">
-              Panjang: <span className="font-medium">{refundReason.trim().length}</span>/10
-            </div>
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-lg" disabled={refundMut.isPending}>
-              Batal
-            </AlertDialogCancel>
-            <AlertDialogAction
-              className="rounded-lg"
-              disabled={refundMut.isPending}
-              onClick={(e) => {
-                e.preventDefault();
-                if (refundReason.trim().length < 10) {
-                  toast.error("Reason minimal 10 karakter");
-                  return;
-                }
-                setRefundConfirmOpen(true);
-              }}
-            >
-              Lanjut
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog open={refundConfirmOpen} onOpenChange={(open) => (!open ? setRefundConfirmOpen(false) : null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Konfirmasi pengajuan refund</AlertDialogTitle>
-            <AlertDialogDescription>
-              Refund akan diproses admin (mock). Estimasi refund:{" "}
-              <span className="font-lexend font-semibold">{formatRupiah(b?.paidAmount ?? 0)}</span>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-lg" disabled={refundMut.isPending}>
-              Kembali
-            </AlertDialogCancel>
-            <AlertDialogAction
-              className="rounded-lg"
-              disabled={refundMut.isPending || !b}
-              onClick={async (e) => {
-                e.preventDefault();
-                if (!b) return;
-                try {
-                  await refundMut.mutateAsync({ id: b.id, reason: refundReason.trim() });
-                  setRefundConfirmOpen(false);
-                  setRefundOpen(false);
-                } catch {
-                  // handled by mutation
-                }
-              }}
-            >
-              {refundMut.isPending ? "Memproses..." : "Ya, ajukan"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

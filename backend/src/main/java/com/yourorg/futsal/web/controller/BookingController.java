@@ -4,7 +4,6 @@ import com.yourorg.futsal.service.BookingService;
 import com.yourorg.futsal.web.dto.BookingResponse;
 import com.yourorg.futsal.web.dto.CreateBookingRequest;
 import com.yourorg.futsal.web.dto.MockPayBookingRequest;
-import com.yourorg.futsal.web.dto.RefundCreateRequest;
 import com.yourorg.futsal.web.exception.ApiException;
 import jakarta.validation.Valid;
 import java.util.UUID;
@@ -80,12 +79,6 @@ public class BookingController {
   public BookingResponse bayarMock(@PathVariable Long id, Authentication auth) {
     UUID userId = getUserId(auth);
     return BookingResponse.from(bookingService.mockPay(userId, id));
-  }
-
-  @PostMapping("/{id}/refund")
-  public BookingResponse refund(@PathVariable Long id, @Valid @RequestBody RefundCreateRequest req, Authentication auth) {
-    UUID userId = getUserId(auth);
-    return BookingResponse.from(bookingService.requestRefund(userId, id, req.reason()));
   }
 
   private UUID getUserId(Authentication auth) {

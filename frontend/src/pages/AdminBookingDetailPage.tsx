@@ -9,10 +9,6 @@ import { useAdminVerifikasiBookingMutation } from "@/features/booking/mutations"
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
-
-import { refundLabel, refundTimestampText, refundVariant } from "@/features/booking/refundUi";
-
 function hhmm(v: string) {
   return v?.length >= 5 ? v.slice(0, 5) : v;
 }
@@ -108,17 +104,6 @@ export function AdminBookingDetailPage() {
               <span className="text-muted-foreground">Invoice</span>
               <span className="font-mono text-xs">{b.invoiceNumber ?? "-"}</span>
             </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Refund</span>
-              <Badge variant={refundVariant(b.refundStatus)} className="rounded-full">
-                {refundLabel(b.refundStatus)}
-              </Badge>
-            </div>
-
-            {refundTimestampText(b) ? (
-              <div className="text-xs text-muted-foreground">{refundTimestampText(b)}</div>
-            ) : null}
           </CardContent>
 
           {b.status === "MENUNGGU_VERIFIKASI" ? (

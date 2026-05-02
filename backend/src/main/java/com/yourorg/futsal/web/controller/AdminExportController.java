@@ -7,7 +7,6 @@ import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,8 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/admin/export")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminExportController {
-  private static final ZoneId JAKARTA = ZoneId.of("Asia/Jakarta");
-
   private final BookingRepository bookingRepo;
 
   public AdminExportController(BookingRepository bookingRepo) {
@@ -52,10 +49,6 @@ public class AdminExportController {
           "paidAmount",
           "invoiceNumber",
           "invoiceIssuedAt",
-          "refundStatus",
-          "refundAmount",
-          "refundRequestedAt",
-          "refundProcessedAt",
           "createdAt"
       ));
       for (var b : list) {
@@ -75,70 +68,6 @@ public class AdminExportController {
             csv(b.paidAmount()),
             csv(b.invoiceNumber()),
             csv(b.invoiceIssuedAt()),
-            csv(b.refundStatus()),
-            csv(b.refundAmount()),
-            csv(b.refundRequestedAt()),
-            csv(b.refundProcessedAt()),
-            csv(b.createdAt())
-        ));
-      }
-      w.flush();
-    } catch (Exception ignored) {
-      // client disconnected
-    }
-  }
-
-  @GetMapping(value = "/refund.csv", produces = "text/csv")
-  public void exportRefundCsv(
-      @RequestParam(defaultValue = "PENDING") String status,
-      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
-      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
-      HttpServletResponse resp
-  ) {
-    String s = status == null ? "PENDING" : status.trim().toUpperCase();
-    var list = (start != null && end != null)
-        ? bookingRepo.findRefundByStatusWithLapanganAndRequestedAtBetween(
-            s,
-            start.atStartOfDay(JAKARTA).toInstant(),
-            end.plusDays(1).atStartOfDay(JAKARTA).toInstant()
-        )
-        : bookingRepo.findRefundByStatusWithLapangan(s);
-    resp.setHeader("Content-Disposition", "attachment; filename=\"refund-" + s.toLowerCase() + ".csv\"");
-    try (PrintWriter w = resp.getWriter()) {
-      w.println(String.join(",",
-          "bookingId",
-          "userId",
-          "lapanganId",
-          "lapanganNama",
-          "tanggalMain",
-          "jamMulai",
-          "jamSelesai",
-          "bookingStatus",
-          "paidAmount",
-          "refundStatus",
-          "refundAmount",
-          "refundReason",
-          "refundRequestedAt",
-          "refundProcessedAt",
-          "createdAt"
-      ));
-      for (var bk : list) {
-        var b = BookingResponse.from(bk);
-        w.println(String.join(",",
-            csv(b.id()),
-            csv(b.userId()),
-            csv(b.lapanganId()),
-            csv(b.lapanganNama()),
-            csv(b.tanggalMain()),
-            csv(b.jamMulai()),
-            csv(b.jamSelesai()),
-            csv(b.status()),
-            csv(b.paidAmount()),
-            csv(b.refundStatus()),
-            csv(b.refundAmount()),
-            csv(b.refundReason()),
-            csv(b.refundRequestedAt()),
-            csv(b.refundProcessedAt()),
             csv(b.createdAt())
         ));
       }

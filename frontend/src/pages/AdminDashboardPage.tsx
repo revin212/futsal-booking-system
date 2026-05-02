@@ -3,9 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { clearAccessToken, getAuthSession } from "@/api/authStorage";
-import { downloadAdminBookingCsv, downloadAdminRefundCsv } from "@/api/adminApi";
-import { useAdminAuditLogQuery, useAdminBookingRangeQuery, useAdminMetricsQuery, useAdminNotificationLogQuery, useAdminRefundQuery } from "@/features/admin/queries";
-import { useAdminRefundActionMutation } from "@/features/admin/mutations";
+import { downloadAdminBookingCsv } from "@/api/adminApi";
+import { useAdminAuditLogQuery, useAdminBookingRangeQuery, useAdminMetricsQuery, useAdminNotificationLogQuery } from "@/features/admin/queries";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,7 +37,6 @@ export function AdminDashboardPage() {
 
   const [rangeMode, setRangeMode] = useState<"TODAY" | "WEEK">("TODAY");
   const [downloadingBookingCsv, setDownloadingBookingCsv] = useState(false);
-  const [downloadingRefundCsv, setDownloadingRefundCsv] = useState(false);
   const { start, end } = useMemo(() => {
     const now = new Date();
     const s = new Date(now);
@@ -50,9 +48,7 @@ export function AdminDashboardPage() {
   const metricsQ = useAdminMetricsQuery(Boolean(isAdmin));
   const bookingQ = useAdminBookingRangeQuery({ start, end, enabled: Boolean(isAdmin) });
   const notifQ = useAdminNotificationLogQuery({ limit: 10, enabled: Boolean(isAdmin) });
-  const refundQ = useAdminRefundQuery({ status: "PENDING", enabled: Boolean(isAdmin) });
   const auditQ = useAdminAuditLogQuery({ limit: 20, enabled: Boolean(isAdmin) });
-  const refundMut = useAdminRefundActionMutation();
 
   useEffect(() => {
     if (metricsQ.isError) toast.error((metricsQ.error as any)?.message ?? "Gagal memuat metrics admin");
@@ -65,10 +61,6 @@ export function AdminDashboardPage() {
   useEffect(() => {
     if (notifQ.isError) toast.error((notifQ.error as any)?.message ?? "Gagal memuat log notifikasi");
   }, [notifQ.isError, notifQ.error]);
-
-  useEffect(() => {
-    if (refundQ.isError) toast.error((refundQ.error as any)?.message ?? "Gagal memuat refund");
-  }, [refundQ.isError, refundQ.error]);
 
   useEffect(() => {
     if (auditQ.isError) toast.error((auditQ.error as any)?.message ?? "Gagal memuat audit log");
@@ -92,7 +84,6 @@ export function AdminDashboardPage() {
   const metrics = metricsQ.data;
   const bookings = bookingQ.data ?? [];
   const notif = notifQ.data ?? [];
-  const refunds = refundQ.data ?? [];
   const audits = auditQ.data ?? [];
 
   return (
@@ -151,91 +142,6 @@ export function AdminDashboardPage() {
           </CardContent>
         </Card>
       </div>
-
-      <div className="pt-6">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h2 className="font-lexend text-lg font-semibold">Refund (pending)</h2>
-            <p className="text-sm text-muted-foreground mt-1">Pengajuan refund dari booking LUNAS (mock).</p>
-          </div>
-          <Button
-            variant="outline"
-            className="rounded-lg"
-            disabled={downloadingRefundCsv}
-            onClick={async () => {
-              try {
-                setDownloadingRefundCsv(true);
-                const res = await downloadAdminRefundCsv("PENDING");
-                downloadBlob(res.blob, res.filename ?? "refund-pending.csv");
-                toast.success("CSV refund berhasil diunduh");
-              } catch (e: any) {
-                toast.error(e?.message ?? "Gagal download CSV refund");
-              } finally {
-                setDownloadingRefundCsv(false);
-              }
-            }}
-          >
-            {downloadingRefundCsv ? "Mengunduh..." : "Download CSV"}
-          </Button>
-        </div>
-      </div>
-
-      {refundQ.isLoading ? (
-        <Card>
-          <CardHeader className="space-y-2">
-            <Skeleton className="h-5 w-52" />
-            <Skeleton className="h-4 w-72" />
-          </CardHeader>
-        </Card>
-      ) : refunds.length === 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Tidak ada refund</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">Belum ada refund pending.</CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-2">
-          {refunds.map((b) => (
-            <Card key={b.id}>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base">
-                  Refund • Booking #{b.id} • <span className="font-semibold">{b.refundStatus ?? "-"}</span>
-                </CardTitle>
-                <div className="text-sm text-muted-foreground">
-                  {b.lapanganNama} • {b.tanggalMain} • {hhmm(b.jamMulai)}-{hhmm(b.jamSelesai)}
-                </div>
-                {b.refundReason ? <div className="text-xs text-muted-foreground">Reason: {b.refundReason}</div> : null}
-              </CardHeader>
-              <CardContent className="pt-0 flex items-center justify-between gap-2">
-                <div className="text-sm text-muted-foreground">User: {b.userId}</div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    className="rounded-lg"
-                    disabled={refundMut.isPending}
-                    onClick={() => refundMut.mutate({ bookingId: b.id, action: "APPROVE" })}
-                  >
-                    Approve
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    className="rounded-lg"
-                    disabled={refundMut.isPending}
-                    onClick={() => refundMut.mutate({ bookingId: b.id, action: "REJECT" })}
-                  >
-                    Reject
-                  </Button>
-                  <Button asChild size="sm" variant="outline" className="rounded-lg">
-                    <Link to={`/admin/booking/${b.id}`}>Detail</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
 
       <div className="flex items-center justify-between gap-3">
         <div>
@@ -364,7 +270,7 @@ export function AdminDashboardPage() {
 
       <div className="pt-6">
         <h2 className="font-lexend text-lg font-semibold">Audit Log (terbaru)</h2>
-        <p className="text-sm text-muted-foreground mt-1">Mencatat aksi penting (refund request/approve/reject, dll).</p>
+        <p className="text-sm text-muted-foreground mt-1">Mencatat aksi penting (mis. verifikasi admin).</p>
       </div>
 
       {auditQ.isLoading ? (
@@ -379,7 +285,7 @@ export function AdminDashboardPage() {
           <CardHeader>
             <CardTitle>Belum ada audit log</CardTitle>
           </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">Coba buat refund untuk memunculkan log.</CardContent>
+          <CardContent className="text-sm text-muted-foreground">Log akan muncul saat ada aktivitas yang dicatat.</CardContent>
         </Card>
       ) : (
         <div className="space-y-2">
