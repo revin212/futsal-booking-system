@@ -9,7 +9,7 @@ Monorepo website booking & reservasi lapangan futsal (UMKM) — **Frontend (Vite
 Di root repo:
 
 ```bash
-docker compose up --build
+docker compose up --build -d
 ```
 
 Lalu buka:
