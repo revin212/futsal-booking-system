@@ -367,6 +367,158 @@ public class BookingService {
     return reloadWithLapangan(saved.getId());
   }
 
+  public Booking adminReschedule(Long bookingId, java.util.UUID actorUserId, LocalDate tanggalBaru, LocalTime jamMulaiBaru, int durasiJam) {
+    Booking booking = bookingRepo.findByIdWithLapangan(bookingId)
+        .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Booking tidak ditemukan."));
+    BookingStatus st = booking.getStatus();
+    if (st != BookingStatus.LUNAS && st != BookingStatus.MENUNGGU_VERIFIKASI && st != BookingStatus.MENUNGGU_PEMBAYARAN) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Booking tidak bisa di-reschedule pada status ini.");
+    }
+    if (durasiJam < 1) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Durasi minimal 1 jam.");
+    }
+    if (jamMulaiBaru.getMinute() != 0 || jamMulaiBaru.getSecond() != 0) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Jam mulai harus tepat per 1 jam (menit = 00).");
+    }
+    Long lapanganId = booking.getLapangan().getId();
+    LocalTime jamSelesaiBaru = jamMulaiBaru.plusHours(durasiJam);
+    if (!jamMulaiBaru.isBefore(jamSelesaiBaru)) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Jam tidak valid.");
+    }
+
+    JamOperasional jo = findJamOperasional(lapanganId, hariKe(tanggalBaru));
+    if (jamMulaiBaru.isBefore(jo.getJamBuka()) || jamSelesaiBaru.isAfter(jo.getJamTutup())) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Booking di luar jam operasional.");
+    }
+
+    Instant cutoff = Instant.now().minus(PAYMENT_HOLD_MINUTES, ChronoUnit.MINUTES);
+    List<Booking> overlapping = bookingRepo.findOverlappingNonCancelledNonExpiredPending(
+        lapanganId,
+        tanggalBaru,
+        jamMulaiBaru,
+        jamSelesaiBaru,
+        BookingStatus.DIBATALKAN,
+        BookingStatus.MENUNGGU_PEMBAYARAN,
+        cutoff
+    );
+    boolean conflict = overlapping.stream().anyMatch(o -> !o.getId().equals(bookingId));
+    if (conflict) {
+      throw new ApiException(HttpStatus.CONFLICT, "Conflict", "Slot sudah dibooking.");
+    }
+
+    BigDecimal total = BigDecimal.ZERO;
+    LocalTime t = jamMulaiBaru;
+    for (int i = 0; i < durasiJam; i++) {
+      total = total.add(pricingService.hargaPerJam(booking.getLapangan(), tanggalBaru, t));
+      t = t.plusHours(1);
+    }
+
+    booking.setTanggalMain(tanggalBaru);
+    booking.setJamMulai(jamMulaiBaru);
+    booking.setJamSelesai(jamSelesaiBaru);
+    booking.setTotalHarga(total);
+
+    BigDecimal adminFee = booking.getAdminFee() == null ? BigDecimal.ZERO : booking.getAdminFee();
+    BigDecimal grandTotal = total.add(adminFee);
+    if (st == BookingStatus.LUNAS || st == BookingStatus.MENUNGGU_VERIFIKASI) {
+      booking.setPaidAmount(grandTotal);
+    }
+
+    Booking saved = bookingRepo.save(booking);
+    try {
+      auditLogService.log(
+          actorUserId,
+          "ADMIN",
+          "BOOKING_RESCHEDULE",
+          "Booking",
+          String.valueOf(bookingId),
+          json("{\"tanggal\":\"%s\",\"jamMulai\":\"%s\",\"jamSelesai\":\"%s\"}", tanggalBaru, jamMulaiBaru, jamSelesaiBaru)
+      );
+    } catch (Exception ignored) {
+      log.warn("audit reschedule failed id={}", bookingId);
+    }
+    return reloadWithLapangan(saved.getId());
+  }
+
+  public Booking adminCancel(Long bookingId, java.util.UUID actorUserId, String alasan) {
+    Booking booking = bookingRepo.findByIdWithLapangan(bookingId)
+        .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Booking tidak ditemukan."));
+    if (booking.getStatus() == BookingStatus.DIBATALKAN) {
+      return reloadWithLapangan(bookingId);
+    }
+    if (booking.getStatus() == BookingStatus.SELESAI) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Booking selesai tidak bisa dibatalkan.");
+    }
+    booking.setStatus(BookingStatus.DIBATALKAN);
+    bookingRepo.save(booking);
+    try {
+      auditLogService.log(
+          actorUserId,
+          "ADMIN",
+          "BOOKING_CANCEL_ADMIN",
+          "Booking",
+          String.valueOf(bookingId),
+          json("{\"alasan\":\"%s\"}", alasan == null ? "" : alasan)
+      );
+    } catch (Exception ignored) {
+      log.warn("audit cancel failed id={}", bookingId);
+    }
+    return reloadWithLapangan(bookingId);
+  }
+
+  public Booking adminRequestRefund(Long bookingId, java.util.UUID actorUserId, BigDecimal amount, String reason) {
+    Booking booking = bookingRepo.findByIdWithLapangan(bookingId)
+        .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Booking tidak ditemukan."));
+    if (!"NONE".equals(booking.getRefundStatus()) && !"REJECTED".equals(booking.getRefundStatus())) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Refund sudah diajukan atau diproses.");
+    }
+    if (booking.getStatus() != BookingStatus.LUNAS && booking.getStatus() != BookingStatus.SELESAI) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Refund hanya untuk booking lunas/selesai.");
+    }
+    booking.setRefundStatus("PENDING");
+    booking.setRefundAmount(amount);
+    booking.setRefundReason(reason);
+    booking.setRefundRequestedAt(Instant.now());
+    bookingRepo.save(booking);
+    auditLogService.log(
+        actorUserId,
+        "ADMIN",
+        "REFUND_REQUEST",
+        "Booking",
+        String.valueOf(bookingId),
+        json("{\"amount\":\"%s\",\"reason\":\"%s\"}", amount, reason == null ? "" : reason)
+    );
+    return reloadWithLapangan(bookingId);
+  }
+
+  public Booking adminProcessRefund(Long bookingId, java.util.UUID actorUserId, boolean approve, BigDecimal processedAmount, String note) {
+    Booking booking = bookingRepo.findByIdWithLapangan(bookingId)
+        .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Booking tidak ditemukan."));
+    if (!"PENDING".equals(booking.getRefundStatus())) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Refund tidak dalam status pending.");
+    }
+    if (approve) {
+      booking.setRefundStatus("REFUNDED");
+      booking.setRefundProcessedAt(Instant.now());
+      if (processedAmount != null) {
+        booking.setRefundAmount(processedAmount);
+      }
+    } else {
+      booking.setRefundStatus("REJECTED");
+      booking.setRefundProcessedAt(Instant.now());
+    }
+    bookingRepo.save(booking);
+    auditLogService.log(
+        actorUserId,
+        "ADMIN",
+        approve ? "REFUND_APPROVED" : "REFUND_REJECTED",
+        "Booking",
+        String.valueOf(bookingId),
+        json("{\"note\":\"%s\",\"processedAmount\":\"%s\"}", note == null ? "" : note, processedAmount == null ? "" : processedAmount.toPlainString())
+    );
+    return reloadWithLapangan(bookingId);
+  }
+
   private void ensureInvoice(Booking booking) {
     if (booking.getInvoiceNumber() != null && !booking.getInvoiceNumber().isBlank()) return;
     String date = ZonedDateTime.now(DEFAULT_ZONE).format(INVOICE_DATE);

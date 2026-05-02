@@ -27,7 +27,12 @@ public record BookingResponse(
     Instant verifiedAt,
     String invoiceNumber,
     Instant invoiceIssuedAt,
-    Instant createdAt
+    Instant createdAt,
+    String refundStatus,
+    BigDecimal refundAmount,
+    String refundReason,
+    Instant refundRequestedAt,
+    Instant refundProcessedAt
 ) {
   public static BookingResponse from(Booking b) {
     BigDecimal adminFee = b.getAdminFee() == null ? BigDecimal.ZERO : b.getAdminFee();
@@ -53,7 +58,12 @@ public record BookingResponse(
         b.getVerifiedAt(),
         b.getInvoiceNumber(),
         b.getInvoiceIssuedAt(),
-        b.getCreatedAt()
+        b.getCreatedAt(),
+        b.getRefundStatus(),
+        b.getRefundAmount(),
+        b.getRefundReason(),
+        b.getRefundRequestedAt(),
+        b.getRefundProcessedAt()
     );
   }
 }
