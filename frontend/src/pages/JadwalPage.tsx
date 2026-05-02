@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -35,6 +35,22 @@ export function JadwalPage() {
   const [lapanganId, setLapanganId] = useState<number | null>(initialLapanganId);
   const [tanggal, setTanggal] = useState<string>(initialTanggal);
   const [onlyAvailable, setOnlyAvailable] = useState<boolean>(sp.get("only") === "available");
+  const tanggalInputRef = useRef<HTMLInputElement>(null);
+
+  function openTanggalPicker() {
+    const el = tanggalInputRef.current;
+    if (!el) return;
+    try {
+      if (typeof el.showPicker === "function") {
+        el.showPicker();
+        return;
+      }
+    } catch {
+      // showPicker can throw in strict privacy modes
+    }
+    el.focus();
+    el.click();
+  }
 
   useEffect(() => {
     if (lapanganId != null) return;
@@ -126,7 +142,14 @@ export function JadwalPage() {
             </Select>
           )}
 
-          <Input type="date" value={tanggal} onChange={(e) => setTanggal(e.target.value)} />
+          <Input
+            ref={tanggalInputRef}
+            type="date"
+            value={tanggal}
+            onChange={(e) => setTanggal(e.target.value)}
+            onClick={openTanggalPicker}
+            className="cursor-pointer"
+          />
         </div>
       </div>
 
