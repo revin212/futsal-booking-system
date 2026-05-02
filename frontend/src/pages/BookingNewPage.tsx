@@ -128,8 +128,28 @@ export function BookingNewPage() {
 
   const createMutation = useCreateBookingMutation();
 
-  const canSubmit =
-    Boolean(lapanganId && tanggal && jamMulai && durasiJam >= 1 && (isAdmin || noHp.trim())) && !createMutation.isPending;
+  type BookingFieldKey = "noHp" | "lapangan" | "tanggal" | "jamMulai" | "durasi";
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<BookingFieldKey, string>>>({});
+
+  function clearFieldError(key: BookingFieldKey) {
+    setFieldErrors((prev) => {
+      if (!prev[key]) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  }
+
+  function validateBookingForm(): boolean {
+    const err: Partial<Record<BookingFieldKey, string>> = {};
+    if (!lapanganId) err.lapangan = "Pilih lapangan.";
+    if (!tanggal?.trim()) err.tanggal = "Pilih tanggal.";
+    if (!jamMulai) err.jamMulai = "Pilih jam mulai.";
+    if (durasiJam < 1) err.durasi = "Pilih durasi.";
+    if (!isAdmin && !noHp.trim()) err.noHp = "Nomor WhatsApp wajib diisi.";
+    setFieldErrors(err);
+    return Object.keys(err).length === 0;
+  }
 
   return (
     <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10">
@@ -146,10 +166,15 @@ export function BookingNewPage() {
           </div>
           <Input
             value={noHp}
-            onChange={(e) => setNoHp(e.target.value)}
+            onChange={(e) => {
+              setNoHp(e.target.value);
+              clearFieldError("noHp");
+            }}
             placeholder="+62xxxx atau 08xxxx"
             disabled={createMutation.isPending}
+            aria-invalid={Boolean(fieldErrors.noHp)}
           />
+          {fieldErrors.noHp ? <div className="text-xs text-destructive">{fieldErrors.noHp}</div> : null}
           <div className="text-xs text-muted-foreground">
             {isAdmin
               ? "Jika diisi, nomor WA akan disimpan di data booking (tanpa update profile admin)."
@@ -164,7 +189,10 @@ export function BookingNewPage() {
           ) : (
             <Select
               value={lapanganId ? String(lapanganId) : undefined}
-              onValueChange={(v) => setLapanganId(Number(v))}
+              onValueChange={(v) => {
+                setLapanganId(Number(v));
+                clearFieldError("lapangan");
+              }}
               disabled={createMutation.isPending}
             >
               <SelectTrigger>
@@ -179,6 +207,7 @@ export function BookingNewPage() {
               </SelectContent>
             </Select>
           )}
+          {fieldErrors.lapangan ? <div className="text-xs text-destructive">{fieldErrors.lapangan}</div> : null}
         </div>
 
         <div className="space-y-2">
@@ -186,9 +215,14 @@ export function BookingNewPage() {
           <Input
             type="date"
             value={tanggal}
-            onChange={(e) => setTanggal(e.target.value)}
+            onChange={(e) => {
+              setTanggal(e.target.value);
+              clearFieldError("tanggal");
+            }}
             disabled={createMutation.isPending}
+            aria-invalid={Boolean(fieldErrors.tanggal)}
           />
+          {fieldErrors.tanggal ? <div className="text-xs text-destructive">{fieldErrors.tanggal}</div> : null}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -197,7 +231,14 @@ export function BookingNewPage() {
             {slotQ.isLoading ? (
               <Skeleton className="h-10 w-full rounded-lg" />
             ) : (
-              <Select value={jamMulai || undefined} onValueChange={setJamMulai} disabled={createMutation.isPending}>
+              <Select
+                value={jamMulai || undefined}
+                onValueChange={(v) => {
+                  setJamMulai(v);
+                  clearFieldError("jamMulai");
+                }}
+                disabled={createMutation.isPending}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder={tanggal ? "Pilih jam mulai" : "Pilih tanggal dulu"} />
                 </SelectTrigger>
@@ -215,13 +256,17 @@ export function BookingNewPage() {
                 {(slotQ.error as any)?.message ?? "Gagal memuat slot"}
               </div>
             )}
+            {fieldErrors.jamMulai ? <div className="text-xs text-destructive">{fieldErrors.jamMulai}</div> : null}
           </div>
 
           <div className="space-y-2">
             <div className="text-sm font-semibold">Durasi (jam)</div>
             <Select
               value={String(durasiJam)}
-              onValueChange={(v) => setDurasiJam(Number(v))}
+              onValueChange={(v) => {
+                setDurasiJam(Number(v));
+                clearFieldError("durasi");
+              }}
               disabled={createMutation.isPending || !jamMulai}
             >
               <SelectTrigger>
@@ -235,6 +280,7 @@ export function BookingNewPage() {
                 ))}
               </SelectContent>
             </Select>
+            {fieldErrors.durasi ? <div className="text-xs text-destructive">{fieldErrors.durasi}</div> : null}
           </div>
         </div>
 
@@ -282,10 +328,10 @@ export function BookingNewPage() {
         <div className="flex gap-2">
           <Button
             className="rounded-lg flex-1"
-            disabled={!canSubmit}
+            disabled={createMutation.isPending}
             onClick={async () => {
+              if (!validateBookingForm()) return;
               if (!lapanganId) return;
-              if (!tanggal || !jamMulai) return;
               try {
                 const payload = {
                   lapanganId,
