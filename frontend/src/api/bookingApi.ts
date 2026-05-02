@@ -30,6 +30,11 @@ export type Booking = {
   invoiceNumber: string | null;
   invoiceIssuedAt: string | null;
   createdAt: string;
+  refundStatus?: string | null;
+  refundAmount?: number | null;
+  refundReason?: string | null;
+  refundRequestedAt?: string | null;
+  refundProcessedAt?: string | null;
 };
 
 export async function postBooking(req: CreateBookingRequest) {
