@@ -6,6 +6,7 @@ import com.yourorg.futsal.domain.entity.NotificationLog;
 import com.yourorg.futsal.domain.repo.AppUserRepository;
 import com.yourorg.futsal.domain.repo.NotificationLogRepository;
 import com.yourorg.futsal.domain.repo.PengaturanSistemRepository;
+import com.yourorg.futsal.web.exception.ApiException;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.LocalDate;
@@ -15,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
 import org.springframework.stereotype.Service;
@@ -185,6 +187,22 @@ public class WhatsappNotificationService {
     String s = v.trim();
     if (s.isBlank()) return null;
     return s.replaceAll("[^0-9+]", "");
+  }
+
+  @Transactional
+  public NotificationLog resendFromLog(Long logId) {
+    NotificationLog old = logRepo.findById(logId)
+        .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Log notifikasi tidak ditemukan."));
+    NotificationLog row = new NotificationLog();
+    row.setBookingId(old.getBookingId());
+    row.setChannel(old.getChannel());
+    row.setTemplateKey(old.getTemplateKey());
+    row.setNotificationType("RESEND_" + old.getNotificationType());
+    row.setRecipientType(old.getRecipientType());
+    row.setRecipientValue(old.getRecipientValue());
+    row.setMessage(old.getMessage());
+    trySend(row);
+    return logRepo.save(row);
   }
 }
 

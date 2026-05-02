@@ -1,5 +1,6 @@
 package com.yourorg.futsal.web.controller;
 
+import com.yourorg.futsal.domain.entity.NotificationLog;
 import com.yourorg.futsal.domain.enums.BookingStatus;
 import com.yourorg.futsal.domain.repo.BookingRepository;
 import com.yourorg.futsal.domain.repo.NotificationLogRepository;
@@ -43,9 +44,27 @@ public class AdminMetricsController {
   }
 
   @GetMapping("/notification-log")
-  public List<NotificationLogResponse> latestNotificationLog(@RequestParam(defaultValue = "50") int limit) {
-    int safe = Math.min(Math.max(limit, 1), 200);
-    return notifRepo.findLatest(PageRequest.of(0, safe)).stream().map(NotificationLogResponse::from).toList();
+  public List<NotificationLogResponse> latestNotificationLog(
+      @RequestParam(defaultValue = "200") int limit,
+      @RequestParam(required = false) String notificationType,
+      @RequestParam(required = false) String recipientType,
+      @RequestParam(required = false) LocalDate from,
+      @RequestParam(required = false) LocalDate to
+  ) {
+    int safe = Math.min(Math.max(limit, 1), 500);
+    List<NotificationLog> rows = notifRepo.findLatest(PageRequest.of(0, safe));
+    ZoneId z = ZoneId.of("Asia/Jakarta");
+    Instant fromI = from == null ? null : from.atStartOfDay(z).toInstant();
+    Instant toI = to == null ? null : to.plusDays(1).atStartOfDay(z).toInstant();
+    return rows.stream()
+        .filter(n -> notificationType == null || notificationType.isBlank()
+            || (n.getNotificationType() != null && n.getNotificationType().equalsIgnoreCase(notificationType.trim())))
+        .filter(n -> recipientType == null || recipientType.isBlank()
+            || (n.getRecipientType() != null && n.getRecipientType().equalsIgnoreCase(recipientType.trim())))
+        .filter(n -> fromI == null || !n.getCreatedAt().isBefore(fromI))
+        .filter(n -> toI == null || n.getCreatedAt().isBefore(toI))
+        .map(NotificationLogResponse::from)
+        .toList();
   }
 }
 
