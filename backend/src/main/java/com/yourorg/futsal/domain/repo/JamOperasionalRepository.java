@@ -6,5 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface JamOperasionalRepository extends JpaRepository<JamOperasional, Long> {
   List<JamOperasional> findByLapanganIdAndIsAktifTrueOrderByHariKeAsc(Long lapanganId);
+
+  List<JamOperasional> findByLapangan_IdOrderByHariKeAsc(Long lapanganId);
+
+  void deleteByLapangan_Id(Long lapanganId);
 }
 
