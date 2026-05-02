@@ -29,9 +29,17 @@ public class KalenderService {
   }
 
   public List<KalenderEventResponse> getEvents(Long lapanganId, LocalDate start, LocalDate end) {
+    return getEventsInternal(lapanganId, start, end, false);
+  }
+
+  public List<KalenderEventResponse> getEventsForAdmin(Long lapanganId, LocalDate start, LocalDate end) {
+    return getEventsInternal(lapanganId, start, end, true);
+  }
+
+  private List<KalenderEventResponse> getEventsInternal(Long lapanganId, LocalDate start, LocalDate end, boolean admin) {
     var lapangan = lapanganRepo.findById(lapanganId)
         .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Not Found", "Lapangan tidak ditemukan."));
-    if (!lapangan.isAktif()) {
+    if (!admin && !lapangan.isAktif()) {
       throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Lapangan tidak aktif.");
     }
 
