@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AdminWaButton } from "@/components/AdminWaButton";
+import { LAPANGAN_COVER_FALLBACK } from "@/lib/lapanganCover";
 
 function formatRupiah(n: number) {
   return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(n);
@@ -34,7 +35,12 @@ export function HomePage() {
     <div className="pb-24 md:pb-0">
       <section className="relative w-full min-h-[520px] flex items-center">
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: "url(/images/lapangan-futsal.jpg)" }}
+            aria-hidden
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/40" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(var(--primary)/0.10),transparent_60%)]" />
         </div>
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full py-16">
@@ -81,7 +87,7 @@ export function HomePage() {
             : (lapanganQ.data ?? []).slice(0, 3).map((l) => (
                 <Card key={l.id} className="overflow-hidden flex flex-col">
                   <img
-                    src={l.fotoUtama?.filePath ?? "/static/demo/lapangan-a.jpg"}
+                    src={l.fotoUtama?.filePath ?? LAPANGAN_COVER_FALLBACK}
                     alt={l.nama}
                     className="w-full aspect-video object-cover"
                   />
@@ -135,25 +141,6 @@ export function HomePage() {
             ))}
           </div>
         )}
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 space-y-6">
-        <div>
-          <h2 className="font-lexend text-2xl font-semibold">Testimoni</h2>
-          <p className="text-sm text-muted-foreground">Kata mereka yang sudah main di sini.</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[
-            { nama: "Rizky", isi: "Proses bookingnya gampang, lapangannya bersih." },
-            { nama: "Nadia", isi: "Admin responsif. Jadwalnya jelas dan rapi." },
-            { nama: "Agus", isi: "Harga masuk akal, fasilitas lengkap." },
-          ].map((t) => (
-            <div key={t.nama} className="rounded-2xl border bg-card p-4">
-              <div className="font-lexend font-semibold">{t.nama}</div>
-              <div className="text-sm text-muted-foreground mt-2">{t.isi}</div>
-            </div>
-          ))}
-        </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">

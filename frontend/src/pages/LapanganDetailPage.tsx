@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
 import { useLapanganDetailQuery } from "@/features/lapangan/queries";
+import { LAPANGAN_COVER_FALLBACK } from "@/lib/lapanganCover";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -61,7 +62,7 @@ export function LapanganDetailPage() {
           ) : (
             <div className="rounded-2xl border overflow-hidden bg-card">
               <img
-                src={fotoUtama?.filePath ?? "/static/demo/lapangan-a.jpg"}
+                src={fotoUtama?.filePath ?? LAPANGAN_COVER_FALLBACK}
                 alt={q.data?.nama ?? "Lapangan"}
                 className="w-full aspect-video object-cover"
               />

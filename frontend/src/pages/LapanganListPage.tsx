@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AdminWaButton } from "@/components/AdminWaButton";
+import { LAPANGAN_COVER_FALLBACK } from "@/lib/lapanganCover";
 
 function formatRupiah(n: number) {
   return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(n);
@@ -54,7 +55,7 @@ export function LapanganListPage() {
           : (q.data ?? []).map((l) => (
               <Card key={l.id} className="overflow-hidden flex flex-col">
                 <img
-                  src={l.fotoUtama?.filePath ?? "/static/demo/lapangan-a.jpg"}
+                  src={l.fotoUtama?.filePath ?? LAPANGAN_COVER_FALLBACK}
                   alt={l.nama}
                   className="w-full aspect-video object-cover"
                 />
