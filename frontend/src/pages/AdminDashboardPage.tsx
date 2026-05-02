@@ -1,15 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
-import { clearAccessToken, getAuthSession } from "@/api/authStorage";
-import { downloadAdminBookingCsv } from "@/api/adminApi";
-import { useAdminAuditLogQuery, useAdminBookingRangeQuery, useAdminMetricsQuery, useAdminNotificationLogQuery } from "@/features/admin/queries";
+import { useAdminBookingRangeQuery, useAdminMetricsQuery } from "@/features/admin/queries";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { downloadBlob } from "@/lib/download";
 
 function yyyyMmDd(d: Date) {
   const y = d.getFullYear();
@@ -18,87 +16,69 @@ function yyyyMmDd(d: Date) {
   return `${y}-${m}-${day}`;
 }
 
-function hhmm(v: string) {
-  return v?.length >= 5 ? v.slice(0, 5) : v;
+function formatRupiahShort(n: number) {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}jt`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}rb`;
+  return String(Math.round(n));
 }
 
 export function AdminDashboardPage() {
-  const session = getAuthSession();
-  const user = session?.user ?? null;
-  const navigate = useNavigate();
-  const isAdmin = user?.role === "ADMIN";
-
-  useEffect(() => {
-    if (user) return;
-    clearAccessToken();
-    navigate(`/admin/login?returnTo=${encodeURIComponent("/admin/dashboard")}`, { replace: true });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
-  const [rangeMode, setRangeMode] = useState<"TODAY" | "WEEK">("TODAY");
-  const [downloadingBookingCsv, setDownloadingBookingCsv] = useState(false);
   const { start, end } = useMemo(() => {
-    const now = new Date();
-    const s = new Date(now);
-    const e = new Date(now);
-    if (rangeMode === "WEEK") e.setDate(e.getDate() + 6);
-    return { start: yyyyMmDd(s), end: yyyyMmDd(e) };
-  }, [rangeMode]);
+    const endD = new Date();
+    const startD = new Date();
+    startD.setDate(startD.getDate() - 6);
+    return { start: yyyyMmDd(startD), end: yyyyMmDd(endD) };
+  }, []);
 
-  const metricsQ = useAdminMetricsQuery(Boolean(isAdmin));
-  const bookingQ = useAdminBookingRangeQuery({ start, end, enabled: Boolean(isAdmin) });
-  const notifQ = useAdminNotificationLogQuery({ limit: 10, enabled: Boolean(isAdmin) });
-  const auditQ = useAdminAuditLogQuery({ limit: 20, enabled: Boolean(isAdmin) });
+  const metricsQ = useAdminMetricsQuery(true);
+  const bookingQ = useAdminBookingRangeQuery({ start, end, enabled: true });
 
   useEffect(() => {
     if (metricsQ.isError) toast.error((metricsQ.error as any)?.message ?? "Gagal memuat metrics admin");
   }, [metricsQ.isError, metricsQ.error]);
 
   useEffect(() => {
-    if (bookingQ.isError) toast.error((bookingQ.error as any)?.message ?? "Gagal memuat booking admin");
+    if (bookingQ.isError) toast.error((bookingQ.error as any)?.message ?? "Gagal memuat data booking");
   }, [bookingQ.isError, bookingQ.error]);
-
-  useEffect(() => {
-    if (notifQ.isError) toast.error((notifQ.error as any)?.message ?? "Gagal memuat log notifikasi");
-  }, [notifQ.isError, notifQ.error]);
-
-  useEffect(() => {
-    if (auditQ.isError) toast.error((auditQ.error as any)?.message ?? "Gagal memuat audit log");
-  }, [auditQ.isError, auditQ.error]);
-
-  if (!user) return null;
-
-  if (!isAdmin) {
-    return (
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10">
-        <Card>
-          <CardHeader>
-            <CardTitle>Akses ditolak</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">Halaman ini hanya untuk admin.</CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   const metrics = metricsQ.data;
   const bookings = bookingQ.data ?? [];
-  const notif = notifQ.data ?? [];
-  const audits = auditQ.data ?? [];
+
+  const chartData = useMemo(() => {
+    const dayKeys: string[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      dayKeys.push(yyyyMmDd(d));
+    }
+    const byDay = new Map<string, number>();
+    for (const k of dayKeys) byDay.set(k, 0);
+    for (const b of bookings) {
+      if (b.status !== "LUNAS" && b.status !== "SELESAI") continue;
+      const amt = b.paidAmount ?? b.grandTotal ?? b.totalHarga ?? 0;
+      const cur = byDay.get(b.tanggalMain) ?? 0;
+      byDay.set(b.tanggalMain, cur + Number(amt));
+    }
+    return dayKeys.map((k) => ({
+      label: k.slice(5),
+      tanggal: k,
+      revenue: byDay.get(k) ?? 0,
+    }));
+  }, [bookings]);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10 space-y-6">
-      <div className="flex items-start justify-between gap-4">
+    <div className="mx-auto max-w-6xl space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-          <h1 className="font-lexend text-2xl font-semibold">Admin • Dashboard</h1>
-          <p className="text-sm text-muted-foreground mt-2">Monitoring operasional booking & notifikasi (mock).</p>
+          <h1 className="font-lexend text-2xl font-semibold">Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-2">Ringkasan operasional hari ini.</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button asChild variant="outline" className="rounded-lg">
-            <Link to="/admin/booking">Verifikasi</Link>
+        <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline" className="rounded-lg" size="sm">
+            <Link to="/admin/booking">List booking</Link>
           </Button>
-          <Button asChild variant="outline" className="rounded-lg">
-            <Link to="/">Beranda</Link>
+          <Button asChild variant="outline" className="rounded-lg" size="sm">
+            <Link to="/admin/booking/queue">Antrian verifikasi</Link>
           </Button>
         </div>
       </div>
@@ -114,7 +94,7 @@ export function AdminDashboardPage() {
             ) : (
               <div className="font-lexend text-2xl font-semibold">{metrics?.pendingAktif ?? 0}</div>
             )}
-            <div className="text-xs text-muted-foreground mt-1">Status MENUNGGU_PEMBAYARAN (belum expired)</div>
+            <div className="text-xs text-muted-foreground mt-1">MENUNGGU_PEMBAYARAN (belum expired)</div>
           </CardContent>
         </Card>
         <Card>
@@ -143,172 +123,45 @@ export function AdminDashboardPage() {
         </Card>
       </div>
 
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h2 className="font-lexend text-lg font-semibold">Booking</h2>
-          <p className="text-sm text-muted-foreground">
-            Rentang: <span className="font-medium">{start}</span> s/d <span className="font-medium">{end}</span>
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            className="rounded-lg"
-            disabled={downloadingBookingCsv}
-            onClick={async () => {
-              try {
-                setDownloadingBookingCsv(true);
-                const res = await downloadAdminBookingCsv(start, end);
-                downloadBlob(res.blob, res.filename ?? `booking-${start}-to-${end}.csv`);
-                toast.success("CSV booking berhasil diunduh");
-              } catch (e: any) {
-                toast.error(e?.message ?? "Gagal download CSV booking");
-              } finally {
-                setDownloadingBookingCsv(false);
-              }
-            }}
-          >
-            {downloadingBookingCsv ? "Mengunduh..." : "Download CSV"}
-          </Button>
-          <Button
-            variant={rangeMode === "TODAY" ? "default" : "outline"}
-            className="rounded-lg"
-            onClick={() => setRangeMode("TODAY")}
-          >
-            Hari ini
-          </Button>
-          <Button
-            variant={rangeMode === "WEEK" ? "default" : "outline"}
-            className="rounded-lg"
-            onClick={() => setRangeMode("WEEK")}
-          >
-            7 hari
-          </Button>
-        </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Pendapatan (LUNAS + SELESAI)</CardTitle>
+          <CardDescription>7 hari terakhir — agregasi dari paidAmount / grandTotal per tanggal main.</CardDescription>
+        </CardHeader>
+        <CardContent className="h-72">
+          {bookingQ.isLoading ? (
+            <Skeleton className="h-full w-full rounded-lg" />
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis dataKey="label" tick={{ fontSize: 11 }} />
+                <YAxis tickFormatter={(v) => formatRupiahShort(Number(v))} width={48} tick={{ fontSize: 11 }} />
+                <Tooltip
+                  formatter={(value) => {
+                    const n = typeof value === "number" ? value : Number(value ?? 0);
+                    return [
+                      new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n),
+                      "Pendapatan",
+                    ];
+                  }}
+                  labelFormatter={(_, payload) => (payload?.[0]?.payload?.tanggal as string) ?? ""}
+                />
+                <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="Pendapatan" />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="flex flex-wrap gap-2">
+        <Button asChild variant="outline" className="rounded-lg" size="sm">
+          <Link to="/admin/sistem/notifikasi">Log notifikasi</Link>
+        </Button>
+        <Button asChild variant="outline" className="rounded-lg" size="sm">
+          <Link to="/admin/sistem/audit-log">Audit log</Link>
+        </Button>
       </div>
-
-      {bookingQ.isLoading ? (
-        <div className="space-y-3">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Card key={i}>
-              <CardHeader className="space-y-2">
-                <Skeleton className="h-5 w-48" />
-                <Skeleton className="h-4 w-72" />
-              </CardHeader>
-            </Card>
-          ))}
-        </div>
-      ) : bookings.length === 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Tidak ada booking</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">Belum ada booking pada rentang tanggal ini.</CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-3">
-          {bookings.map((b) => (
-            <Card key={b.id}>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base">
-                  #{b.id} • <span className="font-semibold">{b.status}</span>
-                </CardTitle>
-                <div className="text-sm text-muted-foreground">
-                  {b.lapanganNama} • {b.tanggalMain} • {hhmm(b.jamMulai)}-{hhmm(b.jamSelesai)}
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0 flex items-center justify-between gap-3">
-                <div className="text-sm text-muted-foreground">User: {b.userId}</div>
-                <Button asChild size="sm" variant="outline" className="rounded-lg">
-                  <Link to={`/admin/booking/${b.id}`}>Lihat Detail</Link>
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-
-      <div className="pt-4">
-        <h2 className="font-lexend text-lg font-semibold">Log notifikasi (terbaru)</h2>
-        <p className="text-sm text-muted-foreground mt-1">Sumber: tabel notification_log (WA mock).</p>
-      </div>
-
-      {notifQ.isLoading ? (
-        <Card>
-          <CardHeader className="space-y-2">
-            <Skeleton className="h-5 w-60" />
-            <Skeleton className="h-4 w-80" />
-          </CardHeader>
-        </Card>
-      ) : notif.length === 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Belum ada notifikasi</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">Buat booking atau bayar mock untuk memunculkan log.</CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-2">
-          {notif.map((n) => (
-            <Card key={n.id}>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base">
-                  {n.notificationType} • {n.recipientType}
-                </CardTitle>
-                <div className="text-xs text-muted-foreground">
-                  #{n.id} • booking {n.bookingId ?? "-"} • {n.createdAt}
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0 text-sm">
-                <div className="text-muted-foreground">{n.templateKey ?? "-"}</div>
-                <div className="mt-1">{n.message}</div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-
-      <div className="pt-6">
-        <h2 className="font-lexend text-lg font-semibold">Audit Log (terbaru)</h2>
-        <p className="text-sm text-muted-foreground mt-1">Mencatat aksi penting (mis. verifikasi admin).</p>
-      </div>
-
-      {auditQ.isLoading ? (
-        <Card>
-          <CardHeader className="space-y-2">
-            <Skeleton className="h-5 w-56" />
-            <Skeleton className="h-4 w-80" />
-          </CardHeader>
-        </Card>
-      ) : audits.length === 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Belum ada audit log</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">Log akan muncul saat ada aktivitas yang dicatat.</CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-2">
-          {audits.map((a) => (
-            <Card key={a.id}>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base">
-                  {a.action} • {a.actorRole ?? "-"}
-                </CardTitle>
-                <div className="text-xs text-muted-foreground">
-                  #{a.id} • {a.entityType}:{a.entityId} • {a.createdAt}
-                </div>
-              </CardHeader>
-              {a.metadata ? (
-                <CardContent className="pt-0 text-sm text-muted-foreground">
-                  {a.metadata}
-                </CardContent>
-              ) : null}
-            </Card>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
-
