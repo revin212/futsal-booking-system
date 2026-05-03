@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
-import { downloadAdminBookingCsv } from "@/api/adminApi";
 import { useAdminBookingRangeQuery, useAdminLapanganListQuery } from "@/features/admin/queries";
 
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { downloadBlob } from "@/lib/download";
 
 function yyyyMmDd(d: Date) {
   const y = d.getFullYear();
@@ -38,7 +36,6 @@ const STATUSES = [
 
 export function AdminBookingListPage() {
   const [rangeMode, setRangeMode] = useState<"TODAY" | "WEEK">("TODAY");
-  const [downloadingBookingCsv, setDownloadingBookingCsv] = useState(false);
   const [status, setStatus] = useState("");
   const [lapanganId, setLapanganId] = useState<string>("");
   const [q, setQ] = useState("");
@@ -126,25 +123,6 @@ export function AdminBookingListPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant="outline"
-            className="rounded-lg"
-            disabled={downloadingBookingCsv}
-            onClick={async () => {
-              try {
-                setDownloadingBookingCsv(true);
-                const res = await downloadAdminBookingCsv(start, end);
-                downloadBlob(res.blob, res.filename ?? `booking-${start}-to-${end}.csv`);
-                toast.success("CSV booking berhasil diunduh");
-              } catch (e: any) {
-                toast.error(e?.message ?? "Gagal download CSV booking");
-              } finally {
-                setDownloadingBookingCsv(false);
-              }
-            }}
-          >
-            {downloadingBookingCsv ? "Mengunduh..." : "Download CSV"}
-          </Button>
           <Button variant={rangeMode === "TODAY" ? "default" : "outline"} className="rounded-lg" onClick={() => setRangeMode("TODAY")}>
             Hari ini
           </Button>

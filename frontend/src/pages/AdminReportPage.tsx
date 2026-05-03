@@ -1,7 +1,10 @@
 import { useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { toast } from "sonner";
 
+import { downloadAdminBookingCsv } from "@/api/adminApi";
 import { useAdminFinanceReportQuery } from "@/features/admin/queries";
+import { downloadBlob } from "@/lib/download";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 export function AdminReportPage() {
   const [days] = useState(30);
+  const [downloadingCsv, setDownloadingCsv] = useState(false);
   const { start, end } = useMemo(() => {
     const end = new Date();
     const start = new Date();
@@ -37,9 +41,31 @@ export function AdminReportPage() {
           <h1 className="font-lexend text-2xl font-semibold">Report</h1>
           <p className="text-sm text-muted-foreground mt-2">Ringkasan {days} hari terakhir.</p>
         </div>
-        <Button variant="outline" size="sm" className="rounded-lg" onClick={() => q.refetch()}>
-          Refresh
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="rounded-lg"
+            disabled={downloadingCsv}
+            onClick={async () => {
+              try {
+                setDownloadingCsv(true);
+                const res = await downloadAdminBookingCsv(start, end);
+                downloadBlob(res.blob, res.filename ?? `booking-${start}-to-${end}.csv`);
+                toast.success("CSV booking berhasil diunduh");
+              } catch (e: unknown) {
+                toast.error(e instanceof Error ? e.message : "Gagal mengunduh CSV");
+              } finally {
+                setDownloadingCsv(false);
+              }
+            }}
+          >
+            {downloadingCsv ? "Mengunduh…" : "Download CSV"}
+          </Button>
+          <Button variant="outline" size="sm" className="rounded-lg" onClick={() => q.refetch()}>
+            Refresh
+          </Button>
+        </div>
       </div>
 
       {q.isLoading || !r ? (
@@ -125,14 +151,16 @@ export function AdminReportPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>User ID</TableHead>
+                    <TableHead>Nama</TableHead>
+                    <TableHead>No. WhatsApp</TableHead>
                     <TableHead className="text-right">Total paid</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {(r.topCustomers ?? []).map((c) => (
-                    <TableRow key={c.userId}>
-                      <TableCell className="font-mono text-xs">{c.userId}</TableCell>
+                  {(r.topCustomers ?? []).map((c, i) => (
+                    <TableRow key={`${c.namaLengkap}-${i}`}>
+                      <TableCell>{c.namaLengkap}</TableCell>
+                      <TableCell className="text-xs">{c.noWhatsapp}</TableCell>
                       <TableCell className="text-right font-mono text-xs">
                         {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(Number(c.totalPaid))}
                       </TableCell>
