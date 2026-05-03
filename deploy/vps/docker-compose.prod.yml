@@ -1,7 +1,7 @@
-services:
-  postgres:
-    restart: unless-stopped
+# Override untuk produksi (dipakai bersama deploy/vps/docker-compose.app-only.yml).
+# Postgres tidak didefinisikan di sini; gunakan stack infra bersama (lihat README.docker.md).
 
+services:
   backend:
     restart: unless-stopped
 

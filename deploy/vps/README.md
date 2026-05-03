@@ -2,7 +2,7 @@
 
 Repo ini mendukung 2 cara deploy di VPS:
 
-- **Deploy dengan Docker Compose (rekomendasi)**: lihat `deploy/vps/README.docker.md`
+- **Deploy dengan Docker Compose (rekomendasi)**: lihat [`deploy/vps/README.docker.md`](README.docker.md). Di VPS, Postgres disarankan sebagai **satu container bersama** untuk banyak proyek; aplikasi ini memakai [`deploy/vps/docker-compose.app-only.yml`](docker-compose.app-only.yml) + [`deploy/vps/docker-compose.prod.yml`](docker-compose.prod.yml). Untuk stack Postgres infra ada contoh [`deploy/vps/docker-compose.postgres-infra.example.yml`](docker-compose.postgres-infra.example.yml).
 - **Deploy tanpa Docker** (systemd + Postgres native + Nginx): lanjutkan dokumen ini
 
 ---

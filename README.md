@@ -96,6 +96,6 @@ Catatan:
 
 ## Deploy ke VPS
 
-- **Docker Compose (rekomendasi)**: baca `deploy/vps/README.docker.md`
+- **Docker Compose (rekomendasi)**: baca `deploy/vps/README.docker.md` — di produksi umumnya **satu instance Postgres** di Docker dipakai bersama beberapa proyek; stack FutsalKita memakai `deploy/vps/docker-compose.app-only.yml`.
 - **Tanpa Docker (systemd + Nginx + Postgres)**: baca `deploy/vps/README.md`
 

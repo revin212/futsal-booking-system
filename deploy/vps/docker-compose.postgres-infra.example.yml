@@ -1,0 +1,35 @@
+# Contoh stack Postgres bersama di VPS (sekali per mesin, dipakai banyak proyek).
+# Salin ke mis. /opt/docker-infra/postgres/docker-compose.yml, buat .env di folder yang sama,
+# lalu: docker compose up -d
+#
+# Setelah container jalan, buat database + role per aplikasi (contoh FutsalKita) via psql.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ${POSTGRES_CONTAINER_NAME:-shared-postgres}
+    restart: unless-stopped
+    environment:
+      # Superuser awal (hanya dipakai saat volume data kosong / first init). Nama file .env
+      # infra sebaiknya terpisah dari .env aplikasi.
+      POSTGRES_USER: ${POSTGRES_INFRA_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_INFRA_PASSWORD:?set POSTGRES_INFRA_PASSWORD in .env}
+    volumes:
+      - postgres-shared-data:/var/lib/postgresql/data
+    networks:
+      - shared-db-net
+    # Jangan publish ke 0.0.0.0. Opsional: admin dari host saja
+    # ports:
+    #   - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+networks:
+  shared-db-net:
+    name: ${SHARED_DB_NETWORK:-shared-db-net}
+
+volumes:
+  postgres-shared-data:
