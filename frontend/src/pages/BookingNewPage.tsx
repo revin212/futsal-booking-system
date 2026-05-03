@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
 import { clearAccessToken, getAuthSession } from "@/api/authStorage";
+import { useMetodePembayaranAktifQuery } from "@/features/metode/queries";
 import { useLapanganListQuery } from "@/features/lapangan/queries";
 import { useSlotQuery } from "@/features/slot/queries";
 import { useCreateBookingMutation } from "@/features/booking/mutations";
@@ -18,12 +19,6 @@ function formatRupiah(n: number) {
   return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR" }).format(n);
 }
 
-const ADMIN_FEE: Record<"QRIS" | "TRANSFER" | "EMONEY", number> = {
-  QRIS: 1500,
-  TRANSFER: 2500,
-  EMONEY: 2000,
-};
-
 export function BookingNewPage() {
   const navigate = useNavigate();
   const [sp, setSp] = useSearchParams();
@@ -31,7 +26,9 @@ export function BookingNewPage() {
   const user = session?.user ?? null;
 
   const lapanganQ = useLapanganListQuery();
+  const metodeQ = useMetodePembayaranAktifQuery(Boolean(user));
   const isAdmin = user?.role === "ADMIN";
+  const metodeList = metodeQ.data ?? [];
 
   const initial = useMemo(() => {
     const lapanganId = Number(sp.get("lapanganId"));
@@ -48,10 +45,19 @@ export function BookingNewPage() {
   const [tanggal, setTanggal] = useState<string>(initial.tanggal);
   const [jamMulai, setJamMulai] = useState<string>(initial.jamMulai);
   const [durasiJam, setDurasiJam] = useState<number>(1);
-  const [metodePembayaran, setMetodePembayaran] = useState<"QRIS" | "TRANSFER" | "EMONEY" | "CASH">(
-    user?.role === "ADMIN" ? "CASH" : "QRIS"
-  );
+  const [metodeKode, setMetodeKode] = useState<string>("");
   const [noHp, setNoHp] = useState<string>(user?.noHp ?? "");
+
+  useEffect(() => {
+    if (!user || !metodeList.length || metodeKode) return;
+    if (isAdmin) {
+      const d = metodeList.find((m) => m.tanpaPaymentGateway) ?? metodeList[0];
+      if (d) setMetodeKode(d.kode);
+    } else {
+      const d = metodeList.find((m) => !m.tanpaPaymentGateway) ?? metodeList[0];
+      if (d) setMetodeKode(d.kode);
+    }
+  }, [user, metodeList, isAdmin, metodeKode]);
 
   useEffect(() => {
     if (user) return;
@@ -117,10 +123,11 @@ export function BookingNewPage() {
     return availableSlots.slice(idx, idx + durasiJam).reduce((sum, s) => sum + s.harga, 0);
   }, [availableSlots, durasiJam, jamMulai]);
 
+  const selectedMetode = useMemo(() => metodeList.find((m) => m.kode === metodeKode), [metodeList, metodeKode]);
   const estimasiBiayaAdmin = useMemo(() => {
-    if (metodePembayaran === "CASH") return 0;
-    return ADMIN_FEE[metodePembayaran as "QRIS" | "TRANSFER" | "EMONEY"];
-  }, [metodePembayaran]);
+    if (!selectedMetode) return 0;
+    return Number(selectedMetode.adminFee) || 0;
+  }, [selectedMetode]);
   const estimasiGrandTotal = useMemo(() => (estimasiTotal == null ? null : estimasiTotal + estimasiBiayaAdmin), [
     estimasiTotal,
     estimasiBiayaAdmin,
@@ -291,21 +298,24 @@ export function BookingNewPage() {
 
         <div className="space-y-2">
           <div className="text-sm font-semibold">Metode pembayaran</div>
-          <Select
-            value={metodePembayaran}
-            onValueChange={(v) => setMetodePembayaran(v as any)}
-            disabled={createMutation.isPending}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Pilih metode" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="QRIS">QRIS</SelectItem>
-              <SelectItem value="TRANSFER">Transfer Bank</SelectItem>
-              <SelectItem value="EMONEY">E-Money</SelectItem>
-              <SelectItem value="CASH">Bayar Cash</SelectItem>
-            </SelectContent>
-          </Select>
+          {metodeQ.isLoading ? (
+            <Skeleton className="h-10 w-full rounded-lg" />
+          ) : metodeList.length === 0 ? (
+            <div className="text-sm text-destructive">Belum ada metode pembayaran aktif. Hubungi admin.</div>
+          ) : (
+            <Select value={metodeKode} onValueChange={setMetodeKode} disabled={createMutation.isPending}>
+              <SelectTrigger>
+                <SelectValue placeholder="Pilih metode" />
+              </SelectTrigger>
+              <SelectContent>
+                {metodeList.map((m) => (
+                  <SelectItem key={m.kode} value={m.kode}>
+                    {m.namaLabel} ({m.kode})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
           <div className="rounded-xl border bg-muted/10 p-3 text-sm space-y-1">
             <div className="flex items-center justify-between">
               <div className="text-muted-foreground">Biaya admin</div>
@@ -317,9 +327,9 @@ export function BookingNewPage() {
                 {estimasiGrandTotal == null ? "-" : formatRupiah(estimasiGrandTotal)}
               </div>
             </div>
-            {metodePembayaran === "CASH" ? (
+            {selectedMetode?.tanpaPaymentGateway ? (
               <div className="text-xs text-muted-foreground">
-                Pembayaran cash tanpa payment gateway. Booking akan diproses sesuai status verifikasi admin.
+                Tanpa payment gateway — booking diproses sesuai aturan verifikasi admin / langsung LUNAS untuk admin.
               </div>
             ) : null}
           </div>
@@ -332,13 +342,17 @@ export function BookingNewPage() {
             onClick={async () => {
               if (!validateBookingForm()) return;
               if (!lapanganId) return;
+              if (!metodeKode.trim()) {
+                toast.error("Pilih metode pembayaran.");
+                return;
+              }
               try {
                 const payload = {
                   lapanganId,
                   tanggalMain: tanggal,
                   jamMulai,
                   durasiJam,
-                  metodePembayaran,
+                  metodePembayaran: metodeKode,
                   ...(isAdmin ? {} : { noHp: noHp.trim() }),
                   ...(isAdmin && noHp.trim() ? { noHp: noHp.trim() } : {}),
                 };
@@ -347,8 +361,8 @@ export function BookingNewPage() {
                   setStoredUser({ ...user, noHp: noHp.trim() });
                 }
                 navigate(`/booking/${res.id}`, { replace: true });
-                if (metodePembayaran === "CASH") {
-                  toast.success(res.status === "LUNAS" ? "Booking cash berhasil (LUNAS)." : "Booking cash dibuat. Menunggu verifikasi admin.");
+                if (selectedMetode?.tanpaPaymentGateway) {
+                  toast.success(res.status === "LUNAS" ? "Booking berhasil (LUNAS)." : "Booking dibuat. Menunggu verifikasi admin.");
                 } else {
                   toast.success(`Booking dibuat. Lanjutkan pembayaran untuk konfirmasi.`);
                 }

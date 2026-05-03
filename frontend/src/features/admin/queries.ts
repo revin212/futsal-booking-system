@@ -12,9 +12,7 @@ import {
   getAdminLapanganList,
   getAdminMetrics,
   getAdminNotificationLog,
-  getAdminPaymentIntents,
-  getAdminRefundList,
-  getAdminSettings,
+  getAdminMetodePembayaran,
   getAdminUserDetail,
   getAdminUsers,
 } from "@/api/adminApi";
@@ -102,14 +100,6 @@ export function useAdminFinanceReportQuery(start: string, end: string, enabled: 
   });
 }
 
-export function useAdminRefundListQuery(status: "PENDING" | "REFUNDED" | "REJECTED", enabled: boolean) {
-  return useQuery({
-    queryKey: ["admin", "refund", status],
-    queryFn: () => getAdminRefundList(status),
-    enabled,
-  });
-}
-
 export function useAdminLapanganListQuery(enabled: boolean) {
   return useQuery({
     queryKey: ["admin", "lapangan", "list"],
@@ -134,10 +124,10 @@ export function useAdminLapanganJamQuery(lapanganId: number, enabled: boolean) {
   });
 }
 
-export function useAdminPaymentIntentsQuery(params: { start?: string; end?: string; status?: string }, enabled: boolean) {
+export function useAdminMetodePembayaranQuery(enabled: boolean) {
   return useQuery({
-    queryKey: ["admin", "payment-intent", params],
-    queryFn: () => getAdminPaymentIntents(params),
+    queryKey: ["admin", "metode-pembayaran", "list"],
+    queryFn: getAdminMetodePembayaran,
     enabled,
   });
 }
@@ -158,10 +148,3 @@ export function useAdminUserDetailQuery(id: string | undefined, enabled: boolean
   });
 }
 
-export function useAdminSettingsQuery(enabled: boolean) {
-  return useQuery({
-    queryKey: ["admin", "settings"],
-    queryFn: getAdminSettings,
-    enabled,
-  });
-}

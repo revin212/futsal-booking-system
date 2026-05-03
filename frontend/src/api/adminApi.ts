@@ -56,22 +56,7 @@ export type FinanceReport = {
   avgOccupancyPercent: number;
   revenuePerLapangan: { lapanganNama: string; bookings: number; revenue: number; jamBooked: number }[];
   peakHourHeatmap: { dayOfWeek: number; hour: number; count: number }[];
-  topCustomers: { userId: string; totalPaid: number }[];
-};
-
-export type PaymentIntentAdmin = {
-  id: string;
-  bookingId: number;
-  provider: string;
-  status: string;
-  amount: number;
-  currency: string;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type SettingsResponse = {
-  entries: Record<string, string>;
+  topCustomers: { namaLengkap: string; noWhatsapp: string; totalPaid: number }[];
 };
 
 export type UserAdmin = {
@@ -121,22 +106,6 @@ export async function patchAdminCancelBooking(id: number, alasan: string) {
     method: "PATCH",
     auth: true,
     body: JSON.stringify({ alasan }),
-  });
-}
-
-export async function postAdminRefundRequest(id: number, amount: number, reason?: string) {
-  return apiFetch<Booking>(`/admin/booking/${id}/refund/request`, {
-    method: "POST",
-    auth: true,
-    body: JSON.stringify({ amount, reason }),
-  });
-}
-
-export async function patchAdminRefundProcess(id: number, action: "APPROVE" | "REJECT", processedAmount?: number, note?: string) {
-  return apiFetch<Booking>(`/admin/booking/${id}/refund`, {
-    method: "PATCH",
-    auth: true,
-    body: JSON.stringify({ action, processedAmount, note }),
   });
 }
 
@@ -205,11 +174,6 @@ export async function getAdminFinanceReport(start: string, end: string) {
   return apiFetch<FinanceReport>(`/admin/keuangan/report?${qs}`, { auth: true });
 }
 
-export async function getAdminRefundList(status: "PENDING" | "REFUNDED" | "REJECTED") {
-  const qs = new URLSearchParams({ status }).toString();
-  return apiFetch<Booking[]>(`/admin/refund?${qs}`, { auth: true });
-}
-
 export async function getAdminLapanganList() {
   return apiFetch<LapanganListItem[]>("/admin/lapangan", { auth: true });
 }
@@ -273,13 +237,55 @@ export async function putAdminLapanganJam(
   });
 }
 
-export async function getAdminPaymentIntents(params?: { start?: string; end?: string; status?: string }) {
-  const qs = new URLSearchParams();
-  if (params?.start) qs.set("start", params.start);
-  if (params?.end) qs.set("end", params.end);
-  if (params?.status) qs.set("status", params.status);
-  const suffix = qs.toString() ? `?${qs}` : "";
-  return apiFetch<PaymentIntentAdmin[]>(`/admin/payment-intent${suffix}`, { auth: true });
+export type MetodePembayaranAdmin = {
+  id: number;
+  kode: string;
+  namaLabel: string;
+  adminFee: number;
+  urutan: number;
+  aktif: boolean;
+  tanpaPaymentGateway: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export async function getAdminMetodePembayaran() {
+  return apiFetch<MetodePembayaranAdmin[]>("/admin/metode-pembayaran", { auth: true });
+}
+
+export async function postAdminMetodePembayaran(body: {
+  kode: string;
+  namaLabel: string;
+  adminFee: number;
+  urutan: number;
+  aktif: boolean;
+}) {
+  return apiFetch<MetodePembayaranAdmin>("/admin/metode-pembayaran", {
+    method: "POST",
+    auth: true,
+    body: JSON.stringify(body),
+  });
+}
+
+export async function putAdminMetodePembayaran(
+  id: number,
+  body: {
+    kode: string;
+    namaLabel: string;
+    adminFee: number;
+    urutan: number;
+    aktif: boolean;
+  }
+) {
+  return apiFetch<MetodePembayaranAdmin>(`/admin/metode-pembayaran/${id}`, {
+    method: "PUT",
+    auth: true,
+    body: JSON.stringify(body),
+  });
+}
+
+export async function deleteAdminMetodePembayaran(id: number) {
+  return apiFetch<MetodePembayaranAdmin>(`/admin/metode-pembayaran/${id}`, { method: "DELETE", auth: true });
 }
 
 export async function getAdminUsers(params: { page?: number; size?: number; q?: string; role?: string; blocked?: boolean }) {
@@ -314,25 +320,5 @@ export async function patchAdminUserRole(id: string, role: string) {
     method: "PATCH",
     auth: true,
     body: JSON.stringify({ role }),
-  });
-}
-
-export async function getAdminSettings() {
-  return apiFetch<SettingsResponse>("/admin/settings", { auth: true });
-}
-
-export async function patchAdminSettings(entries: { key: string; value: string }[]) {
-  return apiFetch<SettingsResponse>("/admin/settings", {
-    method: "PATCH",
-    auth: true,
-    body: JSON.stringify({ entries }),
-  });
-}
-
-export async function patchAdminPassword(oldPassword: string, newPassword: string) {
-  return apiFetch<void>("/admin/profile/password", {
-    method: "PATCH",
-    auth: true,
-    body: JSON.stringify({ oldPassword, newPassword }),
   });
 }
