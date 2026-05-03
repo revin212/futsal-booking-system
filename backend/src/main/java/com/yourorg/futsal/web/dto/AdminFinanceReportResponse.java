@@ -15,5 +15,5 @@ public record AdminFinanceReportResponse(
 
   public record HeatCell(int dayOfWeek, int hour, int count) {}
 
-  public record TopCustomer(String userId, BigDecimal totalPaid) {}
+  public record TopCustomer(String namaLengkap, String noWhatsapp, BigDecimal totalPaid) {}
 }

@@ -1,7 +1,9 @@
 package com.yourorg.futsal.service;
 
+import com.yourorg.futsal.domain.entity.AppUser;
 import com.yourorg.futsal.domain.entity.Booking;
 import com.yourorg.futsal.domain.enums.BookingStatus;
+import com.yourorg.futsal.domain.repo.AppUserRepository;
 import com.yourorg.futsal.domain.repo.BookingRepository;
 import com.yourorg.futsal.web.dto.AdminFinanceReportResponse;
 import com.yourorg.futsal.web.dto.AdminFinanceSummaryRow;
@@ -17,14 +19,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AdminFinanceService {
   private final BookingRepository bookingRepo;
+  private final AppUserRepository userRepo;
 
-  public AdminFinanceService(BookingRepository bookingRepo) {
+  public AdminFinanceService(BookingRepository bookingRepo, AppUserRepository userRepo) {
     this.bookingRepo = bookingRepo;
+    this.userRepo = userRepo;
   }
 
   public List<AdminFinanceSummaryRow> summary(LocalDate start, LocalDate end, String groupBy) {
@@ -110,10 +115,20 @@ public class AdminFinanceService {
         .sorted(Comparator.comparing(AdminFinanceReportResponse.HeatCell::dayOfWeek).thenComparing(AdminFinanceReportResponse.HeatCell::hour))
         .toList();
 
-    List<AdminFinanceReportResponse.TopCustomer> top = userTotals.entrySet().stream()
+    List<Map.Entry<UUID, BigDecimal>> topEntries = userTotals.entrySet().stream()
         .sorted(Comparator.comparing((Map.Entry<UUID, BigDecimal> e) -> e.getValue()).reversed())
         .limit(10)
-        .map(e -> new AdminFinanceReportResponse.TopCustomer(e.getKey().toString(), e.getValue()))
+        .toList();
+    List<UUID> topIds = topEntries.stream().map(Map.Entry::getKey).toList();
+    Map<UUID, AppUser> usersById =
+        userRepo.findAllById(topIds).stream().collect(Collectors.toMap(AppUser::getId, u -> u));
+    List<AdminFinanceReportResponse.TopCustomer> top = topEntries.stream()
+        .map(e -> {
+          AppUser u = usersById.get(e.getKey());
+          String nama = u != null ? u.getNamaLengkap() : "—";
+          String wa = u != null && u.getNoHp() != null && !u.getNoHp().isBlank() ? u.getNoHp() : "—";
+          return new AdminFinanceReportResponse.TopCustomer(nama, wa, e.getValue());
+        })
         .toList();
 
     long days = Duration.between(start.atStartOfDay(), end.plusDays(1).atStartOfDay()).toDays();
