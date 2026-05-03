@@ -8,8 +8,6 @@ import {
   ListChecks,
   LogOut,
   Receipt,
-  RefreshCw,
-  Settings2,
   Shield,
   Users,
   Wallet,
@@ -111,10 +109,6 @@ export function AdminSidebar({ onNavigate }: Props) {
             <Wallet className="h-4 w-4 shrink-0" />
             Penjualan
           </NavLink>
-          <NavLink to="/admin/keuangan/refund" onClick={wrapNavigate} className={({ isActive }) => cn(navLink, isActive && navActive)}>
-            <RefreshCw className="h-4 w-4 shrink-0" />
-            Refund
-          </NavLink>
           <NavLink to="/admin/keuangan/invoice" onClick={wrapNavigate} className={({ isActive }) => cn(navLink, isActive && navActive)}>
             <Receipt className="h-4 w-4 shrink-0" />
             Invoice
@@ -135,7 +129,7 @@ export function AdminSidebar({ onNavigate }: Props) {
         <div className="px-2">
           <NavLink to="/admin/payment-gateway" onClick={wrapNavigate} className={({ isActive }) => cn(navLink, isActive && navActive)}>
             <CreditCard className="h-4 w-4 shrink-0" />
-            Payment Gateway (Mock)
+            Cara bayar & biaya admin
           </NavLink>
         </div>
 
@@ -144,10 +138,6 @@ export function AdminSidebar({ onNavigate }: Props) {
             <Users className="h-4 w-4 shrink-0" />
             Pelanggan
           </NavLink>
-          <NavLink to="/admin/sistem/pengaturan" onClick={wrapNavigate} className={({ isActive }) => cn(navLink, isActive && navActive)}>
-            <Settings2 className="h-4 w-4 shrink-0" />
-            Pengaturan
-          </NavLink>
           <NavLink to="/admin/sistem/notifikasi" onClick={wrapNavigate} className={({ isActive }) => cn(navLink, isActive && navActive)}>
             <Bell className="h-4 w-4 shrink-0" />
             Notifikasi
@@ -155,10 +145,6 @@ export function AdminSidebar({ onNavigate }: Props) {
           <NavLink to="/admin/sistem/audit-log" onClick={wrapNavigate} className={({ isActive }) => cn(navLink, isActive && navActive)}>
             <ClipboardList className="h-4 w-4 shrink-0" />
             Audit Log
-          </NavLink>
-          <NavLink to="/admin/sistem/profil" onClick={wrapNavigate} className={({ isActive }) => cn(navLink, isActive && navActive)}>
-            <Shield className="h-4 w-4 shrink-0" />
-            Profil Admin
           </NavLink>
         </Section>
       </nav>

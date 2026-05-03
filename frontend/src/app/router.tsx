@@ -20,7 +20,6 @@ import { InvoicePage } from "@/pages/InvoicePage";
 import { AdminNotifikasiPage } from "@/pages/AdminNotifikasiPage";
 import { AdminAuditLogPage } from "@/pages/AdminAuditLogPage";
 import { AdminPenjualanPage } from "@/pages/AdminPenjualanPage";
-import { AdminRefundPage } from "@/pages/AdminRefundPage";
 import { AdminInvoiceListPage } from "@/pages/AdminInvoiceListPage";
 import { AdminReportPage } from "@/pages/AdminReportPage";
 import { AdminLapanganListPage } from "@/pages/AdminLapanganListPage";
@@ -30,8 +29,6 @@ import { AdminJamOperasionalPage } from "@/pages/AdminJamOperasionalPage";
 import { AdminPaymentGatewayPage } from "@/pages/AdminPaymentGatewayPage";
 import { AdminPelangganPage } from "@/pages/AdminPelangganPage";
 import { AdminPelangganDetailPage } from "@/pages/AdminPelangganDetailPage";
-import { AdminPengaturanPage } from "@/pages/AdminPengaturanPage";
-import { AdminProfilPage } from "@/pages/AdminProfilPage";
 
 export const router = createBrowserRouter([
   {
@@ -69,7 +66,6 @@ export const router = createBrowserRouter([
             element: <Outlet />,
             children: [
               { path: "penjualan", element: <AdminPenjualanPage /> },
-              { path: "refund", element: <AdminRefundPage /> },
               { path: "invoice", element: <AdminInvoiceListPage /> },
               { path: "report", element: <AdminReportPage /> },
             ],
@@ -98,10 +94,8 @@ export const router = createBrowserRouter([
             children: [
               { path: "pelanggan", element: <AdminPelangganPage /> },
               { path: "pelanggan/:id", element: <AdminPelangganDetailPage /> },
-              { path: "pengaturan", element: <AdminPengaturanPage /> },
               { path: "notifikasi", element: <AdminNotifikasiPage /> },
               { path: "audit-log", element: <AdminAuditLogPage /> },
-              { path: "profil", element: <AdminProfilPage /> },
             ],
           },
         ],
