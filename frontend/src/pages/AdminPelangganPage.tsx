@@ -69,6 +69,7 @@ export function AdminPelangganPage() {
               <TableRow>
                 <TableHead>Nama</TableHead>
                 <TableHead>Email</TableHead>
+                <TableHead>No. WhatsApp</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead />
@@ -79,6 +80,7 @@ export function AdminPelangganPage() {
                 <TableRow key={u.id}>
                   <TableCell>{u.namaLengkap}</TableCell>
                   <TableCell className="text-xs">{u.email}</TableCell>
+                  <TableCell className="text-xs">{u.noHp ?? "—"}</TableCell>
                   <TableCell>{u.role}</TableCell>
                   <TableCell>
                     <Badge variant={u.isBlocked ? "destructive" : "secondary"}>{u.isBlocked ? "Blocked" : "OK"}</Badge>
