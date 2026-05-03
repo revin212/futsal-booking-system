@@ -41,6 +41,7 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.GET, "/api/lapangan/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/slot**").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/kalender**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/metode-pembayaran").permitAll()
             .requestMatchers("/actuator/health").permitAll()
             .anyRequest().authenticated()
         )

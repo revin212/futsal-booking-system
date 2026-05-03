@@ -13,10 +13,7 @@ public record CreateBookingRequest(
     @NotNull LocalTime jamMulai,
     @NotNull @Min(1) Integer durasiJam,
     @NotBlank
-    @Pattern(
-        regexp = "(?i)^(QRIS|TRANSFER|EMONEY|CASH)$",
-        message = "metode pembayaran harus QRIS, TRANSFER, EMONEY, atau CASH"
-    )
+    @Pattern(regexp = "(?i)^[A-Z0-9_-]{1,32}$", message = "Kode metode pembayaran tidak valid.")
     String metodePembayaran,
     @Pattern(
         regexp = "^(\\+62|62|0)\\d{9,13}$",

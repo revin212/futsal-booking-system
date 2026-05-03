@@ -2,6 +2,7 @@ package com.yourorg.futsal.service;
 
 import com.yourorg.futsal.domain.entity.Booking;
 import com.yourorg.futsal.domain.entity.JamOperasional;
+import com.yourorg.futsal.domain.entity.MetodePembayaran;
 import com.yourorg.futsal.domain.entity.AppUser;
 import com.yourorg.futsal.domain.enums.BookingStatus;
 import com.yourorg.futsal.domain.enums.UserRole;
@@ -48,6 +49,7 @@ public class BookingService {
   private final AppUserRepository userRepo;
   private final PengaturanSistemRepository settingsRepo;
   private final PricingService pricingService;
+  private final MetodePembayaranService metodePembayaranService;
   private final WhatsappNotificationService waService;
   private final AuditLogService auditLogService;
 
@@ -58,6 +60,7 @@ public class BookingService {
       AppUserRepository userRepo,
       PengaturanSistemRepository settingsRepo,
       PricingService pricingService,
+      MetodePembayaranService metodePembayaranService,
       WhatsappNotificationService waService,
       AuditLogService auditLogService
   ) {
@@ -67,6 +70,7 @@ public class BookingService {
     this.userRepo = userRepo;
     this.settingsRepo = settingsRepo;
     this.pricingService = pricingService;
+    this.metodePembayaranService = metodePembayaranService;
     this.waService = waService;
     this.auditLogService = auditLogService;
   }
@@ -133,20 +137,9 @@ public class BookingService {
       t = t.plusHours(1);
     }
 
-    String metodePembayaran = metodePembayaranRaw == null ? "" : metodePembayaranRaw.trim().toUpperCase();
-    if (!metodePembayaran.equals("QRIS")
-        && !metodePembayaran.equals("TRANSFER")
-        && !metodePembayaran.equals("EMONEY")
-        && !metodePembayaran.equals("CASH")) {
-      throw new ApiException(HttpStatus.BAD_REQUEST, "Bad Request", "Metode pembayaran tidak valid.");
-    }
-
-    BigDecimal adminFee = switch (metodePembayaran) {
-      case "QRIS" -> BigDecimal.valueOf(1500);
-      case "TRANSFER" -> BigDecimal.valueOf(2500);
-      case "EMONEY" -> BigDecimal.valueOf(2000);
-      default -> BigDecimal.ZERO; // CASH
-    };
+    MetodePembayaran metode = metodePembayaranService.requireActiveForBooking(metodePembayaranRaw);
+    BigDecimal adminFee = metode.getAdminFee() != null ? metode.getAdminFee() : BigDecimal.ZERO;
+    String metodePembayaran = metode.getKode();
 
     Booking b = new Booking();
     b.setUserId(userId);
@@ -158,10 +151,10 @@ public class BookingService {
     b.setMetodePembayaran(metodePembayaran);
     b.setAdminFee(adminFee);
 
-    // CASH flow:
-    // - ADMIN: booking langsung LUNAS (tanpa payment gateway).
+    // Tanpa payment gateway (mis. tunai):
+    // - ADMIN: booking langsung LUNAS.
     // - USER: booking MENUNGGU_VERIFIKASI (admin verifikasi di halaman admin).
-    if ("CASH".equals(metodePembayaran)) {
+    if (metode.isTanpaPaymentGateway()) {
       BigDecimal grandTotal = total.add(adminFee);
       b.setPaidAmount(grandTotal);
       if (actorIsAdmin) {
